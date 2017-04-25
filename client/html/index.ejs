@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <title><%- htmlWebpackPlugin.options.title %></title>
+
+        <meta name="description" content="<%- htmlWebpackPlugin.options.description %>" />
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, minimal-ui" />
+
+        <meta property="og:url" content="<%- htmlWebpackPlugin.options.url %>">
+        <!-- <meta property="og:image" content="http://pixiplayground.com/facebook.png">
+        <meta property="og:image:width" content="470">
+        <meta property="og:image:height" content="470"> -->
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="<%- htmlWebpackPlugin.options.title %>">
+        <meta property="og:description" content="<%- htmlWebpackPlugin.options.description %>">
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="/manifest.json">
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="theme-color" content="#ffffff">
+    </head>
+    <body>
+        <div id="jsx-wrapper"></div>
+    </body>
+</html>

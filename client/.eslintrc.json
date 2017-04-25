@@ -1,0 +1,41 @@
+{
+    "extends": "./node_modules/@englercj/code-style/.eslintrc.json",
+    "env": {
+        "commonjs": true,
+        "browser": true
+    },
+    "plugins": [
+        "react"
+    ],
+    "settings": {
+        "react": {
+            "pragma": "h"
+        }
+    },
+    "parserOptions": {
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "jsx": true
+        }
+    },
+    "rules": {
+        "curly": [2, "multi-line"],
+        "max-params": [2, 7],
+        "no-magic-numbers": 0,
+        "no-eq-null": 0,
+        "no-prototype-builtins": 0,
+        "eqeqeq": [2, "always", { "null": "ignore" }],
+        "require-jsdoc": 0,
+        "react/jsx-uses-vars": 2,
+        "react/jsx-uses-react": 2,
+        "react/jsx-no-bind": [2, {
+            "allowArrowFunctions": true,
+            "allowBind": false,
+            "ignoreRefs": true
+        }],
+        "react/no-did-update-set-state": 2,
+        "react/no-unknown-property": [2, {"ignore" : ["class"]}],
+        "react/react-in-jsx-scope": 2
+    }
+}

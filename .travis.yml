@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+    - "6.10.x"
+
+cache:
+  directories:
+    - client/node_modules
+
+install: ./build/install-dependencies.sh
+
+script: ./build/build-application.sh
+
+deploy:
+  - provider: s3
+    access_key_id: $S3_ACCESS_KEY_ID
+    secret_access_key: $S3_SECRET_ACCESS_KEY
+    bucket: "pixi-playground-builds"
+    skip_cleanup: true
+    region: eu-east-2
+    local_dir: dist
