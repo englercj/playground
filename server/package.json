@@ -16,21 +16,32 @@
   "scripts": {
     "dev": "nodemon ./lib/server.js | bunyan",
     "start": "node ./lib/app.js",
-    "lint": "eslint lib"
+    "lint": "eslint lib",
+    "build": "tsc -p tsconfig.json --outDir lib"
   },
   "devDependencies": {
     "@englercj/code-style": "^1.0.6",
+    "@types/aws-sdk": "^2.7.0",
+    "@types/bunyan": "0.0.36",
+    "@types/http-codes": "^1.0.1",
+    "@types/restify": "^4.3.3",
+    "@types/sequelize": "^4.0.57",
+    "@types/umzug": "^1.8.31",
     "eslint": "^3.19.0",
     "nodemon": "^1.11.0",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.1",
+    "typescript": "^2.3.4"
   },
   "dependencies": {
-    "aws-sdk": "^2.45.0",
-    "bunyan": "^1.8.1",
-    "bunyan-cloudwatch": "^2.0.0",
+    "aws-sdk": "^2.62.0",
+    "bluebird": "^3.5.0",
+    "bunyan": "^1.8.10",
+    "bunyan-cloudwatch": "^2.2.0",
     "http-codes": "^1.0.0",
+    "reflect-metadata": "^0.1.10",
     "restify": "^4.3.0",
-    "shortid": "^2.2.8"
+    "sequelize": "^4.0.0-2",
+    "sequelize-typescript": "^0.3.2"
   },
   "engines": {
     "node": "^6.10.0"

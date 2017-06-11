@@ -1,1 +1,30 @@
-body {}
+@import 'spinner.less';
+@import 'editor.less';
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.fullscreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.fullheight {
+    height: 100%;
+}
+
+.hidden {
+    display: none;
+}

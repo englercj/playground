@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "history": "registry:npm/history#2.0.0+20160607172317"
+  }
+}

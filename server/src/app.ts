@@ -1,14 +1,13 @@
-/* eslint-disable global-require */
-'use strict';
-
 // Include the cluster module
-const cluster = require('cluster');
-const logger = require('./logger');
+import * as cluster from 'cluster';
+import * as os from 'os';
+import logger from './lib/logger';
+import server from './server';
 
 // Code to run if we're in the master process
 if (cluster.isMaster) {
     // Count the machine's CPUs
-    const cpuCount = require('os').cpus().length;
+    const cpuCount = os.cpus().length;
 
     // Create a worker for each CPU
     for (let i = 0; i < cpuCount; ++i) {
@@ -24,5 +23,5 @@ if (cluster.isMaster) {
 }
 // Code to run if we're in a worker process
 else {
-    require('./server');
+    server.start();
 }

@@ -17,4 +17,21 @@ deploy:
     bucket: "pixi-playground-builds"
     skip_cleanup: true
     region: eu-east-2
+    cache_control: "max-age=60"
     local_dir: dist
+    upload-dir: "$TRAVIS_BRANCH"
+    on:
+        all_branches: true
+        condition: -z $TRAVIS_TAG
+  - provider: s3
+    access_key_id: $S3_ACCESS_KEY_ID
+    secret_access_key: $S3_SECRET_ACCESS_KEY
+    bucket: "pixi-playground-builds"
+    skip_cleanup: true
+    region: eu-east-2
+    cache_control: "max-age=31556926"
+    local_dir: dist
+    upload-dir: "$TRAVIS_BRANCH"
+    on:
+        all_branches: true
+        condition: $TRAVIS_TAG

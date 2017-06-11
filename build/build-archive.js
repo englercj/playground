@@ -9,14 +9,14 @@ catch (e) {
 }
 
 // create a file to stream archive data to.
-var output = fs.createWriteStream('dist/latest.zip');
+var output = fs.createWriteStream('dist/app.zip');
 var archive = archiver('zip', {
     zlib: { level: 9 } // Sets the compression level.
 });
 
 // listen for all archive data to be written
 output.on('close', function () {
-    console.log(`${archive.pointer()} bytes written to latest.zip`);
+    console.log(`${archive.pointer()} bytes written to app.zip`);
 });
 
 // pipe archive data to the file

@@ -1,9 +1,18 @@
-'use strict';
+import * as CODES from 'http-codes';
+import * as data from './lib/data';
+import * as restify from 'restify';
 
-const CODES     = require('http-codes');
-const data      = require('./data');
+export default function routesInit(app: restify.Server) {
+    /**
+     * GET /health
+     *
+     * Returns 200 for AWS health checks.
+     */
+    app.get('/api/health', (req, res, next) => {
+        res.send(CODES.OK);
+        next();
+    });
 
-module.exports = function routesInit(app) {
     /**
      * GET /:id
      *
@@ -15,27 +24,28 @@ module.exports = function routesInit(app) {
      */
     app.get('/api/:id', (req, res, next) => {
         const { id } = req.params;
-        const logState = { params: { id } };
+        const logState: any = { params: { id } };
 
-        data.getPlayground(id, 0, (err, item, contents) => {
-            if (err) {
+        data.getPlayground(id, 0)
+            .then((value) => {
+                if (!value) {
+                    const msg = `Unable to find playground with ID: ${id}`;
+
+                    req.log.info(logState, msg);
+                    res.json(CODES.NOT_FOUND, { msg });
+                }
+                else {
+                    req.log.debug(`Loaded playground using ID: ${id}`);
+                    res.json(CODES.OK, value);
+                }
+
+                next();
+            })
+            .catch((err) => {
                 logState.err = err;
                 req.log.error(logState, 'Failed to get playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, { msg: `There was an error trying to load playground ${id}@0` });
-            }
-            else if (!item) {
-                const msg = `Unable to find playground with ID: ${id}`;
-
-                req.log.info(logState, msg);
-                res.json(CODES.NOT_FOUND, { msg });
-            }
-            else {
-                req.log.debug(`Loaded playground using ID: ${id}`);
-                res.json(CODES.OK, { item, contents });
-            }
-
-            next();
-        });
+            });
     });
 
     /**
@@ -52,7 +62,7 @@ module.exports = function routesInit(app) {
         const { id, version } = req.params;
         const versionNum = parseInt(version, 10);
 
-        const logState = { params: { id, version } };
+        const logState: any = { params: { id, version } };
 
         if (isNaN(versionNum)) {
             req.log.error(logState, 'Failed to get playground, version is NaN.');
@@ -64,27 +74,28 @@ module.exports = function routesInit(app) {
             return;
         }
 
-        data.getPlayground(id, version, (err, item, contents) => {
-            if (err) {
+        data.getPlayground(id, version)
+            .then((value) => {
+                if (!value) {
+                    const msg = `No playground found with ID: ${id}, or no version ${version} exists.`;
+
+                    req.log.info(logState, msg);
+                    res.json(CODES.NOT_FOUND, { msg });
+                }
+                else {
+                    req.log.debug(`Loaded playground using ID: ${id}`);
+                    res.json(CODES.OK, value);
+                }
+
+                next();
+            })
+            .catch((err) => {
                 logState.err = err;
                 req.log.error(logState, 'Failed to get playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, {
                     msg: `There was an error trying to load playground ${id}@${version}`,
                 });
-            }
-            else if (!item) {
-                const msg = `No playground found with ID: ${id}, or no version ${version} exists.`;
-
-                req.log.info(logState, msg);
-                res.json(CODES.NOT_FOUND, { msg });
-            }
-            else {
-                req.log.debug(`Loaded playground using ID: ${id}`);
-                res.json(CODES.OK, { item, contents });
-            }
-
-            next();
-        });
+            });
     });
 
     /**
@@ -97,9 +108,10 @@ module.exports = function routesInit(app) {
      * 500: Server error, some error happened when trying to save the playground.
      */
     app.post('/api', (req, res, next) => {
-        const { name, author, isPublic, contents } = req.body;
+        const { name, author, isPublic, pixiVersion, contents } = req.body;
+        const params = { name, author, isPublic, pixiVersion };
 
-        const logState = { params: { name, author, isPublic, contentsEmpty: !contents } };
+        const logState: any = { params, contentsEmpty: !contents };
 
         if (!name || !author || !contents) {
             req.log.error(logState, 'Failed to save playground, invalid params');
@@ -111,19 +123,18 @@ module.exports = function routesInit(app) {
             return;
         }
 
-        data.createPlayground(name, author, isPublic, false, false, contents, (err, item, contents) => {
-            if (err) {
+        data.createPlayground(params, contents)
+            .then((value) => {
+                req.log.debug(`Created a new playground: ${value.item.id}`);
+                res.json(CODES.OK, value);
+
+                next();
+            })
+            .catch((err) => {
                 logState.err = err;
                 req.log.error(logState, 'Failed to update playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
-            }
-            else {
-                req.log.debug(`Created a new playground: ${item.id}`);
-                res.json(CODES.OK, { item, contents });
-            }
-
-            next();
-        });
+            });
     });
 
     /**
@@ -137,9 +148,10 @@ module.exports = function routesInit(app) {
      */
     app.post('/api/:id', (req, res, next) => {
         const id = req.params.id;
-        const { name, author, isPublic, contents } = req.body;
+        const { name, author, isPublic, pixiVersion, contents } = req.body;
+        const params = { name, author, isPublic, pixiVersion };
 
-        const logState = { params: { id, name, author, isPublic, contentsEmpty: !contents } };
+        const logState: any = { params, contentsEmpty: !contents };
 
         if (!name || !author || !contents) {
             req.log.error(logState, 'Failed save playground, invalid params');
@@ -151,24 +163,25 @@ module.exports = function routesInit(app) {
             return;
         }
 
-        data.createPlaygroundVersion(id, name, author, isPublic, false, false, contents, (err, item, contents) => {
-            if (err) {
+        data.createPlaygroundVersion(id, params, contents)
+            .then((value) => {
+                if (!value) {
+                    const msg = `No playground found with ID: ${id}.`;
+
+                    req.log.info(logState, msg);
+                    res.json(CODES.NOT_FOUND, { msg });
+                }
+                else {
+                    req.log.debug(`Created new playground version using ID: ${id}, added version: ${value.item.version}`);
+                    res.json(CODES.OK, value);
+                }
+
+                next();
+            })
+            .catch((err) => {
                 logState.err = err;
                 req.log.error(logState, 'Failed to save playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
-            }
-            else if (!item) {
-                const msg = `No playground found with ID: ${id}.`;
-
-                req.log.info(logState, msg);
-                res.json(CODES.NOT_FOUND, { msg });
-            }
-            else {
-                req.log.debug(`Created new playground version using ID: ${id}, added version ${item.version}`);
-                res.json(CODES.OK, { item, contents });
-            }
-
-            next();
-        });
+            });
     });
 };

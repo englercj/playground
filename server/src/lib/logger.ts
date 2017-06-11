@@ -1,10 +1,8 @@
-'use strict';
+import * as cluster from 'cluster';
+import * as createCWStream from 'bunyan-cloudwatch';
+import * as config from '../config';
 
-const cluster = require('cluster');
-const createCWStream = require('bunyan-cloudwatch');
-const config = require('./config');
-
-const bunyanConfig = {
+const bunyanConfig: any = {
     name: 'service',
     level: 'debug',
     region: config.region,
@@ -20,8 +18,8 @@ if (config.isProductionEnv) {
         {
             type: 'raw',
             stream: createCWStream({
-                logGroupName: 'PIXI_Playground',
-                logStreamName: 'App_Server',
+                logGroupName: config.logGroupName,
+                logStreamName: config.logStreamName,
                 cloudWatchLogsOptions: {
                     region: config.region,
                 },
@@ -29,8 +27,8 @@ if (config.isProductionEnv) {
         },
     ];
 }
-else if (config.env === 'test') {
+else if (config.isTestEnv) {
     bunyanConfig.level = 'error';
 }
 
-module.exports = require('bunyan').createLogger(bunyanConfig);
+export default (require('bunyan').createLogger(bunyanConfig));

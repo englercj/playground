@@ -11,40 +11,33 @@ const extractLess = new ExtractTextPlugin(`${ASSET_PATH}/[hash].css`);
 module.exports = {
     devtool: 'source-map',
     recordsPath: path.join(__dirname, '.records'),
-    entry: './src/index.js',
+    entry: {
+        index: './src/index.ts',
+        results: './src/results.ts',
+    },
     output: {
         path: path.join(__dirname, 'public'),
         publicPath: '/',
-        filename: `${ASSET_PATH}/[chunkhash].js`,
+        filename: `${ASSET_PATH}/[name].[chunkhash].js`,
         chunkFilename: `${ASSET_PATH}/[id].[chunkhash].js`,
     },
     resolve: {
-        extensions: ['.js', '.jsx'],
-        alias: {
-            react: 'preact-compat',
-            'react-dom': 'preact-compat',
-            'react-ace': path.join(__dirname, 'node_modules', 'react-ace', 'src', 'ace.jsx'),
-        },
+        extensions: ['.ts', '.tsx', '.js'],
     },
     module: {
         rules: [
             {
-                test: /\.jsx?$/,
+                test: /\.tsx?$/,
                 include: [
+                    path.resolve(__dirname, 'node_modules/monaco-editor/monaco.d.ts'),
+                    path.resolve(__dirname, 'node_modules/preact-router/dist/index.d.ts'),
+                    path.resolve(__dirname, '../typings'),
+                    path.resolve(__dirname, 'typings'),
                     path.resolve(__dirname, 'src'),
-                    path.resolve(__dirname, 'node_modules/react-ace'),
                 ],
                 use: [
                     {
-                        loader: 'babel-loader',
-                        options: {
-                            cacheDirectory: true,
-                            presets: ['es2015', 'react'],
-                            plugins: [
-                                'transform-object-rest-spread',
-                                ['transform-react-jsx', { pragma: 'h' }],
-                            ],
-                        },
+                        loader: 'ts-loader',
                     },
                 ],
             },
@@ -101,6 +94,18 @@ module.exports = {
             description: 'Create demos using pixi.js.',
             url: 'http://pixiplayground.com',
             cache: true,
+            chunks: ['index'],
+        }),
+
+        // create marketing html
+        new HtmlWebpackPlugin({
+            filename: 'results.html',
+            template: './html/results.ejs',
+            title: 'Pixi Playground Results',
+            description: 'Pixi Playground Results',
+            url: 'http://pixiplayground.com',
+            cache: true,
+            chunks: ['results'],
         }),
 
         // copy some static assets favicon stuff
@@ -108,6 +113,10 @@ module.exports = {
             {
                 from: './html/favicons/*',
                 flatten: true,
+            },
+            {
+                from: 'node_modules/monaco-editor/min/vs',
+                to: 'vs',
             },
         ]),
     ],

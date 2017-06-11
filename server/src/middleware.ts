@@ -1,11 +1,10 @@
-'use strict';
+import * as restify from 'restify';
+import * as os from 'os';
+import * as http from 'http';
+import * as config from './config';
+import logger from './lib/logger';
 
-const restify   = require('restify');
-const os        = require('os');
-const logger    = require('./logger');
-const config    = require('./config');
-
-module.exports = function middlewareInit(app) {
+export default function middlewareInit(app: restify.Server) {
     app.pre(restify.pre.sanitizePath());
 
     app.use(restify.CORS({
@@ -34,15 +33,15 @@ module.exports = function middlewareInit(app) {
         ip: true,
     }));
 
-    app.on('uncaughtException', (req, res, route, error) => {
+    app.on('uncaughtException', (req: restify.Request, res: restify.Response, route: string, error: Error) => {
         req.log.error(error);
     });
 };
 
-const Response = require('http').ServerResponse;
+const Response = (http as any).ServerResponse;
 
 // Add a links property to the response object
-Response.prototype.links = function linkHeaderFormatter(links) {
+Response.prototype.links = function linkHeaderFormatter(links: { [key: string]: string }) {
     let link = this.getHeader('Link') || '';
 
     if (link) {
