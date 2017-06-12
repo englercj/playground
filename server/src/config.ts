@@ -22,7 +22,7 @@ export const db: any = {
         timestamps: true,
         version: '_lockVersion',
     },
-    timezone: 'America/Los_Angeles',
+    // timezone: 'America/Los_Angeles',
     benchmark: true,
     native: true,
 };

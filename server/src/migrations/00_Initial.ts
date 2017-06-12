@@ -7,12 +7,13 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             allowNull: false,
             primaryKey: true,
             autoIncrement: true,
+            unique: 'unique_id_version',
         },
         version: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
+            defaultValue: 0,
+            unique: 'unique_id_version',
         },
         name: {
             type: DataTypes.STRING,

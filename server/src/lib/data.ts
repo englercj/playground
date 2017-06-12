@@ -17,7 +17,15 @@ export type TPlaygroundInfo = { item: Playground, content: string };
  *
  */
 export function createPlayground(data: IPlaygroundData, contents: string): Promise<TPlaygroundInfo> {
-    return savePlayground(new Playground(data), contents);
+    const item = new Playground(data);
+
+    item.file = getFilename(contents);
+
+    return dbClient.transaction((t) => {
+        return item.save({ transaction: t })
+            .then(() => saveFile(item.file, contents))
+            .then(() => Promise.resolve({ item, contents }));
+    });
 }
 
 /**
@@ -25,11 +33,20 @@ export function createPlayground(data: IPlaygroundData, contents: string): Promi
  *
  */
 export function createPlaygroundVersion(id: number, data: IPlaygroundData, contents: string): Promise<TPlaygroundInfo> {
-    const newPlayground = new Playground(data);
+    const item = new Playground(data);
 
-    newPlayground.id = id;
+    item.id = id;
+    item.file = getFilename(contents);
 
-    return savePlayground(newPlayground, contents);
+    return dbClient.transaction((t) => {
+        return Playground.max('version', { where: { id: item.id }, transaction: t })
+            .then((version) => {
+                item.version = version + 1;
+
+                return item.save({ transaction: t });
+            })
+            .then(() => Promise.resolve({ item, contents }));
+    });
 }
 
 /**
@@ -47,19 +64,13 @@ export function getPlayground(id: number, version: number): Promise<TPlaygroundI
 }
 
 /**
- * Helper function that saves a playground item.
+ * Helper function that hashes the contents and sets the `file` property
  *
  */
-function savePlayground(item: Playground, contents: string): Promise<TPlaygroundInfo> {
+export function getFilename(contents: string) {
     const hash = crypto.createHash('sha256');
 
     hash.update(contents);
 
-    item.file = `playground~${hash.digest('hex')}.js`;
-
-    return dbClient.transaction((t) => {
-        return item.save({ transaction: t })
-            .then(() => saveFile(item.file, contents))
-            .then(() => Promise.resolve({ item, contents }));
-    });
+    return `playground~${hash.digest('hex')}.js`;
 }

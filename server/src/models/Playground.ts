@@ -1,4 +1,6 @@
+import { Sequelize } from 'sequelize-typescript';
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-typescript';
+import { IDefineOptions } from 'sequelize-typescript/lib/interfaces/IDefineOptions';
 
 @Table({
     tableName: 'playgrounds',
@@ -7,8 +9,8 @@ import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-
     indexes: [
         { fields: ['isFeatured'], where: { isFeatured: true } },
         { fields: ['isOfficial'], where: { isOfficial: true } },
-    ]
-})
+    ] as any // 'where' is not in the dts :(
+} as IDefineOptions)
 export default class Playground extends Model<Playground> implements IPlaygroundData {
     /**
      * The primary ID key. Together the ID/Version uniquely identify a playground.
@@ -20,6 +22,7 @@ export default class Playground extends Model<Playground> implements IPlayground
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
+        unique: 'unique_id_version',
     })
     id: number;
 
@@ -31,8 +34,8 @@ export default class Playground extends Model<Playground> implements IPlayground
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
-        primaryKey: true,
-        autoIncrement: true,
+        defaultValue: 0,
+        unique: 'unique_id_version',
     })
     version: number;
 
