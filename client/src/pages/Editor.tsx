@@ -10,7 +10,7 @@ import MonacoEditor from '../components/MonacoEditor';
 import EditorTopBar from '../components/EditorTopBar';
 
 interface IProps extends IPageProps {
-    id?: string;
+    slug?: string;
     version?: number;
 }
 
@@ -68,13 +68,13 @@ export default class Editor extends Component<IProps, IState> {
     }
 
     loadPlayground() {
-        if (!this.props.id) {
+        if (!this.props.slug) {
             this.setState({ playgroundLoading: false });
             this.onEditorValueChange(this._editorInstance ? this._editorInstance.getValue() : '');
         }
         else {
             this.setState({ playgroundLoading: true });
-            getPlayground(this.props.id, this.props.version, (err, data) => {
+            getPlayground(this.props.slug, this.props.version, (err, data) => {
                 if (err) {
                     this.setState({ playgroundLoading: false, err });
                 }
@@ -171,7 +171,7 @@ export default class Editor extends Component<IProps, IState> {
         }, this._onChangeDelay);
     }
 
-    render({ id, version }: IProps, { loading, err, data }: IState) {
+    render({ slug, version }: IProps, { loading, err, data }: IState) {
         if (err) {
             return <div id="fullscreen error">Unable to load! {err.message}</div>;
         }
@@ -179,7 +179,7 @@ export default class Editor extends Component<IProps, IState> {
         return (
             <div id="editor-full-wrapper">
                 <div className="fullscreen spinner large centered" style={{ display: loading ? 'block' : 'none' }} />
-                <EditorTopBar id={id} version={version} />
+                <EditorTopBar slug={slug} version={version} />
                 <div id="editor-wrapper">
                     <MonacoEditor
                         value={data && data.contents ? data.contents : getDefaultPlayground() }

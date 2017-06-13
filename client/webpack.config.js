@@ -3,7 +3,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { NoEmitOnErrorsPlugin } = require('webpack');
+const { NoEmitOnErrorsPlugin, DefinePlugin } = require('webpack');
 
 const ASSET_PATH = 'assets';
 const extractLess = new ExtractTextPlugin(`${ASSET_PATH}/[hash].css`);
@@ -119,5 +119,10 @@ module.exports = {
                 to: 'vs',
             },
         ]),
+
+        // add some extra defines
+        new DefinePlugin({
+            __BASE_ORIGIN__: JSON.stringify(process.argv.find(v => v.includes('webpack-dev-server')) ? 'http://localhost:8081' : ''),
+        }),
     ],
 };

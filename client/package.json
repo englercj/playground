@@ -15,6 +15,7 @@
   },
   "scripts": {
     "build": "npm run clean && webpack --progress",
+    "clean": "rimraf public",
     "dev": "webpack-dev-server --content-base public/ --colors --inline"
   },
   "devDependencies": {

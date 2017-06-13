@@ -9,9 +9,9 @@ import NotFound from './NotFound';
 export default (
     <Router history={createHashHistory()}>
         <Home path="/" />
-        <Editor path="/edit" id="" version={0} />
-        <Editor path="/edit/:id" version={0} />
-        <Editor path="/edit/:id/:version" />
+        <Editor path="/edit" slug="" version={0} />
+        <Editor path="/edit/:slug" version={0} />
+        <Editor path="/edit/:slug/:version" />
         <NotFound default />
     </Router>
 )

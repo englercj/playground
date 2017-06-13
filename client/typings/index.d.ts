@@ -1,6 +1,8 @@
 /// <reference path="../../typings/app.d.ts" />
 /// <reference path="../node_modules/monaco-editor/monaco.d.ts" />
 
+declare const __BASE_ORIGIN__: string;
+
 type TErrCallback = TCallback1<Error>;
 type TErrCallback1<T1> = TCallback2<Error, T1>;
 type TErrCallback2<T1, T2> = TCallback3<Error, T1, T2>;

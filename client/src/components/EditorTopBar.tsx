@@ -1,7 +1,7 @@
 import { h, Component } from 'preact';
 
 interface IProps {
-    id: string;
+    slug: string;
     version: number;
 }
 

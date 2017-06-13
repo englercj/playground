@@ -6,7 +6,7 @@ const pixiTypingsUrls: { [key: string]: string } = {
     v2: 'https://cdn.rawgit.com/pixijs/pixi-typescript/v2.x/pixi.d.ts',
 };
 
-let baseOrigin = '';
+let baseOrigin = __BASE_ORIGIN__;
 
 if (typeof localStorage !== 'undefined') {
     const apiOriginOverride = localStorage.getItem('apiOriginOverride');
@@ -20,12 +20,12 @@ export function createPlayground(name: string, author: string, isPublic: boolean
     http.post(`${baseOrigin}/api`, { name, author, isPublic, contents }, cb);
 }
 
-export function updatePlayground(id: string, name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback) {
-    http.post(`${baseOrigin}/api/${id}`, { name, author, isPublic, contents }, cb);
+export function updatePlayground(slug: string, name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback) {
+    http.post(`${baseOrigin}/api/${slug}`, { name, author, isPublic, contents }, cb);
 }
 
-export function getPlayground(id: string, version: number, cb: THttpCallback) {
-    http.get(`${baseOrigin}/api/${id}/${version}`, cb);
+export function getPlayground(slug: string, version: number, cb: THttpCallback) {
+    http.get(`${baseOrigin}/api/${slug}/${version}`, cb);
 }
 
 export function getTypings(key: string, cb: THttpCallback) {
