@@ -1,19 +1,19 @@
+import * as shortid from 'shortid';
 import { QueryInterface, DataTypes } from 'sequelize';
 
 export function up(query: QueryInterface, DataTypes: DataTypes) {
     return query.createTable('playgrounds', {
-        id: {
-            type: DataTypes.INTEGER,
+        slug: {
+            type: DataTypes.CHAR,
             allowNull: false,
-            primaryKey: true,
-            autoIncrement: true,
-            unique: 'unique_id_version',
+            defaultValue: () => shortid.generate(),
+            unique: 'unique_slug_version',
         },
         version: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
-            unique: 'unique_id_version',
+            unique: 'unique_slug_version',
         },
         name: {
             type: DataTypes.STRING,

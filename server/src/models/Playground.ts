@@ -1,3 +1,4 @@
+import * as shortid from 'shortid';
 import { Sequelize } from 'sequelize-typescript';
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-typescript';
 import { IDefineOptions } from 'sequelize-typescript/lib/interfaces/IDefineOptions';
@@ -18,13 +19,12 @@ export default class Playground extends Model<Playground> implements IPlayground
      *
      */
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.CHAR,
         allowNull: false,
-        primaryKey: true,
-        autoIncrement: true,
-        unique: 'unique_id_version',
+        defaultValue: () => shortid.generate(),
+        unique: 'unique_slug_version',
     })
-    id: number;
+    slug: string;
 
     /**
      * The primary version key. Together the ID/Version uniquely identify a playground.
@@ -35,7 +35,7 @@ export default class Playground extends Model<Playground> implements IPlayground
         type: DataType.INTEGER,
         allowNull: false,
         defaultValue: 0,
-        unique: 'unique_id_version',
+        unique: 'unique_slug_version',
     })
     version: number;
 

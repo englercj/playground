@@ -32,14 +32,14 @@ export function createPlayground(data: IPlaygroundData, contents: string): Promi
  * Updates an existing playground with a new version.
  *
  */
-export function createPlaygroundVersion(id: number, data: IPlaygroundData, contents: string): Promise<TPlaygroundInfo> {
+export function createPlaygroundVersion(slug: string, data: IPlaygroundData, contents: string): Promise<TPlaygroundInfo> {
     const item = new Playground(data);
 
-    item.id = id;
+    item.slug = slug;
     item.file = getFilename(contents);
 
     return dbClient.transaction((t) => {
-        return Playground.max('version', { where: { id: item.id }, transaction: t })
+        return Playground.max('version', { where: { slug: item.slug }, transaction: t })
             .then((version) => {
                 item.version = version + 1;
 
@@ -53,8 +53,8 @@ export function createPlaygroundVersion(id: number, data: IPlaygroundData, conte
  * Gets an existing playground.
  *
  */
-export function getPlayground(id: number, version: number): Promise<TPlaygroundInfo> {
-    return Playground.findOne({ where: { id, version } })
+export function getPlayground(slug: string, version: number): Promise<TPlaygroundInfo> {
+    return Playground.findOne({ where: { slug, version } })
         .then((item: Playground) => {
             if (!item) return Promise.resolve(null);
 

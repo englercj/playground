@@ -28,7 +28,7 @@ if (config.isProductionEnv) {
     ];
 }
 else if (config.isTestEnv) {
-    bunyanConfig.level = 'error';
+    bunyanConfig.level = 'fatal';
 }
 
 export default (require('bunyan').createLogger(bunyanConfig));

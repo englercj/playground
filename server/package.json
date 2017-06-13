@@ -14,10 +14,9 @@
     "url": "https://github.com/pixijs/playground/issues"
   },
   "scripts": {
-    "dev": "nodemon ./lib/server.js | bunyan",
-    "start": "node ./lib/app.js",
-    "lint": "eslint lib",
     "build": "tsc -p tsconfig.json --outDir lib",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts | bunyan",
+    "start": "node ./lib/app.js",
     "test": "mocha -r ts-node/register test/unit/**/*.ts"
   },
   "devDependencies": {
@@ -29,6 +28,7 @@
     "@types/mocha": "^2.2.41",
     "@types/restify": "^4.3.3",
     "@types/sequelize": "^4.0.57",
+    "@types/shortid": "0.0.29",
     "@types/supertest": "^2.0.0",
     "@types/umzug": "^1.8.31",
     "chai": "^4.0.2",
@@ -53,7 +53,8 @@
     "reflect-metadata": "^0.1.10",
     "restify": "^4.3.0",
     "sequelize": "^4.0.0-2",
-    "sequelize-typescript": "^0.3.2"
+    "sequelize-typescript": "^0.3.2",
+    "shortid": "^2.2.8"
   },
   "engines": {
     "node": "^6.10.0"

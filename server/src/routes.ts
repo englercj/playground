@@ -14,28 +14,28 @@ export default function routesInit(app: restify.Server) {
     });
 
     /**
-     * GET /:id
+     * GET /:slug
      *
      * Gets the data for a stored playground, using version 0.
      *
      * 200: The stored playground data.
-     * 404: No data found for the given id.
+     * 404: No data found for the given slug.
      * 500: Server error, some error happened when trying to load the playground.
      */
-    app.get('/api/:id', (req, res, next) => {
-        const { id } = req.params;
-        const logState: any = { params: { id } };
+    app.get('/api/:slug', (req, res, next) => {
+        const { slug } = req.params;
+        const logState: any = { params: { slug } };
 
-        data.getPlayground(id, 0)
+        data.getPlayground(slug, 0)
             .then((value) => {
                 if (!value) {
-                    const msg = `Unable to find playground with ID: ${id}`;
+                    const msg = `No playground found with slug: ${slug}`;
 
                     req.log.info(logState, msg);
                     res.json(CODES.NOT_FOUND, { msg });
                 }
                 else {
-                    req.log.debug(`Loaded playground using ID: ${id}`);
+                    req.log.debug(`Loaded playground using slug: ${slug}`);
                     res.json(CODES.OK, value);
                 }
 
@@ -44,46 +44,48 @@ export default function routesInit(app: restify.Server) {
             .catch((err) => {
                 logState.err = err;
                 req.log.error(logState, 'Failed to get playground.');
-                res.json(CODES.INTERNAL_SERVER_ERROR, { msg: `There was an error trying to load playground ${id}@0` });
+                res.json(CODES.INTERNAL_SERVER_ERROR, { msg: `There was an error trying to load playground ${slug}@0` });
+
+                next();
             });
     });
 
     /**
-     * GET /:id/:version
+     * GET /:slug/:version
      *
      * Gets the data for a stored playground, using the version specified.
      *
      * 200: The stored playground data.
-     * 404: No data found for the given id/version.
+     * 404: No data found for the given slug/version.
      * 422: Invalid version specified.
      * 500: Server error, some error happened when trying to load the playground.
      */
-    app.get('/api/:id/:version', (req, res, next) => {
-        const { id, version } = req.params;
+    app.get('/api/:slug/:version', (req, res, next) => {
+        const { slug, version } = req.params;
         const versionNum = parseInt(version, 10);
 
-        const logState: any = { params: { id, version } };
+        const logState: any = { params: { slug, version } };
 
-        if (isNaN(versionNum)) {
-            req.log.error(logState, 'Failed to get playground, version is NaN.');
+        if (!slug || isNaN(versionNum)) {
+            const msg = `Failed to get playground, slug or version is invalid. slug: ${slug}, version: ${version}`;
 
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid version, ${version} is not a number.` });
+            req.log.error(logState, msg);
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg });
 
             next();
-
             return;
         }
 
-        data.getPlayground(id, version)
+        data.getPlayground(slug, versionNum)
             .then((value) => {
                 if (!value) {
-                    const msg = `No playground found with ID: ${id}, or no version ${version} exists.`;
+                    const msg = `No playground found with slug: ${slug}, or no version ${version} exists.`;
 
                     req.log.info(logState, msg);
                     res.json(CODES.NOT_FOUND, { msg });
                 }
                 else {
-                    req.log.debug(`Loaded playground using ID: ${id}`);
+                    req.log.debug(`Loaded playground using slug: ${slug}`);
                     res.json(CODES.OK, value);
                 }
 
@@ -93,8 +95,10 @@ export default function routesInit(app: restify.Server) {
                 logState.err = err;
                 req.log.error(logState, 'Failed to get playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, {
-                    msg: `There was an error trying to load playground ${id}@${version}`,
+                    msg: `There was an error trying to load playground ${slug}@${version}`,
                 });
+
+                next();
             });
     });
 
@@ -119,13 +123,12 @@ export default function routesInit(app: restify.Server) {
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either name, author, or contents is empty.` });
 
             next();
-
             return;
         }
 
         data.createPlayground(params, contents)
             .then((value) => {
-                req.log.debug(`Created a new playground: ${value.item.id}`);
+                req.log.debug(`Created a new playground: ${value.item.slug}`);
                 res.json(CODES.OK, value);
 
                 next();
@@ -134,11 +137,13 @@ export default function routesInit(app: restify.Server) {
                 logState.err = err;
                 req.log.error(logState, 'Failed to update playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
+
+                next();
             });
     });
 
     /**
-     * POST /:id
+     * POST /:slug
      *
      * Updates a playground with a new version.
      *
@@ -146,33 +151,32 @@ export default function routesInit(app: restify.Server) {
      * 422: New playground version is invalid, there are validation errors with the sent data.
      * 500: Server error, some error happened when trying to save the playground version.
      */
-    app.post('/api/:id', (req, res, next) => {
-        const id = req.params.id;
+    app.post('/api/:slug', (req, res, next) => {
+        const { slug } = req.params;
         const { name, author, isPublic, pixiVersion, contents } = req.body;
         const params = { name, author, isPublic, pixiVersion };
 
         const logState: any = { params, contentsEmpty: !contents };
 
-        if (!name || !author || !contents) {
+        if (!slug || !name || !author || !contents) {
             req.log.error(logState, 'Failed save playground, invalid params');
 
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either name, author, or contents is empty.` });
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either slug, name, author, or contents is empty.` });
 
             next();
-
             return;
         }
 
-        data.createPlaygroundVersion(id, params, contents)
+        data.createPlaygroundVersion(slug, params, contents)
             .then((value) => {
                 if (!value) {
-                    const msg = `No playground found with ID: ${id}.`;
+                    const msg = `No playground found with slug: ${slug}.`;
 
                     req.log.info(logState, msg);
                     res.json(CODES.NOT_FOUND, { msg });
                 }
                 else {
-                    req.log.debug(`Created new playground version using ID: ${id}, added version: ${value.item.version}`);
+                    req.log.debug(`Created new playground version using slug: ${slug}, added version: ${value.item.version}`);
                     res.json(CODES.OK, value);
                 }
 
@@ -182,6 +186,8 @@ export default function routesInit(app: restify.Server) {
                 logState.err = err;
                 req.log.error(logState, 'Failed to save playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
+
+                next();
             });
     });
 };
