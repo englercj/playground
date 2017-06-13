@@ -7,10 +7,25 @@ import server from './server';
 // Code to run if we're in the master process
 if (cluster.isMaster) {
     // Count the machine's CPUs
-    const cpuCount = os.cpus().length;
+    let workerCount = os.cpus().length;
+
+    // check for override to cpu count
+    for (let i = 0; i < process.argv.length; ++i) {
+        if (process.argv[i] === '--workers') {
+            if (process.argv.length > i + 1 && process.argv[i + 1]) {
+                const workerNum = parseInt(process.argv[i + 1], 10);
+
+                if (workerNum) {
+                    workerCount = workerNum;
+                }
+            }
+
+            break;
+        }
+    }
 
     // Create a worker for each CPU
-    for (let i = 0; i < cpuCount; ++i) {
+    for (let i = 0; i < workerCount; ++i) {
         cluster.fork();
     }
 

@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json --outDir lib",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts | bunyan",
+    "dev": "nodemon | bunyan",
     "start": "node ./lib/app.js",
     "test": "mocha -r ts-node/register test/unit/**/*.ts"
   },
@@ -40,6 +40,7 @@
     "sqlite3": "^3.1.8",
     "supertest": "^3.0.0",
     "ts-node": "^3.0.6",
+    "tslint": "^5.4.3",
     "typescript": "^2.3.4"
   },
   "dependencies": {
