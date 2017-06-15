@@ -3,6 +3,11 @@ import { QueryInterface, DataTypes } from 'sequelize';
 
 export function up(query: QueryInterface, DataTypes: DataTypes) {
     return query.createTable('playgrounds', {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         slug: {
             type: DataTypes.CHAR,
             allowNull: false,
