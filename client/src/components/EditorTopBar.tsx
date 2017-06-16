@@ -8,13 +8,19 @@ interface IProps {
 export default class EditorTopBar extends Component<IProps, {}> {
     render() {
         return (
-            <div id="editor-topbar">
-                <img id="logo" />
-                <a id="save">
-                    <span className="spinner hidden" />
-                    Save
-                </a>
-            </div>
+            <nav id="editor-topbar">
+                <div className="brand">
+                    <img src="/favicon-32x32.png" className="logo" />
+                    <span className="title">Pixi Playground</span>
+                </div>
+                <div className="btn-group">
+                    <button id="save" className="btn">
+                        <span className="fa fa-bookmark" aria-hidden="true" />
+                        <span className="label">Save</span>
+                        <span className="spinner small hidden" />
+                    </button>
+                </div>
+            </nav>
         );
     }
 }
