@@ -1,4 +1,4 @@
-@topbar-height: 32px;
+@topbar-height: 33px;
 
 .column(@left) {
     position: absolute;
@@ -20,6 +20,7 @@
     z-index: 100;
     font-family: 'Roboto', Helvetica, sans-serif;
     border-bottom:1px solid #999;
+    box-sizing: border-box;
     .brand {
         display:inline-block;
         font-weight:bold;
@@ -36,38 +37,6 @@
         position:absolute;
         top:3px;
         right:1px;
-    }
-    .btn {
-        font-family: 'Roboto', Helvetica, sans-serif;
-        border: 1px solid #c11953;
-        background-color: #e72266;
-        color: #fdd;
-        padding:6px 15px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        font-size:10px;
-        cursor:pointer;
-        border-radius: 2px;
-        margin:0 2px;
-        outline:none;
-        transition:all 0.2s;
-        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-        &:hover {
-            color:#fff;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.8) inset;
-            border-color:#8e113c;
-        }
-        &:active {
-            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1) inset;
-            background-color:#c71b56;
-            padding:7px 15px 5px;
-        }
-        .fa {
-            margin-right:0.5em;
-        }
-        .spinner {
-            margin-left:0.5em;
-        }
     }
 }
 
