@@ -1,6 +1,7 @@
 interface IPlaygroundData {
     slug?: string;
     name?: string;
+    description?: string;
     file?: string;
     author?: string;
     starCount?: number;

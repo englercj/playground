@@ -50,6 +50,16 @@ export default class Playground extends Model<Playground> implements IPlayground
     name: string;
 
     /**
+     * The user-defined description of the playground.
+     *
+     */
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+    })
+    description: string;
+
+    /**
      * The file URL for the playground contents.
      *
      */

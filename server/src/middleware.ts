@@ -2,22 +2,26 @@ import * as restify from 'restify';
 import * as os from 'os';
 import * as http from 'http';
 import * as config from './config';
+import * as corsMiddleware from 'restify-cors-middleware';
 import logger from './lib/logger';
 
 export default function middlewareInit(app: restify.Server) {
+    const cors = corsMiddleware({
+        origins: [config.corsOrigin],
+    });
+
+    app.pre(cors.preflight);
     app.pre(restify.pre.sanitizePath());
 
-    app.use(restify.CORS({
-        origins: [config.corsOrigin],
-    }));
+    app.use(cors.actual);
 
-    app.use(restify.requestLogger());
+    app.use(restify.plugins.requestLogger());
 
-    app.use(restify.queryParser({
+    app.use(restify.plugins.queryParser({
         mapParams: true,
     }));
 
-    app.use(restify.bodyParser({
+    app.use(restify.plugins.bodyParser({
         maxBodySize: 0,
         mapParams: true,
         mapFiles: false,
@@ -27,7 +31,7 @@ export default function middlewareInit(app: restify.Server) {
         uploadDir: os.tmpdir(),
     }));
 
-    app.use(restify.throttle({
+    app.use(restify.plugins.throttle({
         burst: 100,
         rate: 50,
         ip: true,

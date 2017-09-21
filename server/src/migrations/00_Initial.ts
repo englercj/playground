@@ -24,6 +24,10 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        description: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         file: {
             type: DataTypes.STRING,
             allowNull: false,
