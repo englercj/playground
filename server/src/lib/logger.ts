@@ -1,11 +1,13 @@
 import * as cluster from 'cluster';
 import * as createCWStream from 'bunyan-cloudwatch';
 import * as config from '../config';
+import * as bunyan from 'bunyan';
 
 const bunyanConfig: any = {
     name: 'service',
     level: 'debug',
     region: config.region,
+    serializers: bunyan.stdSerializers,
 };
 
 if (cluster.isWorker) {
@@ -31,4 +33,4 @@ else if (config.isTestEnv) {
     bunyanConfig.level = 'fatal';
 }
 
-export default (require('bunyan').createLogger(bunyanConfig));
+export default bunyan.createLogger(bunyanConfig);

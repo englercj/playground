@@ -10,8 +10,6 @@ import dbClient from './db';
 import { Sequelize } from 'sequelize-typescript';
 import { loadFile, saveFile } from './files';
 
-export type TPlaygroundInfo = { item: Playground, content: string };
-
 /**
  * Creates a new playground entry.
  *
@@ -61,6 +59,14 @@ export function getPlayground(slug: string, version: number): Promise<TPlaygroun
             return loadFile(item.file)
                 .then((contents) => Promise.resolve({ item, contents }));
         })
+}
+
+/**
+ * Searches for playgrounds matching a given query.
+ *
+ */
+export function searchPlaygrounds(searchStr: string): Promise<Playground[]> {
+    return Playground.search(searchStr);
 }
 
 /**

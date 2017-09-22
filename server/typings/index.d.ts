@@ -9,3 +9,9 @@ declare module 'bunyan-cloudwatch' {
 
     export = fn;
 }
+
+declare module 'restify-cors-middleware' {
+    let fn: (config: any) => any;
+
+    export = fn;
+}

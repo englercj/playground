@@ -1,6 +1,6 @@
-export type THttpCallback = (err: Error, data?: any) => void;
+export type THttpCallback<T> = (err: Error, data?: T) => void;
 
-function sendRequest(method: string, url: string, data: any, callback: THttpCallback) {
+function sendRequest(method: string, url: string, data: any, callback: THttpCallback<any>) {
     const xhr = new XMLHttpRequest();
 
     xhr.open(method, url, true);
@@ -36,8 +36,8 @@ function sendRequest(method: string, url: string, data: any, callback: THttpCall
 }
 
 export default {
-    get:    (url: string, callback: THttpCallback) => sendRequest('GET', url, null, callback),
-    post:   (url: string, data: any, callback: THttpCallback) => sendRequest('POST', url, data, callback),
-    put:    (url: string, data: any, callback: THttpCallback) => sendRequest('PUT', url, data, callback),
-    delete: (url: string, callback: THttpCallback) => sendRequest('DELETE', url, null, callback),
+    get:    (url: string, callback: THttpCallback<any>) => sendRequest('GET', url, null, callback),
+    post:   (url: string, data: any, callback: THttpCallback<any>) => sendRequest('POST', url, data, callback),
+    put:    (url: string, data: any, callback: THttpCallback<any>) => sendRequest('PUT', url, data, callback),
+    delete: (url: string, callback: THttpCallback<any>) => sendRequest('DELETE', url, null, callback),
 };

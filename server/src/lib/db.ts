@@ -1,10 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import logger from './logger';
 import { Sequelize } from 'sequelize-typescript';
 import { db as dbConfig } from '../config';
-
-const dbLogger = logger.child({ sequelize: true }, true);
+import dbLogger from './db-logger';
 
 dbConfig.logging = (msg: string, ms: number) => {
     dbLogger.debug({ timing: ms }, msg);

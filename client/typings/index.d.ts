@@ -7,11 +7,6 @@ type TErrCallback = TCallback1<Error>;
 type TErrCallback1<T1> = TCallback2<Error, T1>;
 type TErrCallback2<T1, T2> = TCallback3<Error, T1, T2>;
 
-interface IPublicPlaygroundData extends IPlaygroundData {
-    version: number;
-    contents: string;
-}
-
 declare module 'preact-router' {
     export function route(url: string, replace?: boolean): boolean;
 

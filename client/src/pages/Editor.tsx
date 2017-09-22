@@ -30,7 +30,7 @@ interface IState {
     typingsLoading: boolean;
     loading: boolean;
     err?: Error;
-    data?: IPublicPlaygroundData;
+    data?: TPlaygroundInfo;
 }
 
 export default class Editor extends Component<IProps, IState> {
@@ -58,7 +58,7 @@ export default class Editor extends Component<IProps, IState> {
             editorLoading: true,
             typingsLoading: true,
             err: null,
-            data: {} as any,
+            data: { item: {}, contents: '' },
             get loading() {
                 return this.playgroundLoading || this.editorLoading || this.typingsLoading;
             },
@@ -90,7 +90,7 @@ export default class Editor extends Component<IProps, IState> {
     }
 
     loadTypings() {
-        const version = this.state.data.pixiVersion || globalState.selectedPixiVersion || 'v4';
+        const version = this.state.data.item.pixiVersion || globalState.selectedPixiVersion || 'v4';
         const key = version.substr(0, 2);
 
         if (allowedTypingsVersionKeys.indexOf(key) === -1 || pixiTypingsCache.activeTypingsKey === key) {

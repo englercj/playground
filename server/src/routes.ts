@@ -14,7 +14,58 @@ export default function routesInit(app: restify.Server) {
     });
 
     /**
-     * GET /:slug
+     * GET /playgrounds
+     *
+     * Searches for playgrounds that matche the given query.
+     *
+     * 200: The stored playground data.
+     * 404: No data found for the given query.
+     * 422: No query given for searching.
+     * 500: Server error, some error happened when trying to load the playgrounds.
+     */
+    app.get('/api/playgrounds', (req, res, next) => {
+        const { q } = req.params;
+
+        const logState: any = { params: { q } };
+
+        if (!q) {
+            const msg = `Failed to search playgrounds, query is invalid. q: ${q}.`;
+
+            req.log.error(logState, msg);
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg });
+
+            next();
+            return;
+        }
+
+        data.searchPlaygrounds(q)
+            .then((values) => {
+                if (!values || !values.length) {
+                    const msg = `No playgrounds found with query: ${q}.`;
+
+                    req.log.info(logState, msg);
+                    res.json(CODES.NOT_FOUND, { msg });
+                }
+                else {
+                    req.log.debug(`Loaded ${values.length} playgrounds using query: ${q}`);
+                    res.json(CODES.OK, values);
+                }
+
+                next();
+            })
+            .catch((err) => {
+                logState.err = err;
+                req.log.error(logState, 'Failed to search playgrounds.');
+                res.json(CODES.INTERNAL_SERVER_ERROR, {
+                    msg: `There was an error trying to load playgrounds using query: ${q}`,
+                });
+
+                next();
+            });
+    });
+
+    /**
+     * GET /playground/:slug
      *
      * Gets the data for a stored playground, using version 0.
      *
@@ -22,7 +73,7 @@ export default function routesInit(app: restify.Server) {
      * 404: No data found for the given slug.
      * 500: Server error, some error happened when trying to load the playground.
      */
-    app.get('/api/:slug', (req, res, next) => {
+    app.get('/api/playground/:slug', (req, res, next) => {
         const { slug } = req.params;
         const logState: any = { params: { slug } };
 
@@ -51,7 +102,7 @@ export default function routesInit(app: restify.Server) {
     });
 
     /**
-     * GET /:slug/:version
+     * GET /playground/:slug/:version
      *
      * Gets the data for a stored playground, using the version specified.
      *
@@ -60,7 +111,7 @@ export default function routesInit(app: restify.Server) {
      * 422: Invalid version specified.
      * 500: Server error, some error happened when trying to load the playground.
      */
-    app.get('/api/:slug/:version', (req, res, next) => {
+    app.get('/api/playground/:slug/:version', (req, res, next) => {
         const { slug, version } = req.params;
         const versionNum = parseInt(version, 10);
 
@@ -103,7 +154,7 @@ export default function routesInit(app: restify.Server) {
     });
 
     /**
-     * POST /
+     * POST /playground
      *
      * Creates a new playground.
      *
@@ -111,7 +162,7 @@ export default function routesInit(app: restify.Server) {
      * 422: New playground is invalid, there are validation errors with the sent data.
      * 500: Server error, some error happened when trying to save the playground.
      */
-    app.post('/api', (req, res, next) => {
+    app.post('/api/playground', (req, res, next) => {
         const { name, author, isPublic, pixiVersion, contents } = req.body;
         const params = { name, author, isPublic, pixiVersion };
 
@@ -143,7 +194,7 @@ export default function routesInit(app: restify.Server) {
     });
 
     /**
-     * POST /:slug
+     * POST /playground/:slug
      *
      * Updates a playground with a new version.
      *
@@ -151,7 +202,7 @@ export default function routesInit(app: restify.Server) {
      * 422: New playground version is invalid, there are validation errors with the sent data.
      * 500: Server error, some error happened when trying to save the playground version.
      */
-    app.post('/api/:slug', (req, res, next) => {
+    app.post('/api/playground/:slug', (req, res, next) => {
         const { slug } = req.params;
         const { name, author, isPublic, pixiVersion, contents } = req.body;
         const params = { name, author, isPublic, pixiVersion };

@@ -16,19 +16,23 @@ if (typeof localStorage !== 'undefined') {
     }
 }
 
-export function createPlayground(name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback) {
-    http.post(`${baseOrigin}/api`, { name, author, isPublic, contents }, cb);
+export function createPlayground(name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<TPlaygroundInfo>) {
+    http.post(`${baseOrigin}/api/playground`, { name, author, isPublic, contents }, cb);
 }
 
-export function updatePlayground(slug: string, name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback) {
-    http.post(`${baseOrigin}/api/${slug}`, { name, author, isPublic, contents }, cb);
+export function updatePlayground(slug: string, name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<TPlaygroundInfo>) {
+    http.post(`${baseOrigin}/api/playground/${slug}`, { name, author, isPublic, contents }, cb);
 }
 
-export function getPlayground(slug: string, version: number, cb: THttpCallback) {
-    http.get(`${baseOrigin}/api/${slug}/${version}`, cb);
+export function getPlayground(slug: string, version: number, cb: THttpCallback<TPlaygroundInfo>) {
+    http.get(`${baseOrigin}/api/playground/${slug}/${version}`, cb);
 }
 
-export function getTypings(key: string, cb: THttpCallback) {
+export function searchPlaygrounds(searchStr: string, cb: THttpCallback<IPlaygroundData[]>) {
+    http.get(`${baseOrigin}/api/playgrounds?q=${encodeURIComponent(searchStr)}`, cb);
+}
+
+export function getTypings(key: string, cb: THttpCallback<any>) {
     if (!pixiTypingsUrls[key]) return cb(new Error('Invalid version key.'));
 
     http.get(pixiTypingsUrls[key], cb);

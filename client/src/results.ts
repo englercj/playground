@@ -5,7 +5,7 @@ const validOrigins = [
 ];
 
 let windowLoaded: boolean = false;
-let queuedData: IPublicPlaygroundData = null;
+let queuedData: TPlaygroundInfo = null;
 
 let lastPixiVersion: string = '';
 let lastDemoContents: string = '';
@@ -30,7 +30,7 @@ function handleMessage(event: MessageEvent) {
         return;
     }
 
-    const data: IPublicPlaygroundData = event.data;
+    const data: TPlaygroundInfo = event.data;
 
     if (!data || !data.contents) {
         return;
@@ -44,14 +44,14 @@ function handleMessage(event: MessageEvent) {
     }
 }
 
-function updateDemo(data: IPublicPlaygroundData) {
+function updateDemo(data: TPlaygroundInfo) {
     updatePixi(data, () => {
         updateDemoCode(data);
     });
 }
 
-function updatePixi(data: IPublicPlaygroundData, cb: () => void) {
-    if (lastPixiVersion === data.pixiVersion) {
+function updatePixi(data: TPlaygroundInfo, cb: () => void) {
+    if (lastPixiVersion === data.item.pixiVersion) {
         cb();
 
         return;
@@ -64,15 +64,15 @@ function updatePixi(data: IPublicPlaygroundData, cb: () => void) {
 
     // create new lib element
     pixiScriptElement = document.createElement('script');
-    pixiScriptElement.src = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`;
+    pixiScriptElement.src = `https://d157l7jdn8e5sf.cloudfront.net/${data.item.pixiVersion || 'release'}/pixi.js`;
     pixiScriptElement.onload = cb;
 
     document.body.appendChild(pixiScriptElement);
 
-    lastPixiVersion = data.pixiVersion;
+    lastPixiVersion = data.item.pixiVersion;
 }
 
-function updateDemoCode(data: IPublicPlaygroundData) {
+function updateDemoCode(data: TPlaygroundInfo) {
     if (lastDemoContents === data.contents) {
         return;
     }

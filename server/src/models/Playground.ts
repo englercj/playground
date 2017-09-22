@@ -1,7 +1,17 @@
 import * as shortid from 'shortid';
+import * as Promise from 'bluebird';
 import { Sequelize } from 'sequelize-typescript';
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-typescript';
 import { IDefineOptions } from 'sequelize-typescript/lib/interfaces/IDefineOptions';
+import { db as dbConfig } from '../config';
+import db from '../lib/db';
+import dbLogger from '../lib/db-logger';
+
+const searchQuery: { [dialect: string]: string } = {
+    postgres: '"PlaygroundSearchText" @@ plainto_tsquery(\'english\', ?)',
+    sqlite: 'playgrounds_fts MATCH ?',
+    // mysql: 'MATCH (name, description, author) AGAINST(?)',
+};
 
 @Table({
     tableName: 'playgrounds',
@@ -143,4 +153,24 @@ export default class Playground extends Model<Playground> implements IPlayground
      */
     @UpdatedAt
     updatedAt: Date;
+
+    /**
+     * Search the pg full-text search index for the query.
+     *
+     */
+    static search(searchStr: string): Promise<Playground[]>
+    {
+        if (!searchQuery[db.options.dialect])
+        {
+            dbLogger.warn('Attempt to run search on non POSTGRES database.');
+            return Promise.reject(new Error('Searching not supported in this dialect'));
+        }
+
+        const escapedStr = db.getQueryInterface().escape(searchStr);
+        const whereClause = searchQuery[dbConfig.dialect].replace('?', escapedStr);
+        const tableName = Playground.getTableName();
+        const tableNamePostfix = db.options.dialect === 'sqlite' ? '_fts' : '';
+
+        return db.query(`SELECT * FROM ${tableName}${tableNamePostfix} WHERE ${whereClause}`, { type: Sequelize.QueryTypes.SELECT });
+    }
 }
