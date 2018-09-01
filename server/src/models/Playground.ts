@@ -7,6 +7,7 @@ import { IDefineOptions } from 'sequelize-typescript/lib/interfaces/IDefineOptio
 import { db as dbConfig } from '../config';
 import { db } from '../lib/db';
 import { dbLogger } from '../lib/db-logger';
+import { IPlayground } from '../../../shared/types';
 
 const searchQuery: { [dialect: string]: literal } = {
     postgres: Sequelize.literal('"PlaygroundSearchText" @@ plainto_tsquery(\'english\', :search)'),
@@ -31,7 +32,7 @@ export class Playground extends Model<Playground> implements IPlayground
      *
      */
     @Column({
-        type: DataType.CHAR,
+        type: DataType.CHAR(63),
         allowNull: false,
         defaultValue: () => nanoid(),
         unique: 'unique_slug',
@@ -64,7 +65,7 @@ export class Playground extends Model<Playground> implements IPlayground
      *
      */
     @Column({
-        type: DataType.TEXT,
+        type: DataType.TEXT('medium'),
         allowNull: false,
         defaultValue: "",
     })

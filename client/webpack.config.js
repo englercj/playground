@@ -1,14 +1,15 @@
 /* eslint-env node */
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { NoEmitOnErrorsPlugin, DefinePlugin } = require('webpack');
 
 const ASSET_PATH = 'assets';
-const extractLess = new ExtractTextPlugin(`${ASSET_PATH}/[hash].css`);
+const devMode = process.env.NODE_ENV !== 'production';
 
 module.exports = {
+    mode: devMode ? 'development' : 'production',
     devtool: 'source-map',
     recordsPath: path.join(__dirname, '.records'),
     entry: {
@@ -18,8 +19,8 @@ module.exports = {
     output: {
         path: path.join(__dirname, 'public'),
         publicPath: '/',
-        filename: `${ASSET_PATH}/[name].[chunkhash].js`,
-        chunkFilename: `${ASSET_PATH}/[id].[chunkhash].js`,
+        filename: `${ASSET_PATH}/[name].[hash].js`,
+        chunkFilename: `${ASSET_PATH}/[id].[hash].js`,
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
@@ -62,20 +63,12 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                use: extractLess.extract({
-                    use: [
-                        {
-                            loader: 'css-loader',
-                            options: { sourceMap: true },
-                        },
-                        {
-                            loader: 'less-loader',
-                            options: { sourceMap: true },
-                        },
-                    ],
-                    fallback: 'style-loader',
-                    allChunks: true,
-                }),
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    // 'postcss-loader',
+                    'less-loader',
+                ],
             },
         ],
     },
@@ -84,7 +77,10 @@ module.exports = {
         new NoEmitOnErrorsPlugin(),
 
         // extract inline css into separate 'styles.css'
-        extractLess,
+        new MiniCssExtractPlugin({
+            filename: `${ASSET_PATH}/[name].[hash].css`,
+            chunkFilename: `${ASSET_PATH}/[id].[hash].css`,
+        }),
 
         // create marketing html
         new HtmlWebpackPlugin({

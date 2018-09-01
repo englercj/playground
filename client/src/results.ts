@@ -1,3 +1,5 @@
+import { IPlayground } from '../../shared/types';
+
 const validOrigins = [
     'http://pixiplayground.com',
     'https://pixiplayground.com',

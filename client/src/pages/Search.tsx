@@ -3,6 +3,7 @@ import { getQueryParam } from '../util/queryUtils';
 import { searchPlaygrounds } from '../service';
 import { TopBar } from '../components/TopBar';
 import { IPageProps } from './IPageProps';
+import { IPlayground } from '../../../shared/types';
 
 interface IState
 {

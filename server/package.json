@@ -30,6 +30,7 @@
     "@types/nanoid": "^1.2.0",
     "@types/supertest": "^2.0.5",
     "@types/umzug": "^2.2.0",
+    "@types/restify-cors-middleware": "^1.0.1",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "mocha-typescript": "^1.1.17",

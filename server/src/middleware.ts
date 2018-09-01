@@ -6,11 +6,10 @@ import * as corsMiddleware from 'restify-cors-middleware';
 
 export function setupMiddleware(app: restify.Server)
 {
-    const cors = corsMiddleware({
-        origins: [config.corsOrigin],
-    });
+    const cors = corsMiddleware(config.cors);
 
     app.pre(cors.preflight);
+
     app.pre(restify.pre.sanitizePath());
 
     app.use(cors.actual);

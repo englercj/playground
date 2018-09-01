@@ -9,7 +9,7 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             autoIncrement: true,
         },
         slug: {
-            type: DataTypes.CHAR,
+            type: DataTypes.CHAR(63),
             allowNull: false,
             defaultValue: () => nanoid(),
             unique: 'unique_slug',
@@ -23,7 +23,7 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             allowNull: false,
         },
         contents: {
-            type: DataTypes.TEXT,
+            type: DataTypes.TEXT('medium'),
             allowNull: false,
             defaultValue: '',
         },

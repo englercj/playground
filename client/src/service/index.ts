@@ -1,3 +1,4 @@
+import { IPlayground } from '../../../shared/types';
 import { post, get, THttpCallback } from './http';
 
 const pixiTypingsUrls: { [key: string]: string } = {

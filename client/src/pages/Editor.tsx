@@ -8,6 +8,7 @@ import { IPageProps } from './IPageProps';
 import globalState from '../util/globalState';
 import { MonacoEditor } from '../components/MonacoEditor';
 import { EditorTopBar } from '../components/EditorTopBar';
+import { IPlayground } from '../../../shared/types';
 
 interface IProps extends IPageProps
 {
@@ -29,7 +30,6 @@ interface IState
     playgroundLoading: boolean;
     editorLoading: boolean;
     typingsLoading: boolean;
-    loading: boolean;
     err?: Error;
     data?: IPlayground;
 }
@@ -58,10 +58,6 @@ export class Editor extends Component<IProps, IState>
             typingsLoading: true,
             err: null,
             data: {},
-            get loading()
-            {
-                return this.playgroundLoading || this.editorLoading || this.typingsLoading;
-            },
         };
 
         this.loadPlayground();
@@ -147,7 +143,7 @@ export class Editor extends Component<IProps, IState>
     @bind
     updateDemo()
     {
-        if (this.state.loading || !this._resultIFrame || !this._resultIFrame.contentWindow)
+        if (this._isLoading() || !this._resultIFrame || !this._resultIFrame.contentWindow)
         {
             return;
         }
@@ -181,7 +177,8 @@ export class Editor extends Component<IProps, IState>
     @bind
     onEditorValueChange(newValue: string)
     {
-        if (this.state.loading) return;
+        if (this._isLoading())
+            return;
 
         this.state.data.contents = newValue;
 
@@ -192,7 +189,7 @@ export class Editor extends Component<IProps, IState>
         }, this._onChangeDelay);
     }
 
-    render({ slug }: IProps, { loading, err, data }: IState)
+    render({ slug }: IProps, { err, data }: IState)
     {
         if (err)
         {
@@ -201,7 +198,7 @@ export class Editor extends Component<IProps, IState>
 
         return (
             <div id="editor-full-wrapper">
-                <div className="fullscreen spinner large centered" style={{ display: loading ? 'block' : 'none' }} />
+                <div className="fullscreen spinner large centered" style={{ display: this._isLoading() ? 'block' : 'none' }} />
                 <EditorTopBar slug={slug} />
                 <div id="editor-wrapper">
                     <MonacoEditor
@@ -220,6 +217,11 @@ export class Editor extends Component<IProps, IState>
             </div>
         );
     }
+
+    private _isLoading()
+    {
+        return this.state.playgroundLoading || this.state.editorLoading || this.state.typingsLoading;
+    }
 }
 
 function getDefaultPlayground()
@@ -228,7 +230,7 @@ function getDefaultPlayground()
 document.body.appendChild(app.view);
 
 // create a new Sprite from an image path
-var bunny = PIXI.Sprite.fromImage('https://pixijs.github.io/examples/required/assets/basics/bunny.png')
+var bunny = PIXI.Sprite.fromImage('https://pixijs.io/examples/required/assets/basics/bunny.png')
 
 // center the sprite's anchor point
 bunny.anchor.set(0.5);
