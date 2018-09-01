@@ -46,7 +46,6 @@ export class Playground extends Model<Playground> implements IPlayground
      */
     @Column({
         type: DataType.STRING(1023),
-        allowNull: false,
     })
     name: string;
 
@@ -56,7 +55,6 @@ export class Playground extends Model<Playground> implements IPlayground
      */
     @Column({
         type: DataType.STRING(4095),
-        allowNull: false,
     })
     description: string;
 
@@ -67,7 +65,6 @@ export class Playground extends Model<Playground> implements IPlayground
     @Column({
         type: DataType.TEXT('medium'),
         allowNull: false,
-        defaultValue: "",
     })
     contents: string;
 

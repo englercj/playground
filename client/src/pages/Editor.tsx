@@ -2,10 +2,10 @@
 // Monaco Editor is not supported on mobile, but I still want people to be able to see the demos.
 
 import { h, Component } from 'preact';
+import { route } from 'preact-router';
 import { bind } from 'decko';
-import { getPlayground, getTypings } from '../service';
+import { getPlayground, getTypings, updatePlayground, createPlayground } from '../service';
 import { IPageProps } from './IPageProps';
-import globalState from '../util/globalState';
 import { MonacoEditor } from '../components/MonacoEditor';
 import { EditorTopBar } from '../components/EditorTopBar';
 import { IPlayground } from '../../../shared/types';
@@ -15,14 +15,6 @@ interface IProps extends IPageProps
     slug?: string;
 }
 
-const allowedTypingsVersionKeys = ['v4', 'v3', 'v2'];
-
-const pixiTypingsCache: { [key: string]: string } = {
-    v4: '',
-    v3: '',
-    v2: '',
-};
-let activePixiTypingsKey = '';
 let activePixiTypings: monaco.IDisposable = null;
 
 interface IState
@@ -57,10 +49,22 @@ export class Editor extends Component<IProps, IState>
             editorLoading: true,
             typingsLoading: true,
             err: null,
-            data: {},
+            data: {
+                pixiVersion: 'release',
+            },
         };
 
         this.loadPlayground();
+    }
+
+    componentWillMount()
+    {
+        window.addEventListener('keydown', this._onKeydown);
+    }
+
+    componentWillUnmount()
+    {
+        window.removeEventListener('keydown', this._onKeydown);
     }
 
     loadPlayground()
@@ -93,41 +97,22 @@ export class Editor extends Component<IProps, IState>
 
     loadTypings()
     {
-        const version = this.state.data.pixiVersion || globalState.selectedPixiVersion || 'v4';
-        const key = version.substr(0, 2);
+        const version = this.state.data.pixiVersion;
 
-        if (allowedTypingsVersionKeys.indexOf(key) === -1 || pixiTypingsCache.activeTypingsKey === key)
+        this.setState({ typingsLoading: true });
+        getTypings(version, (typings) =>
         {
-            return;
-        }
-
-        if (pixiTypingsCache[key])
-        {
-            this.enableTypings(key);
-
-            if (this.state.typingsLoading)
+            if (typings)
             {
-                this.setState({ typingsLoading: false });
-                this.onEditorValueChange(this._editorInstance.getValue());
+                this.enableTypings(typings);
             }
-        }
-        else
-        {
-            this.setState({ typingsLoading: true });
-            getTypings(key, (err, str) => {
-                if (!err)
-                {
-                    pixiTypingsCache[key] = str;
-                    this.enableTypings(key);
-                }
 
-                this.setState({ typingsLoading: false });
-                this.onEditorValueChange(this._editorInstance.getValue());
-            });
-        }
+            this.setState({ typingsLoading: false });
+            this.onEditorValueChange(this._editorInstance.getValue());
+        });
     }
 
-    enableTypings(key: string)
+    enableTypings(typings: string)
     {
         if (activePixiTypings)
         {
@@ -136,8 +121,7 @@ export class Editor extends Component<IProps, IState>
 
         const jsDefaults = this._monacoRef.languages.typescript.javascriptDefaults;
 
-        activePixiTypingsKey = key;
-        activePixiTypings = jsDefaults.addExtraLib(pixiTypingsCache[key], 'pixi.d.ts');
+        activePixiTypings = jsDefaults.addExtraLib(typings, 'pixi.d.ts');
     }
 
     @bind
@@ -199,7 +183,7 @@ export class Editor extends Component<IProps, IState>
         return (
             <div id="editor-full-wrapper">
                 <div className="fullscreen spinner large centered" style={{ display: this._isLoading() ? 'block' : 'none' }} />
-                <EditorTopBar slug={slug} />
+                <EditorTopBar slug={slug} onSaveClick={this._save} />
                 <div id="editor-wrapper">
                     <MonacoEditor
                         value={data && data.contents ? data.contents : getDefaultPlayground() }
@@ -222,31 +206,80 @@ export class Editor extends Component<IProps, IState>
     {
         return this.state.playgroundLoading || this.state.editorLoading || this.state.typingsLoading;
     }
+
+    @bind
+    private _onKeydown(event: KeyboardEvent)
+    {
+        if (event.ctrlKey || event.metaKey)
+        {
+            if (String.fromCharCode(event.which).toLowerCase() == 's')
+            {
+                event.preventDefault();
+                this._save();
+            }
+        }
+    }
+
+    @bind
+    private _save()
+    {
+        if (this.state.data.id)
+        {
+            updatePlayground(this.state.data, (err, data: IPlayground) =>
+            {
+                // TODO: Display save success/failure
+
+                if (!err && data)
+                    this.setState({ data });
+            });
+        }
+        else
+        {
+            createPlayground(this.state.data, (err, data: IPlayground) =>
+            {
+                // TODO: Display save success/failure
+
+                if (!err && data)
+                {
+                    this.setState({ data });
+                    route(`/edit/${data.slug}`);
+                }
+            });
+        }
+    }
 }
 
 function getDefaultPlayground()
 {
-    return `var app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: 0x2c3e50 });
+    return `// Create our application instance
+var app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: 0x2c3e50 });
 document.body.appendChild(app.view);
 
-// create a new Sprite from an image path
-var bunny = PIXI.Sprite.fromImage('https://pixijs.io/examples/required/assets/basics/bunny.png')
+// Load the bunny texture
+PIXI.loader.add('bunny', 'https://pixijs.io/examples/required/assets/basics/bunny.png')
+    .load(startup);
 
-// center the sprite's anchor point
-bunny.anchor.set(0.5);
+function startup()
+{
+    var bunny = new PIXI.Sprite(PIXI.loader.resources.bunny.texture);
 
-// move the sprite to the center of the screen
-bunny.x = app.renderer.width / 2;
-bunny.y = app.renderer.height / 2;
+    // Center the sprite's anchor point
+    bunny.anchor.set(0.5);
 
-app.stage.addChild(bunny);
+    // Move the sprite to the center of the screen
+    bunny.x = app.renderer.width / 2;
+    bunny.y = app.renderer.height / 2;
 
-// Listen for animate update
-app.ticker.add(function(delta) {
-    // just for fun, let's rotate mr rabbit a little
-    // delta is 1 if running at 100% performance
-    // creates frame-independent tranformation
-    bunny.rotation += 0.1 * delta;
-});
+    app.stage.addChild(bunny);
+
+    // Listen for animate update
+    app.ticker.add(function(delta)
+    {
+        // just for fun, let's rotate mr rabbit a little
+        // delta is 1 if running at 100% performance
+        // creates frame-independent tranformation
+        bunny.rotation += 0.1 * delta;;;
+    });
+}
 `;
 }

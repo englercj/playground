@@ -24,7 +24,7 @@ export const db: ISequelizeConfig = {
     storage: isTestEnv ? ':memory:' : 'data.sqlite',
     define: {
         timestamps: true,
-        version: '_lockVersion',
+        version: 'lockVersion',
     },
     // timezone: 'America/Los_Angeles',
     benchmark: true,

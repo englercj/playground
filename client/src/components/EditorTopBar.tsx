@@ -1,8 +1,10 @@
 import { h, Component } from 'preact';
+import { bind } from 'decko';
 
 interface IProps
 {
     slug: string;
+    onSaveClick?: () => void;
 }
 
 export class EditorTopBar extends Component<IProps, {}>
@@ -16,7 +18,7 @@ export class EditorTopBar extends Component<IProps, {}>
                     <span className="title">Pixi Playground</span>
                 </div>
                 <div className="btn-group">
-                    <button id="save" className="btn">
+                    <button id="save" className="btn" onClick={this._onSaveClick}>
                         <span className="fa fa-bookmark" aria-hidden="true" />
                         <span className="label">Save</span>
                         <span className="spinner small hidden" />
@@ -24,5 +26,12 @@ export class EditorTopBar extends Component<IProps, {}>
                 </div>
             </nav>
         );
+    }
+
+    @bind
+    private _onSaveClick()
+    {
+        if (this.props.onSaveClick)
+            this.props.onSaveClick();
     }
 }

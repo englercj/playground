@@ -11,28 +11,24 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
         slug: {
             type: DataTypes.CHAR(63),
             allowNull: false,
-            defaultValue: () => nanoid(),
             unique: 'unique_slug',
         },
         name: {
             type: DataTypes.STRING(1023),
-            allowNull: false,
         },
         description: {
             type: DataTypes.STRING(4095),
-            allowNull: false,
         },
         contents: {
             type: DataTypes.TEXT('medium'),
             allowNull: false,
-            defaultValue: '',
         },
         author: {
             type: DataTypes.STRING(511),
         },
         versionsCount: {
             type: DataTypes.INTEGER,
-            defaultValue: 0,
+            defaultValue: 1,
         },
         starCount: {
             type: DataTypes.INTEGER,
@@ -59,6 +55,9 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
         },
         updatedAt: {
             type: DataTypes.DATE,
+        },
+        lockVersion: {
+            type: DataTypes.INTEGER,
         },
     })
     .then(() => query.addIndex('playgrounds', ['isFeatured'], {

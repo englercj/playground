@@ -1,3 +1,5 @@
+// TODO: Optimistic locking failure retries!
+
 import * as CODES from 'http-codes';
 import * as restify from 'restify';
 import { Playground } from './models/Playground';
@@ -131,11 +133,11 @@ export function setupRoutes(app: restify.Server)
 
         const logState: any = { params };
 
-        if (!name || !author || !contents)
+        if (!contents)
         {
             req.log.error(logState, 'Failed to save playground, invalid params');
 
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either name, author, or contents is empty.` });
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params contents is empty.` });
 
             next();
             return;
@@ -143,9 +145,9 @@ export function setupRoutes(app: restify.Server)
 
         db.transaction((t) =>
         {
-            const item = new Playground({ name, description, contents, author, pixiVersion, isPublic });
-
-            return item.save({ transaction: t })
+            return Playground.create(
+                { name, description, contents, author, pixiVersion, isPublic },
+                { transaction: t })
                 .then((value) =>
                 {
                     req.log.debug(`Created a new playground: ${value.slug}`);
@@ -156,7 +158,7 @@ export function setupRoutes(app: restify.Server)
                 .catch((err) =>
                 {
                     logState.err = err;
-                    req.log.error(logState, 'Failed to update playground.');
+                    req.log.error(logState, 'Failed to create playground.');
                     res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
 
                     next();
@@ -181,11 +183,11 @@ export function setupRoutes(app: restify.Server)
 
         const logState: any = { params };
 
-        if (!slug || !name || !author || !contents)
+        if (!slug || !contents)
         {
             req.log.error(logState, 'Failed save playground, invalid params');
 
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either slug, name, author, or contents is empty.` });
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either slug or contents is empty.` });
 
             next();
             return;
@@ -197,7 +199,7 @@ export function setupRoutes(app: restify.Server)
                 .then((value) =>
                 {
                     return value.update(
-                        { name, description, contents, author, pixiVersion, isPublic, versionCount: value.versionsCount + 1 },
+                        { name, description, contents, author, pixiVersion, isPublic, versionsCount: value.versionsCount + 1 },
                         { transaction: t })
                         .then((value) =>
                         {

@@ -1,11 +1,7 @@
 import { IPlayground } from '../../../shared/types';
-import { post, get, THttpCallback } from './http';
+import { get, put, post, THttpCallback } from './http';
 
-const pixiTypingsUrls: { [key: string]: string } = {
-    v4: 'https://cdn.rawgit.com/pixijs/pixi-typescript/v4.x/pixi.js.d.ts',
-    v3: 'https://cdn.rawgit.com/pixijs/pixi-typescript/a7bbf609/pixi.js.d.ts',
-    v2: 'https://cdn.rawgit.com/pixijs/pixi-typescript/v2.x/pixi.d.ts',
-};
+const pixiTypingsCache: { [key: string]: string } = {};
 
 let baseOrigin = __BASE_ORIGIN__;
 
@@ -18,14 +14,9 @@ if (typeof localStorage !== 'undefined') {
     }
 }
 
-export function createPlayground(name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<IPlayground>)
+export function searchPlaygrounds(searchStr: string, cb: THttpCallback<IPlayground[]>)
 {
-    post(`${baseOrigin}/api/playground`, { name, author, isPublic, contents }, cb);
-}
-
-export function updatePlayground(slug: string, name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<IPlayground>)
-{
-    post(`${baseOrigin}/api/playground/${slug}`, { name, author, isPublic, contents }, cb);
+    get(`${baseOrigin}/api/playgrounds?q=${encodeURIComponent(searchStr)}`, cb);
 }
 
 export function getPlayground(slug: string, cb: THttpCallback<IPlayground>)
@@ -33,15 +24,39 @@ export function getPlayground(slug: string, cb: THttpCallback<IPlayground>)
     get(`${baseOrigin}/api/playground/${slug}`, cb);
 }
 
-export function searchPlaygrounds(searchStr: string, cb: THttpCallback<IPlayground[]>)
+export function createPlayground(data: IPlayground, cb: THttpCallback<IPlayground>)
 {
-    get(`${baseOrigin}/api/playgrounds?q=${encodeURIComponent(searchStr)}`, cb);
+    post(`${baseOrigin}/api/playground`, data, cb);
 }
 
-export function getTypings(key: string, cb: THttpCallback<any>)
+export function updatePlayground(data: IPlayground, cb: THttpCallback<IPlayground>)
 {
-    if (!pixiTypingsUrls[key])
-        return cb(new Error('Invalid version key.'));
+    put(`${baseOrigin}/api/playground/${data.slug}`, data, cb);
+}
 
-    get(pixiTypingsUrls[key], cb);
+export function getTypings(version: string, cb: (typings: string) => void)
+{
+    if (pixiTypingsCache[version])
+    {
+        setTimeout(() => cb(pixiTypingsCache[version]), 1);
+        return;
+    }
+
+    if (version === 'release')
+        version = 'master';
+
+    const url = `https://cdn.rawgit.com/pixijs/pixi-typescript/${version}/pixi.js.d.ts`;
+
+    get(url, (err, str) =>
+    {
+        if (!err)
+        {
+            pixiTypingsCache[version] = str;
+            cb(str);
+        }
+        else
+        {
+            cb(null);
+        }
+    });
 }
