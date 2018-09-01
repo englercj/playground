@@ -1,19 +1,17 @@
-interface IPlaygroundData {
+interface IPlayground {
     id?: number;
     slug?: string;
-    version?: number;
     name?: string;
     description?: string;
-    file?: string;
+    contents?: string;
     author?: string;
+    versionsCount?: number;
     starCount?: number;
     pixiVersion?: string;
     isPublic?: boolean;
     isFeatured?: boolean;
     isOfficial?: boolean;
 }
-
-type TPlaygroundInfo = { item: IPlaygroundData, contents: string };
 
 type TCallback = () => void;
 type TCallback1<T1> = (arg1: T1) => void;

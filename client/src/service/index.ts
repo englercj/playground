@@ -1,4 +1,4 @@
-import http, { THttpCallback } from './http';
+import { post, get, THttpCallback } from './http';
 
 const pixiTypingsUrls: { [key: string]: string } = {
     v4: 'https://cdn.rawgit.com/pixijs/pixi-typescript/v4.x/pixi.js.d.ts',
@@ -11,29 +11,36 @@ let baseOrigin = __BASE_ORIGIN__;
 if (typeof localStorage !== 'undefined') {
     const apiOriginOverride = localStorage.getItem('apiOriginOverride');
 
-    if (apiOriginOverride) {
+    if (apiOriginOverride)
+    {
         baseOrigin = apiOriginOverride;
     }
 }
 
-export function createPlayground(name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<TPlaygroundInfo>) {
-    http.post(`${baseOrigin}/api/playground`, { name, author, isPublic, contents }, cb);
+export function createPlayground(name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<IPlayground>)
+{
+    post(`${baseOrigin}/api/playground`, { name, author, isPublic, contents }, cb);
 }
 
-export function updatePlayground(slug: string, name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<TPlaygroundInfo>) {
-    http.post(`${baseOrigin}/api/playground/${slug}`, { name, author, isPublic, contents }, cb);
+export function updatePlayground(slug: string, name: string, author: string, isPublic: boolean, contents: string, cb: THttpCallback<IPlayground>)
+{
+    post(`${baseOrigin}/api/playground/${slug}`, { name, author, isPublic, contents }, cb);
 }
 
-export function getPlayground(slug: string, version: number, cb: THttpCallback<TPlaygroundInfo>) {
-    http.get(`${baseOrigin}/api/playground/${slug}/${version}`, cb);
+export function getPlayground(slug: string, cb: THttpCallback<IPlayground>)
+{
+    get(`${baseOrigin}/api/playground/${slug}`, cb);
 }
 
-export function searchPlaygrounds(searchStr: string, cb: THttpCallback<IPlaygroundData[]>) {
-    http.get(`${baseOrigin}/api/playgrounds?q=${encodeURIComponent(searchStr)}`, cb);
+export function searchPlaygrounds(searchStr: string, cb: THttpCallback<IPlayground[]>)
+{
+    get(`${baseOrigin}/api/playgrounds?q=${encodeURIComponent(searchStr)}`, cb);
 }
 
-export function getTypings(key: string, cb: THttpCallback<any>) {
-    if (!pixiTypingsUrls[key]) return cb(new Error('Invalid version key.'));
+export function getTypings(key: string, cb: THttpCallback<any>)
+{
+    if (!pixiTypingsUrls[key])
+        return cb(new Error('Invalid version key.'));
 
-    http.get(pixiTypingsUrls[key], cb);
+    get(pixiTypingsUrls[key], cb);
 }

@@ -18,7 +18,7 @@ declare module 'preact-router' {
         replace?: (url: string) => void;
     }
 
-    export interface RouterProps extends preact.ComponentProps<any> {
+    export interface RouterProps extends preact.ComponentProps {
         history?: CustomHistory;
         path?: string;
         static?: boolean;

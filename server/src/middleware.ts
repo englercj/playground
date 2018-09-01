@@ -3,9 +3,9 @@ import * as os from 'os';
 import * as http from 'http';
 import * as config from './config';
 import * as corsMiddleware from 'restify-cors-middleware';
-import logger from './lib/logger';
 
-export default function middlewareInit(app: restify.Server) {
+export function setupMiddleware(app: restify.Server)
+{
     const cors = corsMiddleware({
         origins: [config.corsOrigin],
     });
@@ -21,14 +21,9 @@ export default function middlewareInit(app: restify.Server) {
         mapParams: true,
     }));
 
-    app.use(restify.plugins.bodyParser({
-        maxBodySize: 0,
+    app.use(restify.plugins.jsonBodyParser({
         mapParams: true,
-        mapFiles: false,
         overrideParams: false,
-        keepExtensions: true,
-        multiples: false,
-        uploadDir: os.tmpdir(),
     }));
 
     app.use(restify.plugins.throttle({
@@ -37,7 +32,8 @@ export default function middlewareInit(app: restify.Server) {
         ip: true,
     }));
 
-    app.on('uncaughtException', (req: restify.Request, res: restify.Response, route: string, error: Error) => {
+    app.on('uncaughtException', (req: restify.Request, res: restify.Response, route: string, error: Error) =>
+    {
         req.log.error(error);
     });
 };
@@ -45,12 +41,12 @@ export default function middlewareInit(app: restify.Server) {
 const Response = (http as any).ServerResponse;
 
 // Add a links property to the response object
-Response.prototype.links = function linkHeaderFormatter(links: { [key: string]: string }) {
+Response.prototype.links = function linkHeaderFormatter(links: { [key: string]: string })
+{
     let link = this.getHeader('Link') || '';
 
-    if (link) {
+    if (link)
         link += ', ';
-    }
 
     const linksStr = Object.keys(links)
         .map((rel) => `<${links[rel]}>; rel="${rel}"`)

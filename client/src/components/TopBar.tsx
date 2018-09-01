@@ -1,13 +1,16 @@
 import { h, Component } from 'preact';
-import SearchBar from './SearchBar';
+import { SearchBar } from './SearchBar';
 
-interface IProps {
+interface IProps
+{
     searchText?: string;
     useHistoryReplace?: boolean;
 }
 
-export default class TopBar extends Component<IProps, {}> {
-    render() {
+export class TopBar extends Component<IProps, {}>
+{
+    render()
+    {
         return (
             <div>
                 <SearchBar text={this.props.searchText} useHistoryReplace={this.props.useHistoryReplace}/>

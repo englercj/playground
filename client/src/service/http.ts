@@ -1,21 +1,26 @@
 export type THttpCallback<T> = (err: Error, data?: T) => void;
 
-function sendRequest(method: string, url: string, data: any, callback: THttpCallback<any>) {
+function sendRequest(method: string, url: string, data: any, callback: THttpCallback<any>)
+{
     const xhr = new XMLHttpRequest();
 
     xhr.open(method, url, true);
 
-    xhr.addEventListener('error', () => {
+    xhr.addEventListener('error', () =>
+    {
         callback(new Error(`Request failed. Status: ${xhr.status}, text: "${xhr.statusText}"`));
     }, false);
 
-    xhr.addEventListener('load', () => {
+    xhr.addEventListener('load', () =>
+    {
         let res;
 
-        try {
+        try
+        {
             res = JSON.parse(xhr.responseText);
         }
-        catch (e) {
+        catch (e)
+        {
             res = xhr.responseText;
         }
 
@@ -24,20 +29,35 @@ function sendRequest(method: string, url: string, data: any, callback: THttpCall
 
     xhr.responseType = 'text';
 
-    if (method !== 'GET' && data) {
+    if (method !== 'GET' && data)
+    {
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(data));
     }
-    else {
+    else
+    {
         xhr.send();
     }
 
     return xhr;
 }
 
-export default {
-    get:    (url: string, callback: THttpCallback<any>) => sendRequest('GET', url, null, callback),
-    post:   (url: string, data: any, callback: THttpCallback<any>) => sendRequest('POST', url, data, callback),
-    put:    (url: string, data: any, callback: THttpCallback<any>) => sendRequest('PUT', url, data, callback),
-    delete: (url: string, callback: THttpCallback<any>) => sendRequest('DELETE', url, null, callback),
-};
+export function get(url: string, callback: THttpCallback<any>)
+{
+    return sendRequest('GET', url, null, callback);
+}
+
+export function post(url: string, data: any, callback: THttpCallback<any>)
+{
+    return sendRequest('POST', url, data, callback);
+}
+
+export function put(url: string, data: any, callback: THttpCallback<any>)
+{
+    return sendRequest('PUT', url, data, callback);
+}
+
+export function del(url: string, callback: THttpCallback<any>)
+{
+    return sendRequest('DELETE', url, null, callback);
+}

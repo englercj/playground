@@ -10,7 +10,8 @@
         "noImplicitAny": true,
         "removeComments": true,
         "inlineSourceMap": false,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     },
     "include": [
         "../typings/**/*",

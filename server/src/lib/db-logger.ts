@@ -1,3 +1,3 @@
-import logger from './logger';
+import { logger } from './logger';
 
-export default logger.child({ sequelize: true }, true);
+export const dbLogger = logger.child({ sequelize: true }, true);

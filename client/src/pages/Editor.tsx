@@ -4,14 +4,14 @@
 import { h, Component } from 'preact';
 import { bind } from 'decko';
 import { getPlayground, getTypings } from '../service';
-import IPageProps from './IPageProps';
+import { IPageProps } from './IPageProps';
 import globalState from '../util/globalState';
-import MonacoEditor from '../components/MonacoEditor';
-import EditorTopBar from '../components/EditorTopBar';
+import { MonacoEditor } from '../components/MonacoEditor';
+import { EditorTopBar } from '../components/EditorTopBar';
 
-interface IProps extends IPageProps {
+interface IProps extends IPageProps
+{
     slug?: string;
-    version?: number;
 }
 
 const allowedTypingsVersionKeys = ['v4', 'v3', 'v2'];
@@ -24,23 +24,26 @@ const pixiTypingsCache: { [key: string]: string } = {
 let activePixiTypingsKey = '';
 let activePixiTypings: monaco.IDisposable = null;
 
-interface IState {
+interface IState
+{
     playgroundLoading: boolean;
     editorLoading: boolean;
     typingsLoading: boolean;
     loading: boolean;
     err?: Error;
-    data?: TPlaygroundInfo;
+    data?: IPlayground;
 }
 
-export default class Editor extends Component<IProps, IState> {
+export class Editor extends Component<IProps, IState>
+{
     private _editorInstance: monaco.editor.IStandaloneCodeEditor;
     private _monacoRef: typeof monaco;
     private _resultIFrame: HTMLIFrameElement;
     private _onChangeDelay: number;
     private _onChangeTimer: number;
 
-    constructor(props: IProps, context: any) {
+    constructor(props: IProps, context: any)
+    {
         super(props, context);
 
         this._editorInstance = null;
@@ -49,17 +52,14 @@ export default class Editor extends Component<IProps, IState> {
         this._onChangeDelay = 1000;
         this._onChangeTimer = 0;
 
-        if (typeof this.props.version === 'string') {
-            this.props.version = parseInt(this.props.version, 10) || 0;
-        }
-
         this.state = {
             playgroundLoading: true,
             editorLoading: true,
             typingsLoading: true,
             err: null,
-            data: { item: {}, contents: '' },
-            get loading() {
+            data: {},
+            get loading()
+            {
                 return this.playgroundLoading || this.editorLoading || this.typingsLoading;
             },
         };
@@ -67,18 +67,24 @@ export default class Editor extends Component<IProps, IState> {
         this.loadPlayground();
     }
 
-    loadPlayground() {
-        if (!this.props.slug) {
+    loadPlayground()
+    {
+        if (!this.props.slug)
+        {
             this.setState({ playgroundLoading: false });
             this.onEditorValueChange(this._editorInstance ? this._editorInstance.getValue() : '');
         }
-        else {
+        else
+        {
             this.setState({ playgroundLoading: true });
-            getPlayground(this.props.slug, this.props.version, (err, data) => {
-                if (err) {
+            getPlayground(this.props.slug, (err, data) =>
+            {
+                if (err)
+                {
                     this.setState({ playgroundLoading: false, err });
                 }
-                else {
+                else
+                {
                     this.setState({ playgroundLoading: false, data });
                 }
 
@@ -89,26 +95,32 @@ export default class Editor extends Component<IProps, IState> {
         }
     }
 
-    loadTypings() {
-        const version = this.state.data.item.pixiVersion || globalState.selectedPixiVersion || 'v4';
+    loadTypings()
+    {
+        const version = this.state.data.pixiVersion || globalState.selectedPixiVersion || 'v4';
         const key = version.substr(0, 2);
 
-        if (allowedTypingsVersionKeys.indexOf(key) === -1 || pixiTypingsCache.activeTypingsKey === key) {
+        if (allowedTypingsVersionKeys.indexOf(key) === -1 || pixiTypingsCache.activeTypingsKey === key)
+        {
             return;
         }
 
-        if (pixiTypingsCache[key]) {
+        if (pixiTypingsCache[key])
+        {
             this.enableTypings(key);
 
-            if (this.state.typingsLoading) {
+            if (this.state.typingsLoading)
+            {
                 this.setState({ typingsLoading: false });
                 this.onEditorValueChange(this._editorInstance.getValue());
             }
         }
-        else {
+        else
+        {
             this.setState({ typingsLoading: true });
             getTypings(key, (err, str) => {
-                if (!err) {
+                if (!err)
+                {
                     pixiTypingsCache[key] = str;
                     this.enableTypings(key);
                 }
@@ -119,8 +131,10 @@ export default class Editor extends Component<IProps, IState> {
         }
     }
 
-    enableTypings(key: string) {
-        if (activePixiTypings) {
+    enableTypings(key: string)
+    {
+        if (activePixiTypings)
+        {
             activePixiTypings.dispose();
         }
 
@@ -131,8 +145,10 @@ export default class Editor extends Component<IProps, IState> {
     }
 
     @bind
-    updateDemo() {
-        if (this.state.loading || !this._resultIFrame || !this._resultIFrame.contentWindow) {
+    updateDemo()
+    {
+        if (this.state.loading || !this._resultIFrame || !this._resultIFrame.contentWindow)
+        {
             return;
         }
 
@@ -140,7 +156,8 @@ export default class Editor extends Component<IProps, IState> {
     }
 
     @bind
-    onEditorMount(editor: monaco.editor.IStandaloneCodeEditor, monacoRef: typeof monaco) {
+    onEditorMount(editor: monaco.editor.IStandaloneCodeEditor, monacoRef: typeof monaco)
+    {
         this._editorInstance = editor;
         this._monacoRef = monaco;
 
@@ -151,35 +168,41 @@ export default class Editor extends Component<IProps, IState> {
     }
 
     @bind
-    onResultIFrameMount(iframe: HTMLIFrameElement) {
+    onResultIFrameMount(iframe: HTMLIFrameElement)
+    {
         this._resultIFrame = iframe;
 
-        iframe.addEventListener('load', () => {
+        iframe.addEventListener('load', () =>
+        {
             iframe.contentWindow.postMessage(this.state.data, location.origin);
         }, false);
     }
 
     @bind
-    onEditorValueChange(newValue: string) {
+    onEditorValueChange(newValue: string)
+    {
         if (this.state.loading) return;
 
         this.state.data.contents = newValue;
 
         clearTimeout(this._onChangeTimer);
-        this._onChangeTimer = setTimeout(() => {
+        this._onChangeTimer = setTimeout(() =>
+        {
             this.updateDemo();
         }, this._onChangeDelay);
     }
 
-    render({ slug, version }: IProps, { loading, err, data }: IState) {
-        if (err) {
+    render({ slug }: IProps, { loading, err, data }: IState)
+    {
+        if (err)
+        {
             return <div id="fullscreen error">Unable to load! {err.message}</div>;
         }
 
         return (
             <div id="editor-full-wrapper">
                 <div className="fullscreen spinner large centered" style={{ display: loading ? 'block' : 'none' }} />
-                <EditorTopBar slug={slug} version={version} />
+                <EditorTopBar slug={slug} />
                 <div id="editor-wrapper">
                     <MonacoEditor
                         value={data && data.contents ? data.contents : getDefaultPlayground() }
@@ -199,7 +222,8 @@ export default class Editor extends Component<IProps, IState> {
     }
 }
 
-function getDefaultPlayground() {
+function getDefaultPlayground()
+{
     return `var app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: 0x2c3e50 });
 document.body.appendChild(app.view);
 

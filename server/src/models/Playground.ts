@@ -1,16 +1,17 @@
-import * as shortid from 'shortid';
+import nanoid = require('nanoid');
 import * as Promise from 'bluebird';
+import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-typescript';
 import { IDefineOptions } from 'sequelize-typescript/lib/interfaces/IDefineOptions';
 import { db as dbConfig } from '../config';
-import db from '../lib/db';
-import dbLogger from '../lib/db-logger';
+import { db } from '../lib/db';
+import { dbLogger } from '../lib/db-logger';
 
-const searchQuery: { [dialect: string]: string } = {
-    postgres: '"PlaygroundSearchText" @@ plainto_tsquery(\'english\', ?)',
-    sqlite: 'playgrounds_fts MATCH ?',
-    // mysql: 'MATCH (name, description, author) AGAINST(?)',
+const searchQuery: { [dialect: string]: literal } = {
+    postgres: Sequelize.literal('"PlaygroundSearchText" @@ plainto_tsquery(\'english\', :search)'),
+    sqlite: Sequelize.literal('playgrounds_fts MATCH :search'),
+    mysql: Sequelize.literal('MATCH (name, description, author) AGAINST(:search)'),
 };
 
 @Table({
@@ -22,7 +23,8 @@ const searchQuery: { [dialect: string]: string } = {
         { fields: ['isOfficial'], where: { isOfficial: true } },
     ] as any // 'where' is not in the dts :(
 } as IDefineOptions)
-export default class Playground extends Model<Playground> implements IPlaygroundData {
+export class Playground extends Model<Playground> implements IPlayground
+{
     /**
      * The primary ID key. Together the ID/Version uniquely identify a playground.
      * When creating a brand new playground, the ID is incremented.
@@ -31,30 +33,18 @@ export default class Playground extends Model<Playground> implements IPlayground
     @Column({
         type: DataType.CHAR,
         allowNull: false,
-        defaultValue: () => shortid.generate(),
-        unique: 'unique_slug_version',
+        defaultValue: () => nanoid(),
+        unique: 'unique_slug',
+        // unique: 'unique_slug_version',
     })
     slug: string;
-
-    /**
-     * The primary version key. Together the ID/Version uniquely identify a playground.
-     * When editing or updating an existing playground, the version is incremented.
-     *
-     */
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-        unique: 'unique_slug_version',
-    })
-    version: number;
 
     /**
      * The user-defined name of the playground.
      *
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(1023),
         allowNull: false,
     })
     name: string;
@@ -64,29 +54,40 @@ export default class Playground extends Model<Playground> implements IPlayground
      *
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(4095),
         allowNull: false,
     })
     description: string;
 
     /**
-     * The file URL for the playground contents.
+     * The playground contents.
      *
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.TEXT,
         allowNull: false,
+        defaultValue: "",
     })
-    file: string;
+    contents: string;
 
     /**
      * The user-define author string.
      *
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(511),
     })
     author: string;
+
+    /**
+     * The count of stars a playground has.
+     *
+     */
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 1,
+    })
+    versionsCount: number;
 
     /**
      * The count of stars a playground has.
@@ -103,7 +104,7 @@ export default class Playground extends Model<Playground> implements IPlayground
      *
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(255),
         allowNull: false,
     })
     pixiVersion: string;
@@ -158,7 +159,7 @@ export default class Playground extends Model<Playground> implements IPlayground
      * Search the pg full-text search index for the query.
      *
      */
-    static search(searchStr: string): Promise<Playground[]>
+    static search(search: string): Promise<Playground[]>
     {
         if (!searchQuery[db.options.dialect])
         {
@@ -166,11 +167,9 @@ export default class Playground extends Model<Playground> implements IPlayground
             return Promise.reject(new Error('Searching not supported in this dialect'));
         }
 
-        const escapedStr = db.getQueryInterface().escape(searchStr);
-        const whereClause = searchQuery[dbConfig.dialect].replace('?', escapedStr);
-        const tableName = Playground.getTableName();
-        const tableNamePostfix = db.options.dialect === 'sqlite' ? '_fts' : '';
-
-        return db.query(`SELECT * FROM ${tableName}${tableNamePostfix} WHERE ${whereClause}`, { type: Sequelize.QueryTypes.SELECT });
+        return Playground.findAll({
+            where: searchQuery[dbConfig.dialect],
+            replacements: { search },
+        } as any);
     }
 }

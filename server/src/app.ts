@@ -3,12 +3,13 @@ import * as os from 'os';
 import * as path from 'path';
 import * as cluster from 'cluster';
 import * as Umzug from 'umzug';
-import logger from './lib/logger';
-import db from './lib/db';
-import server from './server';
+import { logger } from './lib/logger';
+import { db } from './lib/db';
+import { start } from './server';
 
 // Code to run if we're in the master process
-if (cluster.isMaster) {
+if (cluster.isMaster)
+{
     const umzugLogger = logger.child({ umzug: true }, true);
     const umzug = new Umzug({
         storage: 'sequelize',
@@ -36,7 +37,7 @@ if (cluster.isMaster) {
 }
 // Code to run if we're in a worker process
 else {
-    server.start();
+    start();
 }
 
 function forkWorkers() {

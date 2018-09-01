@@ -1,12 +1,14 @@
 import { h, Component } from 'preact';
 
-interface IProps {
+interface IProps
+{
     slug: string;
-    version: number;
 }
 
-export default class EditorTopBar extends Component<IProps, {}> {
-    render() {
+export class EditorTopBar extends Component<IProps, {}>
+{
+    render()
+    {
         return (
             <nav id="editor-topbar">
                 <div className="brand">

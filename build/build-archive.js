@@ -3,9 +3,14 @@ var fs = require('fs');
 var archiver = require('archiver');
 
 // make the output directory
-try { fs.mkdirSync('dist'); }
-catch (e) {
-    if (e.code !== 'EEXIST') throw e;
+try
+{
+    fs.mkdirSync('dist');
+}
+catch (e)
+{
+    if (e.code !== 'EEXIST')
+        throw e;
 }
 
 // create a file to stream archive data to.
@@ -15,7 +20,8 @@ var archive = archiver('zip', {
 });
 
 // listen for all archive data to be written
-output.on('close', function () {
+output.on('close', () =>
+{
     console.log(`${archive.pointer()} bytes written to app.zip`);
 });
 
