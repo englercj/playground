@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+$DOMAIN_NAME="pixiplayground.com"
+
 # Create 'deploy' user that will deploy and run the app
 useradd -s /bin/bash -m -d /home/deploy -c "deploy" deploy
 #passwd deploy
@@ -14,21 +16,21 @@ ufw allow OpenSSH
 ufw allow 'Nginx Full'
 
 # Setup nginx site
-mkdir -p /var/www/pixiplayground.com/html
-chown deploy:deploy /var/www/pixiplayground.com/html
-chmod 755 /var/www/pixiplayground.com
-touch /etc/nginx/sites-available/pixiplayground.com
-chown deploy:deploy /etc/nginx/sites-available/pixiplayground.com
-chmod 644 /etc/nginx/sites-available/pixiplayground.com
+mkdir -p /var/www/$DOMAIN_NAME/html
+chown deploy:deploy /var/www/$DOMAIN_NAME/html
+chmod 755 /var/www/$DOMAIN_NAME
+touch /etc/nginx/sites-available/$DOMAIN_NAME
+chown deploy:deploy /etc/nginx/sites-available/$DOMAIN_NAME
+chmod 644 /etc/nginx/sites-available/$DOMAIN_NAME
 # ... fill config ...
-ln -s /etc/nginx/sites-available/pixiplayground.com /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/$DOMAIN_NAME /etc/nginx/sites-enabled/
 nginx -t
 systemctl restart nginx
 
 # Install Certbot for SSL Cert
 add-apt-repository ppa:certbot/certbot
 apt install python-certbot-nginx
-certbot --nginx -d pixiplayground.com -d www.pixiplayground.com
+certbot --nginx -d $DOMAIN_NAME -d www.$DOMAIN_NAME
 
 # Install Node v10.x from nodesource
 curl -sL https://deb.nodesource.com/setup_10.x -o /tmp/nodesource_setup.sh
