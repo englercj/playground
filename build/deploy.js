@@ -2,7 +2,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const ssh = require('ssh2');
-const waterfall = require('async-waterfall');
+const waterfall = require('async/waterfall');
+const parallel = require('async/parallel');
 
 const server = '138.68.26.148';
 const privateKeyPath = path.join(os.homedir(), '.ssh/pixi_playground_deploy_rsa');
@@ -25,6 +26,7 @@ const serverDir = path.join(__dirname, '..', 'server');
 const archiveFormat = 'zip';
 const clientFile = path.join(buildDir, 'client.zip');
 const serverFile = path.join(buildDir, 'server.zip');
+const serverEnvFile = path.join(buildDir, 'server.env');
 
 if (process.argv.length !== 3)
     exitAndShowHelp();
@@ -115,7 +117,7 @@ function deployClient()
 
 function deployServer()
 {
-    if (!fs.existsSync(serverFile))
+    if (!fs.existsSync(serverFile) || !fs.existsSync(serverEnvFile))
         throw new Error(`No server package exists at: ${serverFile}`);''
 
     const serverFileName = path.basename(serverFile);
@@ -137,7 +139,19 @@ function deployServer()
             },
             function (sftp, next)
             {
-                sftp.fastPut(serverFile, `${remoteAppPath}/${serverFileName}`, next);
+                parallel([
+                    function (next)
+                    {
+                        sftp.fastPut(serverFile, `${remoteAppPath}/${serverFileName}`, next);
+                    },
+                    function (next)
+                    {
+                        sftp.fastPut(serverEnvFile, `${remoteAppPath}/.env`, next);
+                    },
+                ], (err) =>
+                {
+                    next(err);
+                });
             },
             function (next)
             {
@@ -146,6 +160,7 @@ function deployServer()
                     unzip ${serverFileName} -d _new_${remoteAppName} &&
                     mv -v ${remoteAppName} _old_${remoteAppName} &&
                     mv -v _new_${remoteAppName} ${remoteAppName} &&
+                    mv -v .env ${remoteAppName}/.env &&
                     cd ${remoteAppName} &&
                     npm install &&
                     pm2 startOrReload ecosystem.config.js --env production &&

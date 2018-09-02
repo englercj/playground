@@ -32,6 +32,6 @@ npm-debug.log
 .snyk
 .commit
 .records
+server.env
 node_modules/
-public/
 dist/

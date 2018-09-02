@@ -71,6 +71,7 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
         },
     }))
     .then(() => query.addIndex('playgrounds', ['name', 'description', 'author'], {
+        indexName: 'fulltext_name_description_author',
         indexType: 'FULLTEXT',
     }))
     .then(() => query.createTable('tags', {
