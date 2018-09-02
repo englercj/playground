@@ -2,13 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
 
-const deployDir = __dirname;
+const buildDir = __dirname;
 const clientDir = path.join(__dirname, '..', 'client');
 const serverDir = path.join(__dirname, '..', 'server');
 
 const archiveFormat = 'zip';
-const clientFile = path.join(deployDir, 'client.zip');
-const serverFile = path.join(deployDir, 'server.zip');
+const clientFile = path.join(buildDir, 'client.zip');
+const serverFile = path.join(buildDir, 'server.zip');
 
 if (process.argv.length !== 3)
     exitAndShowHelp();

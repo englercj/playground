@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ "$1" != "client" ] && [ "$1" != "server" ] && [ "$1" != "both" ] ; then
+    echo "Usage: package.sh <client|server|both>"
+    exit 1
+fi
+
 echo "Ensuring build dependencies are installed..."
 cd build &&
 npm i &&

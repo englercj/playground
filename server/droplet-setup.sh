@@ -7,7 +7,7 @@ useradd -s /bin/bash -m -d /home/deploy -c "deploy" deploy
 
 # Install Nginx
 apt update
-apt install nginx
+apt install unzip nginx
 
 # Setup firewall rules
 ufw allow OpenSSH
@@ -15,7 +15,7 @@ ufw allow 'Nginx Full'
 
 # Setup nginx site
 mkdir -p /var/www/$DOMAIN_NAME/html
-chown deploy:deploy /var/www/$DOMAIN_NAME/html
+chown -R deploy:deploy /var/www/$DOMAIN_NAME
 chmod 755 /var/www/$DOMAIN_NAME
 touch /etc/nginx/sites-available/$DOMAIN_NAME
 chown deploy:deploy /etc/nginx/sites-available/$DOMAIN_NAME
