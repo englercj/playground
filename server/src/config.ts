@@ -5,11 +5,10 @@ export const env = process.env.NODE_ENV || 'development';
 
 export const isProductionEnv = env === 'production';
 export const isTestEnv = env === 'test';
-export const port = process.env.PORT || 8081;
+export const port = process.env.PORT || 3000;
 export const host = process.env.HOST || '127.0.0.1';
-export const region = process.env.REGION || 'nyc1';
 export const cors: corsMiddleware.Options = {
-    origins: [isProductionEnv ? 'pixiplayground.com' : '*'],
+    origins: [isProductionEnv ? '*.pixiplayground.com' : '*'],
     allowHeaders: [],
     exposeHeaders: [],
 };
