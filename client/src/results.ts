@@ -1,7 +1,7 @@
 import { IPlayground } from '../../shared/types';
 
 const validOrigins = [
-    'http://pixiplayground.com',
+    'https://www.pixiplayground.com',
     'https://pixiplayground.com',
     'http://localhost:8080',
 ];
