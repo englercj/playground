@@ -75,10 +75,10 @@ function deployClient()
                 conn.exec(`
                     cd ${remoteHtmlPath} &&
                     unzip ${clientFileName} -d _new_${remoteHtmlName} &&
-                    mv ${remoteHtmlName} _old_${remoteHtmlName} &&
-                    mv _new_${remoteHtmlName} ${remoteHtmlName} &&
-                    rm -r _old_${remoteHtmlName} &&
-                    rm ${clientFileName}
+                    mv -v ${remoteHtmlName} _old_${remoteHtmlName} &&
+                    mv -v _new_${remoteHtmlName} ${remoteHtmlName} &&
+                    rm -rv _old_${remoteHtmlName} &&
+                    rm -v ${clientFileName}
                 `, function (err, stream)
                 {
                     if (err)
@@ -144,14 +144,14 @@ function deployServer()
                 conn.exec(`
                     cd ${remoteAppPath} &&
                     unzip ${serverFileName} -d _new_${remoteAppName} &&
-                    mv ${remoteAppName} _old_${remoteAppName} &&
-                    mv _new_${remoteAppName} ${remoteAppName} &&
+                    mv -v ${remoteAppName} _old_${remoteAppName} &&
+                    mv -v _new_${remoteAppName} ${remoteAppName} &&
                     cd ${remoteAppName} &&
                     npm install &&
                     pm2 startOrReload ecosystem.config.js &&
                     cd .. &&
-                    rm -r _old_${remoteAppName} &&
-                    rm ${serverFileName}
+                    rm -rv _old_${remoteAppName} &&
+                    rm -v ${serverFileName}
                 `, function (err, stream)
                 {
                     if (err)
