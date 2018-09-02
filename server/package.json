@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json --outDir dist",
     "dev": "nodemon | bunyan",
-    "start": "pm2 start dist/app.js -i max-name=\"Pixi Playground Service\"",
+    "start": "pm2 start dist/app.js -i 0 --name=\"Pixi Playground Service\"",
     "restart": "pm2 restart all",
     "test": "mocha -r ts-node/register test/unit/**/*.ts"
   },
