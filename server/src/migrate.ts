@@ -22,6 +22,7 @@ const umzug = new Umzug({
 });
 
 umzug.up()
+    .then(() => db.close())
     .catch((e) => {
         logger.fatal(e, 'Umzug migration failure.');
         process.exit(1);

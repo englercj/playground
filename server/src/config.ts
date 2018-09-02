@@ -25,6 +25,7 @@ export const db: ISequelizeConfig = {
     storage: isTestEnv ? ':memory:' : 'data.sqlite',
     define: {
         timestamps: true,
+        engine: isProductionEnv ? 'InnoDB' : '',
         version: 'lockVersion',
     },
     benchmark: !isProductionEnv,

@@ -162,7 +162,7 @@ function deployServer()
                     mv -v _new_${remoteAppName} ${remoteAppName} &&
                     mv -v .env ${remoteAppName}/.env &&
                     cd ${remoteAppName} &&
-                    npm install &&
+                    npm install --production &&
                     pm2 startOrReload ecosystem.config.js --env production &&
                     cd .. &&
                     rm -rv _old_${remoteAppName} &&

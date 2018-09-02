@@ -11,7 +11,6 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
         slug: {
             type: DataTypes.CHAR(63),
             allowNull: false,
-            unique: 'unique_slug',
         },
         name: {
             type: DataTypes.STRING(1023),
@@ -60,20 +59,30 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             type: DataTypes.INTEGER,
         },
     })
-    .then(() => query.addIndex('playgrounds', ['isFeatured'], {
+    .then(() => query.addIndex('playgrounds', {
+        name: 'playgrounds_unique_slug',
+        type: 'UNIQUE',
+        fields: ['slug'],
+    } as any))
+    .then(() => query.addIndex('playgrounds', {
+        name: 'playgrounds_is_featured',
+        fields: ['isFeatured'],
         where: {
             isFeatured: true,
         },
-    }))
-    .then(() => query.addIndex('playgrounds', ['isOfficial'], {
+    } as any))
+    .then(() => query.addIndex('playgrounds', {
+        name: 'playgrounds_is_official',
+        fields: ['isOfficial'],
         where: {
             isOfficial: true,
         },
-    }))
-    .then(() => query.addIndex('playgrounds', ['name', 'description', 'author'], {
-        indexName: 'fulltext_name_description_author',
-        indexType: 'FULLTEXT',
-    }))
+    } as any))
+    .then(() => query.addIndex('playgrounds', {
+        name: 'fulltext_name_description_author',
+        type: 'FULLTEXT',
+        fields: ['name', 'description', 'author'],
+    } as any))
     .then(() => query.createTable('tags', {
         id: {
             type: DataTypes.INTEGER,
