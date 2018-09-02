@@ -22,6 +22,7 @@ interface IState
     playgroundLoading: boolean;
     editorLoading: boolean;
     typingsLoading: boolean;
+    saving: boolean;
     err?: Error;
     data?: IPlayground;
 }
@@ -48,6 +49,7 @@ export class Editor extends Component<IProps, IState>
             playgroundLoading: true,
             editorLoading: true,
             typingsLoading: true,
+            saving: false,
             err: null,
             data: {
                 pixiVersion: 'release',
@@ -173,20 +175,26 @@ export class Editor extends Component<IProps, IState>
         }, this._onChangeDelay);
     }
 
-    render({ slug }: IProps, { err, data }: IState)
+    render({ slug }: IProps, state: IState)
     {
-        if (err)
+        if (state.err)
         {
-            return <div id="fullscreen error">Unable to load! {err.message}</div>;
+            return <div id="fullscreen error">Unable to load! {state.err.message}</div>;
         }
 
         return (
             <div id="editor-full-wrapper">
-                <div className="fullscreen spinner large centered" style={{ display: this._isLoading() ? 'block' : 'none' }} />
-                <EditorTopBar slug={slug} onSaveClick={this._save} />
+                <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoading() ? 'block' : 'none' }}>
+                    <ul>
+                        {this._renderLoadingInfoItem(state.playgroundLoading, 'Playground data')}
+                        {this._renderLoadingInfoItem(state.editorLoading, 'Monaco editor')}
+                        {this._renderLoadingInfoItem(state.typingsLoading, 'PixiJS types')}
+                    </ul>
+                </div>
+                <EditorTopBar slug={slug} saving={state.saving} onSaveClick={this._save} />
                 <div id="editor-wrapper">
                     <MonacoEditor
-                        value={data && data.contents ? data.contents : getDefaultPlayground() }
+                        value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
                         options={{
                             theme: 'vs-dark',
                             automaticLayout: true,
@@ -199,6 +207,17 @@ export class Editor extends Component<IProps, IState>
                     <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} />
                 </div>
             </div>
+        );
+    }
+
+    private _renderLoadingInfoItem(isLoading: boolean, name: string)
+    {
+        return (
+            <li className={isLoading ? 'loading' : 'done'}>
+                {isLoading ? 'Loading ' : ''}
+                {name}
+                {isLoading ? '...' : ' ready!'}
+            </li>
         );
     }
 
@@ -223,6 +242,8 @@ export class Editor extends Component<IProps, IState>
     @bind
     private _save()
     {
+        this.setState({ saving: true });
+
         if (this.state.data.id)
         {
             updatePlayground(this.state.data, (err, data: IPlayground) =>
@@ -230,7 +251,9 @@ export class Editor extends Component<IProps, IState>
                 // TODO: Display save success/failure
 
                 if (!err && data)
-                    this.setState({ data });
+                    this.setState({ data, saving: false });
+                else
+                    this.setState({ saving: false });
             });
         }
         else
@@ -241,9 +264,11 @@ export class Editor extends Component<IProps, IState>
 
                 if (!err && data)
                 {
-                    this.setState({ data });
+                    this.setState({ data, saving: false });
                     route(`/edit/${data.slug}`);
                 }
+                else
+                    this.setState({ saving: false });
             });
         }
     }

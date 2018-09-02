@@ -4,12 +4,13 @@ import { bind } from 'decko';
 interface IProps
 {
     slug: string;
+    saving: boolean;
     onSaveClick?: () => void;
 }
 
 export class EditorTopBar extends Component<IProps, {}>
 {
-    render()
+    render({ saving }: IProps)
     {
         return (
             <nav id="editor-topbar">
@@ -21,7 +22,7 @@ export class EditorTopBar extends Component<IProps, {}>
                     <button id="save" className="btn" onClick={this._onSaveClick}>
                         <span className="fa fa-bookmark" aria-hidden="true" />
                         <span className="label">Save</span>
-                        <span className="spinner small hidden" />
+                        <span className={saving ? "loading" : " hidden"} />
                     </button>
                 </div>
             </nav>
