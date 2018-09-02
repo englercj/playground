@@ -1,73 +1,52 @@
-// Include the cluster module
-import * as os from 'os';
-import * as path from 'path';
-import * as cluster from 'cluster';
-import * as Umzug from 'umzug';
 import { logger } from './lib/logger';
-import { db } from './lib/db';
-import { start } from './server';
+import * as server from './server';
 
-// Code to run if we're in the master process
-if (cluster.isMaster)
+// Starts the server and notifies PM2 we are online
+function startup()
 {
-    const umzugLogger = logger.child({ umzug: true }, true);
-    const umzug = new Umzug({
-        storage: 'sequelize',
-        storageOptions: {
-            sequelize: db,
-            tableName: 'schema_migrations',
-            columnName: 'migration',
-        },
-        logging: (msg: string) => {
-            umzugLogger.info(msg);
-        },
-        migrations: {
-            path: path.join(__dirname, 'migrations'),
-            pattern: /^\d+[\w-]+\.(j|t)s$/,
-            params: [db.getQueryInterface(), db.constructor],
-        },
-    });
+    server.start().then(() =>
+    {
+        if (process.send)
+            process.send('ready');
 
-    umzug.up()
-        .then(forkWorkers)
-        .catch((e) => {
-            logger.fatal(e, 'Umzug migration failure.');
+        logger.info('Application is up and ready.');
+    });
+}
+
+// Shuts down the server and exits
+let isShuttingDown = false;
+function shutdown()
+{
+    if (isShuttingDown)
+        return;
+
+    isShuttingDown = true;
+    logger.info('Application performing graceful shutdown.');
+
+    // Stops the server from accepting new connections and finishes existing connections.
+    server.close()
+        .then(() => logger.info('Application graceful shutdown complete.'))
+        .catch((err) =>
+        {
+            logger.error({ err }, 'Application graceful shutdown failed, stoppping process.');
             process.exit(1);
         });
 }
-// Code to run if we're in a worker process
-else {
-    start();
-}
 
-function forkWorkers() {
-    // Count the machine's CPUs
-    let workerCount = os.cpus().length;
+// MAIN
+process.on('SIGINT', () =>
+{
+    logger.info('SIGINT signal received.');
+    shutdown();
+});
 
-    // check for override to cpu count
-    for (let i = 0; i < process.argv.length; ++i) {
-        if (process.argv[i] === '--workers') {
-            if (process.argv.length > i + 1 && process.argv[i + 1]) {
-                const workerNum = parseInt(process.argv[i + 1], 10);
-
-                if (workerNum) {
-                    workerCount = workerNum;
-                }
-            }
-
-            break;
-        }
+process.on('message', (msg) =>
+{
+    if (msg == 'shutdown')
+    {
+        logger.info('Shutdown message received.');
+        shutdown();
     }
+});
 
-    // Create a worker for each CPU
-    for (let i = 0; i < workerCount; ++i) {
-        cluster.fork();
-    }
-
-    // Listen for terminating workers
-    cluster.on('exit', (worker, code, signal) => {
-        // Replace the terminated workers
-        logger.error(`Worker ${worker.id} exited (${signal || code}), restarting...`);
-        cluster.fork();
-    });
-}
+startup();

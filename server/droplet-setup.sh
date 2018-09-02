@@ -4,8 +4,6 @@ $DOMAIN_NAME="pixiplayground.com"
 
 # Create 'deploy' user that will deploy and run the app
 useradd -s /bin/bash -m -d /home/deploy -c "deploy" deploy
-#passwd deploy
-#usermod -aG sudo deploy
 
 # Install Nginx
 apt update

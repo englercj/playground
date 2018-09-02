@@ -1,0 +1,22 @@
+{
+  "name": "@pixi/playground-deploy",
+  "version": "1.0.0",
+  "description": "Deployment scripts for pixi playground.",
+  "author": "Chad Engler <chad@pantherdev.com>",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/englercj/playground#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/englercj/playground.git"
+  },
+  "bugs": {
+    "url": "https://github.com/englercj/playground/issues"
+  },
+  "dependencies": {
+    "archiver": "^3.0.0"
+  },
+  "engines": {
+    "node": "^10.9.0"
+  }
+}

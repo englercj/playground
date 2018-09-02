@@ -1,22 +1,22 @@
 {
-  "name": "@pixi/playground",
+  "name": "@pixi/playground-client",
   "version": "1.0.0",
   "description": "Playground for exploring pixi code.",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
   "private": true,
-  "homepage": "https://github.com/pixijs/playground#readme",
+  "homepage": "https://github.com/englercj/playground#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pixijs/playground.git"
+    "url": "git+https://github.com/englercj/playground.git"
   },
   "bugs": {
-    "url": "https://github.com/pixijs/playground/issues"
+    "url": "https://github.com/englercj/playground/issues"
   },
   "scripts": {
     "build": "npm run clean && webpack --progress",
-    "clean": "rimraf public",
-    "dev": "webpack-dev-server --content-base public/ --colors --inline"
+    "clean": "rimraf dist",
+    "dev": "webpack-dev-server --content-base dist/ --colors --inline"
   },
   "devDependencies": {
     "@types/history": "^4.7.0",

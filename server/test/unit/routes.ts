@@ -4,6 +4,7 @@ import { suite, test } from 'mocha-typescript';
 import { expect } from 'chai';
 import { request, clearDb } from '../fixtures/server';
 import { Playground } from '../../src/models/Playground';
+import { IPlayground } from '../../../shared/types';
 
 const testPlaygroundData: IPlayground = {
     slug: 'dBvJIh-H',

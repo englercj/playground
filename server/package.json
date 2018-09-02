@@ -5,24 +5,26 @@
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
   "private": true,
-  "homepage": "https://github.com/pixijs/playground#readme",
+  "homepage": "https://github.com/englercj/playground#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pixijs/playground.git"
+    "url": "git+https://github.com/englercj/playground.git"
   },
   "bugs": {
-    "url": "https://github.com/pixijs/playground/issues"
+    "url": "https://github.com/englercj/playground/issues"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --outDir dist",
-    "dev": "nodemon | bunyan",
-    "start": "pm2 start dist/app.js -i 0 --name=\"Pixi Playground Service\"",
-    "restart": "pm2 restart all",
+    "build": "npm run clean && tsc -p tsconfig.json --outDir dist",
+    "clean": "rimraf dist",
+    "dev": "ts-node src/migrate.ts | bunyan && nodemon | bunyan",
+    "start": "pm2 start --env production",
+    "restart": "pm2 reload all",
+    "migrate-db": "node migrate.js",
     "test": "mocha -r ts-node/register test/unit/**/*.ts"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.4",
-    "@types/bluebird": "^3.5.24",
+    "@types/dotenv": "^4.0.3",
     "@types/chai": "^4.1.4",
     "@types/http-codes": "^1.0.1",
     "@types/mocha": "^5.2.5",
@@ -45,7 +47,7 @@
   },
   "dependencies": {
     "bunyan": "^1.8.12",
-    "bluebird": "^3.5.1",
+    "dotenv": "^6.0.0",
     "http-codes": "^1.0.0",
     "mysql2": "^1.6.1",
     "reflect-metadata": "^0.1.12",
@@ -57,6 +59,6 @@
     "umzug": "^2.1.0"
   },
   "engines": {
-    "node": "^6.10.0"
+    "node": "^10.9.0"
   }
 }

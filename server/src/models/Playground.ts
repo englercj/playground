@@ -1,5 +1,4 @@
 import nanoid = require('nanoid');
-import * as Promise from 'bluebird';
 import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-typescript';
@@ -168,6 +167,6 @@ export class Playground extends Model<Playground> implements IPlayground
         return Playground.findAll({
             where: searchQuery[dbConfig.dialect],
             replacements: { search },
-        } as any);
+        } as any) as any; // looks like types are wrong for findAll params, and Bluebird is not compat with raw promises
     }
 }

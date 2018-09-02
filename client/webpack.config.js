@@ -17,7 +17,7 @@ module.exports = {
         results: './src/results.ts',
     },
     output: {
-        path: path.join(__dirname, 'public'),
+        path: path.join(__dirname, 'dist'),
         publicPath: '/',
         filename: `${ASSET_PATH}/[name].[hash].js`,
         chunkFilename: `${ASSET_PATH}/[id].[hash].js`,
@@ -118,7 +118,7 @@ module.exports = {
 
         // add some extra defines
         new DefinePlugin({
-            __BASE_ORIGIN__: JSON.stringify(process.argv.find(v => v.includes('webpack-dev-server')) ? 'http://localhost:8081' : ''),
+            __BASE_ORIGIN__: JSON.stringify(process.argv.find(v => v.includes('webpack-dev-server')) ? 'http://localhost:3000' : ''),
         }),
     ],
 };

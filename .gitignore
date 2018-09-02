@@ -28,6 +28,7 @@ npm-debug.log
 !.gitkeep
 *__temp
 *.sqlite
+*.zip
 .snyk
 .commit
 .records

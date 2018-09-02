@@ -21,11 +21,4 @@ Building the source typescript is done with the following command:
 $> npm run build
 ```
 
-This outputs the server code to `dist/`. You can then start a server using the compiled code
-using the normal npm start command:
-
-```
-$> npm start
-```
-
-This is how the production server starts, the source is already built when it is deployed.
+This outputs the server code to `dist/`.

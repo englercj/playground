@@ -6,7 +6,6 @@ import * as bunyan from 'bunyan';
 const bunyanConfig: any = {
     name: 'service',
     level: 'debug',
-    region: config.region,
     serializers: bunyan.stdSerializers,
 };
 

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import * as corsMiddleware from 'restify-cors-middleware';
 import { ISequelizeConfig } from 'sequelize-typescript';
 
@@ -25,6 +27,5 @@ export const db: ISequelizeConfig = {
         timestamps: true,
         version: 'lockVersion',
     },
-    timezone: 'America/Los_Angeles',
     benchmark: !isProductionEnv,
 };
