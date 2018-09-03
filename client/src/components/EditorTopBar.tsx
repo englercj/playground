@@ -3,22 +3,30 @@ import { bind } from 'decko';
 
 interface IProps
 {
-    slug: string;
+    name: string;
     saving: boolean;
     onSaveClick?: () => void;
+    onSettingsClick?: () => void;
 }
 
 export class EditorTopBar extends Component<IProps, {}>
 {
-    render({ saving }: IProps)
+    render({ saving, name }: IProps)
     {
         return (
             <nav id="editor-topbar">
                 <div className="brand">
                     <img src="/favicon-32x32.png" className="logo" />
-                    <span className="title">Pixi Playground</span>
+                    <span>Pixi Playground</span>
+                </div>
+                <div className="title">
+                    <span>{name}</span>
                 </div>
                 <div className="btn-group">
+                    <button id="settings" className="btn" onClick={this._onSettingsClick}>
+                        <span className="fa fa-cogs" aria-hidden="true" />
+                        <span className="label">Settings</span>
+                    </button>
                     <button id="save" className="btn" onClick={this._onSaveClick}>
                         <span className="fa fa-bookmark" aria-hidden="true" />
                         <span className="label">Save</span>
@@ -34,5 +42,12 @@ export class EditorTopBar extends Component<IProps, {}>
     {
         if (this.props.onSaveClick)
             this.props.onSaveClick();
+    }
+
+    @bind
+    private _onSettingsClick()
+    {
+        if (this.props.onSettingsClick)
+            this.props.onSettingsClick();
     }
 }

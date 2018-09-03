@@ -8,6 +8,7 @@ import { getPlayground, getTypings, updatePlayground, createPlayground } from '.
 import { IPageProps } from './IPageProps';
 import { MonacoEditor } from '../components/MonacoEditor';
 import { EditorTopBar } from '../components/EditorTopBar';
+import { EditorSettingsDialog } from '../components/EditorSettingsDialog';
 import { IPlayground } from '../../../shared/types';
 
 interface IProps extends IPageProps
@@ -26,6 +27,7 @@ interface IState
     editorLoading: boolean;
     typingsLoading: boolean;
     saving: boolean;
+    showSettings: boolean;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
 }
@@ -53,6 +55,7 @@ export class Editor extends Component<IProps, IState>
             editorLoading: true,
             typingsLoading: true,
             saving: false,
+            showSettings: false,
             data: {
                 pixiVersion: 'release',
             },
@@ -148,6 +151,12 @@ export class Editor extends Component<IProps, IState>
     }
 
     @bind
+    onSettingsMount(dialog: EditorSettingsDialog)
+    {
+        dialog.updatePlaygroundData(this.state.data);
+    }
+
+    @bind
     onEditorMount(editor: monaco.editor.IStandaloneCodeEditor, monacoRef: typeof monaco)
     {
         this._editorInstance = editor;
@@ -185,7 +194,7 @@ export class Editor extends Component<IProps, IState>
         }, this._onChangeDelay);
     }
 
-    render({ slug }: IProps, state: IState)
+    render(props: IProps, state: IState)
     {
         return (
             <div id="editor-full-wrapper">
@@ -201,7 +210,13 @@ export class Editor extends Component<IProps, IState>
                         {this._renderLoadingInfoItem(state.typingsLoading, 'PixiJS types')}
                     </ul>
                 </div>
-                <EditorTopBar slug={slug} saving={state.saving} onSaveClick={this._save} />
+                <EditorSettingsDialog
+                    ref={this.onSettingsMount}
+                    data={state.data}
+                    visible={state.showSettings}
+                    onSaveClick={this._saveSettings}
+                    onCloseClick={this._hideSettings} />
+                <EditorTopBar name={state.data.name} saving={state.saving} onSaveClick={this._save} onSettingsClick={this._showSettings} />
                 <div id="editor-wrapper">
                     <MonacoEditor
                         value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
@@ -232,6 +247,11 @@ export class Editor extends Component<IProps, IState>
         );
     }
 
+    private _renderSettingsDialog(state: IState)
+    {
+        return
+    }
+
     private _isLoading()
     {
         return this.state.playgroundLoading || this.state.editorLoading || this.state.typingsLoading;
@@ -248,6 +268,25 @@ export class Editor extends Component<IProps, IState>
             this.setState({ alert: { type: a.type, msg: a.msg, timeout: a.timeout, show: false } });
         }, alertShowTime);
         this.setState({ alert: { type, msg, timeout, show: true } });
+    }
+
+    @bind
+    private _showSettings()
+    {
+        this.setState({ showSettings: true });
+    }
+
+    @bind
+    private _hideSettings()
+    {
+        this.setState({ showSettings: false });
+    }
+
+    @bind
+    private _saveSettings(data: IPlayground)
+    {
+        this.setState({ data, showSettings: false });
+        this._save();
     }
 
     @bind
