@@ -15,6 +15,9 @@ interface IProps extends IPageProps
     slug?: string;
 }
 
+type TAlertType = 'success'|'info'|'warning'|'error';
+
+const alertShowTime = 4000;
 let activePixiTypings: monaco.IDisposable = null;
 
 interface IState
@@ -23,8 +26,8 @@ interface IState
     editorLoading: boolean;
     typingsLoading: boolean;
     saving: boolean;
-    err?: Error;
-    data?: IPlayground;
+    data: IPlayground;
+    alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
 }
 
 export class Editor extends Component<IProps, IState>
@@ -50,9 +53,14 @@ export class Editor extends Component<IProps, IState>
             editorLoading: true,
             typingsLoading: true,
             saving: false,
-            err: null,
             data: {
                 pixiVersion: 'release',
+            },
+            alert: {
+                type: 'info',
+                msg: '',
+                timeout: 0,
+                show: false,
             },
         };
 
@@ -83,7 +91,9 @@ export class Editor extends Component<IProps, IState>
             {
                 if (err)
                 {
-                    this.setState({ playgroundLoading: false, err });
+                    this.setState({ playgroundLoading: false });
+                    route(`/edit`);
+                    this._showAlert('error', err.message);
                 }
                 else
                 {
@@ -177,13 +187,13 @@ export class Editor extends Component<IProps, IState>
 
     render({ slug }: IProps, state: IState)
     {
-        if (state.err)
-        {
-            return <div id="fullscreen error">Unable to load! {state.err.message}</div>;
-        }
-
         return (
             <div id="editor-full-wrapper">
+                <div id="alert">
+                    <span className={state.alert.type + (state.alert.show ? ' shown' : '')}>
+                        {state.alert.msg}
+                    </span>
+                </div>
                 <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoading() ? 'block' : 'none' }}>
                     <ul>
                         {this._renderLoadingInfoItem(state.playgroundLoading, 'Playground data')}
@@ -226,6 +236,19 @@ export class Editor extends Component<IProps, IState>
         return this.state.playgroundLoading || this.state.editorLoading || this.state.typingsLoading;
     }
 
+    private _showAlert(type: TAlertType, msg: string)
+    {
+        if (this.state.alert)
+            clearTimeout(this.state.alert.timeout);
+
+        const timeout = setTimeout(() =>
+        {
+            const a = this.state.alert;
+            this.setState({ alert: { type: a.type, msg: a.msg, timeout: a.timeout, show: false } });
+        }, alertShowTime);
+        this.setState({ alert: { type, msg, timeout, show: true } });
+    }
+
     @bind
     private _onKeydown(event: KeyboardEvent)
     {
@@ -248,12 +271,16 @@ export class Editor extends Component<IProps, IState>
         {
             updatePlayground(this.state.data, (err, data: IPlayground) =>
             {
-                // TODO: Display save success/failure
-
                 if (!err && data)
+                {
                     this.setState({ data, saving: false });
+                    this._showAlert('success', 'Playground Saved!');
+                }
                 else
+                {
                     this.setState({ saving: false });
+                    this._showAlert('error', err.message);
+                }
             });
         }
         else
@@ -266,9 +293,13 @@ export class Editor extends Component<IProps, IState>
                 {
                     this.setState({ data, saving: false });
                     route(`/edit/${data.slug}`);
+                    this._showAlert('success', 'Playground Created!');
                 }
                 else
+                {
                     this.setState({ saving: false });
+                    this._showAlert('error', err.message);
+                }
             });
         }
     }
@@ -276,7 +307,13 @@ export class Editor extends Component<IProps, IState>
 
 function getDefaultPlayground()
 {
-    return `// Create our application instance
+    return `/**
+* This is the default playground.
+* You should see a bunny spinning in the right preview pane.
+* Feel free to use this as a starting point for you own playground!
+*/
+
+// Create our application instance
 var app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: 0x2c3e50 });
 document.body.appendChild(app.view);
 

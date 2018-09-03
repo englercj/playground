@@ -24,7 +24,21 @@ function sendRequest(method: string, url: string, data: any, callback: THttpCall
             res = xhr.responseText;
         }
 
-        callback(null, res);
+        let err = null;
+
+        if (xhr.status !== 200)
+        {
+            let msg = xhr.statusText;
+
+            if (typeof res === 'string')
+                msg = res;
+            else if (typeof res.msg === 'string')
+                msg = res.msg;
+
+            err = new Error(msg);
+        }
+
+        callback(err, res);
     }, false);
 
     xhr.responseType = 'text';
