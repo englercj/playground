@@ -194,7 +194,7 @@ export class Editor extends Component<IProps, IState>
                         {state.alert.msg}
                     </span>
                 </div>
-                <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoading() ? 'block' : 'none' }}>
+                <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoading() ? 'block' : 'block' }}>
                     <ul>
                         {this._renderLoadingInfoItem(state.playgroundLoading, 'Playground data')}
                         {this._renderLoadingInfoItem(state.editorLoading, 'Monaco editor')}
@@ -224,6 +224,7 @@ export class Editor extends Component<IProps, IState>
     {
         return (
             <li className={isLoading ? 'loading' : 'done'}>
+                <span className="fa fa-check" />
                 {isLoading ? 'Loading ' : ''}
                 {name}
                 {isLoading ? '...' : ' ready!'}
