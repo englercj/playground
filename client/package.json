@@ -41,6 +41,7 @@
     "webpack-stats-plugin": "^0.2.1"
   },
   "dependencies": {
+    "ajv": "^6.5.3",
     "decko": "^1.2.0",
     "history": "^4.7.2",
     "mini-signals": "^1.2.0",
