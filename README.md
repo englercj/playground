@@ -11,7 +11,7 @@ and share small Pixi demos.
 To run the application locally open two terminals, one to the [client folder][cf] and one to the [server folder][sf].
 
 In each of them run `npm install` to install their individual dependencies. Then run `npm run dev` for each to start
-locally. Details can be found in the respective READMEs.
+locally. Finally, visit http://localhost:8080. Details can be found in the respective READMEs.
 
 [cf]: client/
 [sf]: server/
