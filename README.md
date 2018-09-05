@@ -32,6 +32,8 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 - Add homepage and search results
  * Show highly starred/trending playgrounds on homepage
  * Also use official/features flags for homepage
+- Embed view that embeds just the preview with a link back
+ * Useful for blog/forums posts and such.
 
 ### Nice to Have (v2+)
 
@@ -43,3 +45,4 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 - Move logic/state out of views and use a pattern (reflux/redux, or something)
 - Infinite loop detection (https://github.com/CodePen/InfiniteLoopBuster)
 - Add some snippets for monaco, and enable command palette
+- More editor settings (tabs, theme, etc)
