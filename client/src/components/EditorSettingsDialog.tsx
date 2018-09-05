@@ -3,6 +3,7 @@ import { h, Component } from 'preact';
 import { bind } from 'decko';
 import { IPlayground } from '../../../shared/types';
 import { Radio, RadioGroup } from './Radio';
+import { getReleases } from '../service';
 
 const rgxSemVer = /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
@@ -20,6 +21,7 @@ interface IState
 {
     data: IPlayground;
     versionType: VersionType;
+    versionOptions: string[];
 }
 
 export class EditorSettingsDialog extends Component<IProps, IState>
@@ -31,7 +33,16 @@ export class EditorSettingsDialog extends Component<IProps, IState>
         this.state = {
             data: props.data,
             versionType: 'release',
+            versionOptions: [],
         };
+
+        getReleases((err, releases) =>
+        {
+            if (!err)
+            {
+                this.setState({ versionOptions: releases });
+            }
+        });
     }
 
     updatePlaygroundData(data: IPlayground)
@@ -79,8 +90,8 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                         </RadioGroup>
 
                         {
-                            state.versionType === 'tag' ? this._renderTagSelector()
-                            // : state.versionType === 'sha' ? this._renderShaSelector()
+                            state.versionType === 'tag' ? this._renderTagSelector(state)
+                            // : state.versionType === 'sha' ? this._renderShaSelector(state)
                             : ''
                         }
                         <br/>
@@ -112,23 +123,23 @@ export class EditorSettingsDialog extends Component<IProps, IState>
         );
     }
 
-    private _renderTagSelector()
+    private _renderTagSelector(state: IState)
     {
         return (
             <select id="settings-version-tag" value={this.state.data.pixiVersion} onChange={linkState(this, 'data.pixiVersion')}>
-                {/* TODO: Drive this with data rather than code */}
-                <option value="v4.8.2">v4.8.2</option>
-                <option value="v4.8.1">v4.8.1</option>
-                <option value="v4.8.0">v4.8.0</option>
-                <option value="v4.7.3">v4.7.3</option>
-                <option value="v4.7.2">v4.7.2</option>
-                <option value="v4.7.1">v4.7.1</option>
-                <option value="v4.7.0">v4.7.0</option>
+                {state.versionOptions.map(this._renderTagOption)}
             </select>
         );
     }
 
-    // private _renderShaSelector()
+    private _renderTagOption(tag: string)
+    {
+        return (
+            <option value={tag}>{tag}</option>
+        );
+    }
+
+    // private _renderShaSelector(state: IState)
     // {
     //     return (
     //         <div>
@@ -136,7 +147,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     //                 type="text"
     //                 name="pixiVersion"
     //                 id="settings-version-git"
-    //                 value={this.state.data.pixiVersion}
+    //                 value={state.data.pixiVersion}
     //                 onChange={linkState(this, 'data.pixiVersion')} />
     //             <label for="settings-version-git">Git Sha</label>
     //         </div>

@@ -34,6 +34,27 @@ export function updatePlayground(data: IPlayground, cb: THttpCallback<IPlaygroun
     put(`${baseOrigin}/api/playground/${data.slug}`, data, cb);
 }
 
+export function getReleases(cb: THttpCallback<string[]>)
+{
+    get(`https://api.github.com/repos/pixijs/pixi.js/tags`, (err, res) =>
+    {
+        if (err)
+            return cb(err);
+
+        if (!res || !Array.isArray(res))
+            return cb(new Error('Invalid response from server.'));
+
+        const tags: string[] = [];
+
+        for (let i = 0; i < res.length; ++i)
+        {
+            tags.push(res[i].name);
+        }
+
+        cb(null, tags);
+    });
+}
+
 export function getTypings(version: string, cb: (typings: string) => void)
 {
     if (pixiTypingsCache[version])
