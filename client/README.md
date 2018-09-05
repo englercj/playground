@@ -17,8 +17,6 @@ Make sure to run the server application to if you want to save/load playgrounds.
 ## Must have (v1)
 
 - Polish UI to edit playground info
- * Obviously styled well
- * Need a good pixi version selector that isn't a text input or combo box with all versions
 - Dirty/unsaved tracking
  * There should be an indicator if the playground is changed and unsaved
  * User should be notified when navigated away if the playground is unsaved
