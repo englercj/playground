@@ -60,6 +60,7 @@ export class Editor extends Component<IProps, IState>
             dirty: true,
             data: {
                 pixiVersion: 'release',
+                isPublic: true,
             },
             alert: {
                 type: 'info',
