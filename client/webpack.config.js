@@ -87,7 +87,7 @@ module.exports = {
             filename: 'index.html',
             template: './html/index.ejs',
             title: 'Pixi Playground',
-            description: 'Create demos using pixi.js.',
+            description: 'Create and view demos using pixi.js.',
             url: 'http://pixiplayground.com',
             cache: true,
             chunks: ['index'],

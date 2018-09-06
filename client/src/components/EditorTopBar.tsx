@@ -14,6 +14,10 @@ export class EditorTopBar extends Component<IProps, {}>
 {
     render({ name, saving, dirty }: IProps)
     {
+        const titleElm = document.getElementById('meta-twitter-title');
+        if (titleElm && name)
+            titleElm.setAttribute('content', name);
+
         return (
             <nav id="editor-topbar">
                 <div className="brand">
