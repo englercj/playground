@@ -306,6 +306,11 @@ export class Editor extends Component<IProps, IState>
     {
         this.setState({ data, showSettings: false });
         this._save();
+
+        if (this.state.data.pixiVersion != this.state.oldPixiVersion)
+        {
+            this.loadTypings();
+        }
     }
 
     @bind
