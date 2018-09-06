@@ -290,7 +290,7 @@ export class Editor extends Component<IProps, IState>
     @bind
     private _hideSettings()
     {
-        this.setState({ showSettings: false });
+        this.setState({ showSettings: false, dirty: true });
     }
 
     @bind
