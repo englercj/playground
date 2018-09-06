@@ -1,9 +1,11 @@
 // TODO: Optimistic locking failure retries!
 
+import * as https from 'https';
 import * as CODES from 'http-codes';
 import * as restify from 'restify';
 import { Playground } from './models/Playground';
 import { db } from './lib/db';
+import { isProductionEnv, cloudflare } from './config';
 
 export function setupRoutes(app: restify.Server)
 {
@@ -21,7 +23,7 @@ export function setupRoutes(app: restify.Server)
     /**
      * GET /playgrounds
      *
-     * Searches for playgrounds that matche the given query.
+     * Searches for playgrounds that match the given query.
      *
      * 200: The stored playground data.
      * 404: No data found for the given query.
@@ -111,7 +113,7 @@ export function setupRoutes(app: restify.Server)
             {
                 logState.err = err;
                 req.log.error(logState, 'Failed to get playground.');
-                res.json(CODES.INTERNAL_SERVER_ERROR, { msg: `There was an error trying to load playground ${slug}@0` });
+                res.json(CODES.INTERNAL_SERVER_ERROR, { msg: `There was an error trying to load playground ${slug}.` });
 
                 next();
             });
@@ -220,6 +222,7 @@ export function setupRoutes(app: restify.Server)
                             else
                             {
                                 req.log.debug(`Created new playground version using slug: ${slug}, added version: ${value.versionsCount}`);
+                                purgeCache(req, slug);
                                 res.json(CODES.OK, value);
                             }
 
@@ -237,3 +240,63 @@ export function setupRoutes(app: restify.Server)
         });
     });
 };
+
+function purgeCache(req: restify.Request, slug: string)
+{
+    if (!isProductionEnv)
+        return;
+
+    const postData = JSON.stringify({
+        files: [
+            `https://pixiplayground.com/api/playground/${slug}`,
+            `https://www.pixiplayground.com/api/playground/${slug}`,
+            `http://pixiplayground.com/api/playground/${slug}`,
+            `http://www.pixiplayground.com/api/playground/${slug}`,
+        ],
+    });
+
+    const cfReq = https.request(
+        `https://api.cloudflare.com/client/v4/zones/${cloudflare.zoneId}/purge_cache`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': postData.length,
+                'X-Auth-Email': cloudflare.authName,
+                'X-Auth-Key': cloudflare.authKey,
+            },
+        },
+        (res) =>
+        {
+            let resStr = '';
+
+            res.on('data', (chunk) => resStr += chunk);
+            res.on('end', () =>
+            {
+                if (res.statusCode !== CODES.OK)
+                    return req.log.error({ code: res.statusCode, headers: res.headers }, `Failed to purge Cloudflare cache for slug: ${slug}`);
+
+                try
+                {
+                    let resBody = JSON.parse(resStr);
+
+                    if (resBody.success)
+                        req.log.debug(resBody, `Successfully purged Cloudflare cache for slug: ${slug}`);
+                    else
+                        req.log.error(resBody, `Failed to purge Cloudflare cache for slug: ${slug}`);
+                }
+                catch (e)
+                {
+                    req.log.error({ err: e }, `Failed to parse response from Cloudflare API during cache purge for slug: ${slug}`);
+                }
+            });
+        });
+
+    cfReq.on('error', (err) =>
+    {
+        req.log.error({ err }, `Failed to purge cache for slug: ${slug}.`);
+    });
+
+    cfReq.write(postData);
+    cfReq.end();
+}

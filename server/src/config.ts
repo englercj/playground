@@ -7,13 +7,22 @@ export const env = process.env.NODE_ENV || 'development';
 
 export const isProductionEnv = env === 'production';
 export const isTestEnv = env === 'test';
+
 export const port = process.env.PORT || 3000;
 export const host = process.env.HOST || '127.0.0.1';
+
+export const cloudflare = {
+    zoneId: process.env.CF_ZONE_ID || '',
+    authName: process.env.CF_AUTH_NAME || '',
+    authKey: process.env.CF_AUTH_KEY || '',
+};
+
 export const cors: corsMiddleware.Options = {
     origins: [isProductionEnv ? '*.pixiplayground.com' : '*'],
     allowHeaders: [],
     exposeHeaders: [],
 };
+
 export const db: ISequelizeConfig = {
     operatorsAliases: false,
     host: process.env.DB_HOSTNAME || 'localhost',

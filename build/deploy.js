@@ -146,7 +146,7 @@ function deployServer()
                     },
                     function (next)
                     {
-                        sftp.fastPut(serverEnvFile, `${remoteAppPath}/.env`, next);
+                        sftp.fastPut(serverEnvFile, `${remoteAppPath}/.env`, { mode: 0o600 }, next);
                     },
                 ], (err) =>
                 {
