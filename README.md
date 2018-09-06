@@ -22,27 +22,28 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 
 - Polish UI to edit playground info
 - Dirty/unsaved tracking
- * There should be an indicator if the playground is changed and unsaved
- * User should be notified when navigated away if the playground is unsaved
+    * There should be an indicator if the playground is changed and unsaved
+    * User should be notified when navigated away if the playground is unsaved
 
 ### Should Have (v1 or v2)
 
 - Add external js resources in settings dialog
 - UI to star a playground
 - Add homepage and search results
- * Show highly starred/trending playgrounds on homepage
- * Also use official/features flags for homepage
+    * Show highly starred/trending playgrounds on homepage
+    * Also use official/features flags for homepage
 - Embed view that embeds just the preview with a link back
- * Useful for blog/forums posts and such.
+    * Useful for blog/forums posts and such.
 
 ### Nice to Have (v2+)
 
 - Add github auth integration for login
- * List your own playgrounds
- * Consistent author field
- * Import from gist functionality
+    * List your own playgrounds
+    * Consistent author field
+    * Import from gist functionality
 - Multi-file support, as well as custom html/css
 - Move logic/state out of views and use a pattern (reflux/redux, or something)
 - Infinite loop detection (https://github.com/CodePen/InfiniteLoopBuster)
 - Add some snippets for monaco, and enable command palette
 - More editor settings (tabs, theme, etc)
+- Data attachments like images, or json to power a demo.
