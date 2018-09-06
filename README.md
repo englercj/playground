@@ -41,5 +41,4 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 - More editor settings (tabs, theme, etc)
 - Data attachments like images, or json to power a demo.
 - Different default demos for different versions
-
 - Minify the JS that gets output (index.js & result.js)
