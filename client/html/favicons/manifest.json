@@ -1,5 +1,6 @@
 {
-    "name": "",
+    "short_name": "Playground",
+    "name": "Pixi Playground",
     "icons": [
         {
             "src": "/android-chrome-96x96.png",

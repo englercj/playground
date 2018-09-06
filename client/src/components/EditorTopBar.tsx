@@ -17,7 +17,7 @@ export class EditorTopBar extends Component<IProps, {}>
         return (
             <nav id="editor-topbar">
                 <div className="brand">
-                    <img src="/favicon-32x32.png" className="logo" />
+                    <img src="/favicon-32x32.png" className="logo" alt="JS Logo" />
                     <span>Pixi Playground</span>
                 </div>
                 <div className="title">

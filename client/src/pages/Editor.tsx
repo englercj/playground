@@ -243,7 +243,7 @@ export class Editor extends Component<IProps, IState>
                     />
                 </div>
                 <div id="results-wrapper">
-                    <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} />
+                    <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
                 </div>
             </div>
         );

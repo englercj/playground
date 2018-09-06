@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
     <head>
         <meta charset="utf-8" />
 
@@ -7,6 +7,8 @@
 
         <meta name="description" content="<%- htmlWebpackPlugin.options.description %>" />
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, minimal-ui" />
+        <link rel="canonical" href="https://www.pixiplayground.com"/>
+        <link rel="alternate" hreflang="en" href="https://www.pixiplayground.com" />
 
         <!-- OG Tags -->
         <meta property="og:url" content="<%- htmlWebpackPlugin.options.url %>">
@@ -41,5 +43,9 @@
     </head>
     <body>
         <div id="jsx-wrapper" class="fullheight"></div>
+        <noscript style="position:absolute;top:0;">
+            <h1>Looks like you have JavaScript disabled!</h1>
+            <h2>You will need to enable it to enjoy Pixi Playground</h2>
+        </noscript>
     </body>
 </html>
