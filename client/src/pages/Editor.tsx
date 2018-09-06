@@ -29,6 +29,7 @@ interface IState
     saving: boolean;
     showSettings: boolean;
     dirty: boolean;
+    oldPixiVersion: string;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
 }
@@ -58,6 +59,7 @@ export class Editor extends Component<IProps, IState>
             saving: false,
             showSettings: false,
             dirty: true,
+            oldPixiVersion: 'release',
             data: {
                 pixiVersion: 'release',
                 isPublic: true,
@@ -285,13 +287,18 @@ export class Editor extends Component<IProps, IState>
     @bind
     private _showSettings()
     {
-        this.setState({ showSettings: true });
+        this.setState({ showSettings: true, oldPixiVersion: this.state.data.pixiVersion });
     }
 
     @bind
     private _hideSettings()
     {
         this.setState({ showSettings: false, dirty: true });
+
+        if (this.state.data.pixiVersion != this.state.oldPixiVersion)
+        {
+            this.loadTypings();
+        }
     }
 
     @bind

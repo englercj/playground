@@ -40,3 +40,4 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 - Add some snippets for monaco, and enable command palette
 - More editor settings (tabs, theme, etc)
 - Data attachments like images, or json to power a demo.
+- Different default demos for different versions
