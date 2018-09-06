@@ -18,17 +18,13 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 
 ## To Do:
 
-### Must have (v1)
-
-- Polish UI to edit playground info
-
 ### Should Have (v1 or v2)
 
 - Add external js resources in settings dialog
-- UI to star a playground
 - Add homepage and search results
     * Show highly starred/trending playgrounds on homepage
     * Also use official/features flags for homepage
+- UI to star a playground
 - Embed view that embeds just the preview with a link back
     * Useful for blog/forums posts and such.
 
