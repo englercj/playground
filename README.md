@@ -21,9 +21,6 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 ### Must have (v1)
 
 - Polish UI to edit playground info
-- Dirty/unsaved tracking
-    * There should be an indicator if the playground is changed and unsaved
-    * User should be notified when navigated away if the playground is unsaved
 
 ### Should Have (v1 or v2)
 

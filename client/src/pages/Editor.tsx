@@ -28,6 +28,7 @@ interface IState
     typingsLoading: boolean;
     saving: boolean;
     showSettings: boolean;
+    dirty: boolean;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
 }
@@ -56,6 +57,7 @@ export class Editor extends Component<IProps, IState>
             typingsLoading: true,
             saving: false,
             showSettings: false,
+            dirty: true,
             data: {
                 pixiVersion: 'release',
             },
@@ -73,11 +75,13 @@ export class Editor extends Component<IProps, IState>
     componentWillMount()
     {
         window.addEventListener('keydown', this._onKeydown);
+        window.onbeforeunload = this._onBeforeUnload;
     }
 
     componentWillUnmount()
     {
         window.removeEventListener('keydown', this._onKeydown);
+        window.onbeforeunload = null;
     }
 
     loadPlayground()
@@ -187,6 +191,8 @@ export class Editor extends Component<IProps, IState>
 
         this.state.data.contents = newValue;
 
+        this.setState({ dirty: true });
+
         clearTimeout(this._onChangeTimer);
         this._onChangeTimer = setTimeout(() =>
         {
@@ -216,7 +222,12 @@ export class Editor extends Component<IProps, IState>
                     visible={state.showSettings}
                     onSaveClick={this._saveSettings}
                     onCloseClick={this._hideSettings} />
-                <EditorTopBar name={state.data.name} saving={state.saving} onSaveClick={this._save} onSettingsClick={this._showSettings} />
+                <EditorTopBar
+                    name={state.data.name}
+                    saving={state.saving}
+                    dirty={state.dirty}
+                    onSaveClick={this._save}
+                    onSettingsClick={this._showSettings} />
                 <div id="editor-wrapper">
                     <MonacoEditor
                         value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
@@ -303,9 +314,19 @@ export class Editor extends Component<IProps, IState>
     }
 
     @bind
+    private _onBeforeUnload(event: Event)
+    {
+        if (this.state.dirty)
+        {
+            event.preventDefault();
+            return '';
+        }
+    }
+
+    @bind
     private _save()
     {
-        this.setState({ saving: true });
+        this.setState({ saving: true, dirty: false });
 
         if (this.state.data.id)
         {

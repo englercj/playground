@@ -5,13 +5,14 @@ interface IProps
 {
     name: string;
     saving: boolean;
+    dirty: boolean;
     onSaveClick?: () => void;
     onSettingsClick?: () => void;
 }
 
 export class EditorTopBar extends Component<IProps, {}>
 {
-    render({ saving, name }: IProps)
+    render({ name, saving, dirty }: IProps)
     {
         return (
             <nav id="editor-topbar">
@@ -27,7 +28,7 @@ export class EditorTopBar extends Component<IProps, {}>
                         <span className="fa fa-cogs" aria-hidden="true" />
                         <span className="label">Settings</span>
                     </button>
-                    <button id="save" className="btn" onClick={this._onSaveClick}>
+                    <button id="save" className={"btn" + (dirty ? " glow" : "")} onClick={this._onSaveClick}>
                         <span className="fa fa-bookmark" aria-hidden="true" />
                         <span className="label">Save</span>
                         <span className={saving ? "loading" : " hidden"} />
