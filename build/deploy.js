@@ -163,7 +163,9 @@ function deployServer()
                     mv -v .env ${remoteAppName}/.env &&
                     cd ${remoteAppName} &&
                     npm install --production &&
-                    pm2 startOrReload ecosystem.config.js --env production &&
+                    pm2 stop ecosystem.config.js --env production &&
+                    npm run migrate-db &&
+                    pm2 start ecosystem.config.js --env production &&
                     cd .. &&
                     rm -rv _old_${remoteAppName} &&
                     rm -v ${serverFileName}
