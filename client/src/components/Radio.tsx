@@ -23,6 +23,15 @@ export class Radio extends Component<IRadioProps, {}>
             optional.onChange = onChange.bind(null, props.value);
         }
 
+        if (props.className)
+        {
+            props.className += " radio-btn";
+        }
+        else
+        {
+            props.className = "radio-btn";
+        }
+
         return <input
             {...props}
             role="radio"
@@ -60,6 +69,6 @@ export class RadioGroup extends Component<IRadioGroupProps, {}>
     render()
     {
         const { Component, name, selectedValue, onChange, children, ...rest } = this.props;
-        return <Component role="radiogroup" {...rest}>{children}</Component>;
+        return <Component className="radio-group" role="radiogroup" {...rest}>{children}</Component>;
     }
 }

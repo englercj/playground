@@ -13,11 +13,225 @@
 
     /* Modal Content/Box */
     .modal-content {
+        position: absolute;
+        top: 70px;
+        left: 50%;
+        transform: scale(1) translateX(-50%);
+        width: 520px;
+        height: 75vh;
+
+        padding: 2px;
+        border-radius: 4px;
+
         background-color: #fefefe;
-        margin: 15% auto; /* 15% from the top and centered */
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
+
+        header {
+            background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%);
+            border-radius: 3px 3px 0 0;
+            padding: 5px 10px;
+
+            .title {
+                margin: 0;
+                padding: 2px;
+            }
+
+            .btn-group {
+                position:absolute;
+                top: 10px;
+                right: 30px;
+            }
+
+            .close-btn {
+                position: absolute;
+                cursor: pointer;
+                top: 15px;
+                right: 10px;
+
+                color: rgba(0, 0, 0, 0.6);
+
+                &:hover {
+                    color: rgba(0, 0, 0, 0.8);
+                }
+            }
+        }
+
+        .form-wrapper {
+            height: calc(75vh - 47px);
+
+            form {
+                height: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding: 20px;
+                color: #f6f6f6;
+
+                background: linear-gradient(#252525, #1e1e1e);
+                border: 1px solid #000;
+                border-radius: 0 0 3px 3px;
+                box-shadow: inset 0 0 0 1px #272727;
+
+                /* BEGIN Scrollbar style */
+                scrollbar-face-color:#666;
+                scrollbar-track-color:none;
+
+                &::-webkit-scrollbar {
+                    width: 0.5em;
+                    height: 0.5em
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: #666
+                }
+
+                &::-webkit-scrollbar-track {
+                    background: none
+                }
+                /* END Scrollbar style */
+
+                h4 {
+                    padding: 0;
+                    margin: 0 0 4px 0;
+                    font-weight: bold;
+                    line-height: 1.2;
+                }
+
+                input[type="text"] {
+                    padding: 6px;
+                    background: #eaeff0;
+                    border-radius: 3px;
+                    border: 2px solid #eaedf0;
+                    outline: 0;
+
+                    &:focus {
+                        border-color: #e72266;
+                    }
+                }
+
+                input[type="checkbox"] {
+                    position: absolute;
+                    opacity: 0;
+
+                    & + label {
+                        position: relative;
+                        cursor: pointer;
+                        padding: 0;
+                    }
+
+                    // Box.
+                    & + label::before {
+                        content: '';
+                        margin-right: 10px;
+                        display: inline-block;
+                        vertical-align: text-top;
+                        width: 20px;
+                        height: 20px;
+                        background: #eaeff0;
+                    }
+
+                    // Box hover
+                    &:hover + label::before {
+                        background: #fdd;
+                    }
+
+                    // Box focus
+                    &:focus + label::before {
+                        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+                    }
+
+                    // Box checked
+                    &:checked + label::before {
+                        background: #e72266;
+                    }
+
+                    // Disabled state label.
+                    &:disabled + label {
+                        color: #b8b8b8;
+                        cursor: auto;
+                    }
+
+                    // Disabled box.
+                    &:disabled + label::before {
+                        box-shadow: none;
+                        background: #ddd;
+                    }
+
+                    // Checkmark. Could be replaced with an image
+                    &:checked + label::after {
+                        /* BEGIN Font-Awesome */
+                        font-weight: 900;
+                        font-family: "Font Awesome 5 Free";
+                        -moz-osx-font-smoothing: grayscale;
+                        -webkit-font-smoothing: antialiased;
+                        display: inline-block;
+                        font-style: normal;
+                        font-variant: normal;
+                        text-rendering: auto;
+                        line-height: 1;
+                        /* END Font-Awesome */
+
+                        content: '\f00c'; // fa-check
+                        position: absolute;
+                        left: 2px;
+                        top: 2px;
+                        color: #fff;
+                    }
+                }
+
+                .fullwidth {
+                    width: 100%;
+                }
+
+                fieldset {
+                    padding: 0 0 15px 0;
+                    margin: 0;
+                    border: none;
+                }
+
+                .radio-group {
+                    clear: both;
+                    display: inline-block;
+
+                    .radio-btn {
+                        position: absolute;
+                        left: -9999em;
+                        top: -9999em;
+
+                        & + label {
+                            font-family: 'Roboto', Helvetica, sans-serif;
+                            border: 1px solid #c11953;
+                            background-color: #e72266;
+                            color: #fdd;
+                            padding: 6px 15px;
+                            letter-spacing: 0.1em;
+                            // text-transform: uppercase;
+                            font-size: 10px;
+                            cursor:pointer;
+                            // border-radius: 2px;
+                            margin: 0;
+                            outline: none;
+                            transition: all 0.2s;
+                            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+
+                            float: left;
+
+                            &:first-of-type {
+                                border-radius: 2px 0 0 2px;
+                            }
+
+                            &:last-of-type {
+                                border-radius: 0 2px 2px 0;
+                            }
+                        }
+
+                        &:checked + label {
+                            color:#fff;
+                            box-shadow: 0 0 0 1px rgba(255,255,255,0.8) inset;
+                            border-color:#8e113c;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /* The Close Button */

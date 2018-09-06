@@ -64,60 +64,85 @@ export class EditorSettingsDialog extends Component<IProps, IState>
         return (
             <div id="settings-dialog" className="modal" style={props.visible ? "display: block" : "display: none"}>
                 <div className="modal-content">
-                    <span className="fa fa-times close" onClick={this._onCloseClick} />
-                    <form>
-                        <label for="settings-slug">Slug:</label>
-                        <input type="text" id="settings-slug" name="slug" value={state.data.slug} readOnly />
-                        <br/>
+                    <header>
+                        <h2 className="title">Playground Settings</h2>
+                        <div className="btn-group">
+                            <button id="save" className="btn" onClick={this._onSaveClick}>
+                                <span className="fa fa-bookmark" aria-hidden="true" />
+                                <span className="label">Save</span>
+                            </button>
+                        </div>
+                        <span className="fa fa-times close-btn" onClick={this._onCloseClick} />
+                    </header>
+                    <div className="form-wrapper">
+                        <form>
+                            <fieldset>
+                                <h4><label>PixiJS Version</label></h4>
+                                <RadioGroup name="settings-version" selectedValue={state.versionType} onChange={this._onVersionChange}>
+                                    <Radio value="release" id="settings-version-release" />
+                                    <label for="settings-version-release">Latest Release</label>
 
-                        <label for="settings-name">Name:</label>
-                        <input type="text" id="settings-name" name="name" value={state.data.name} onChange={linkState(this, 'data.name')}/>
-                        <br/>
+                                    <Radio value="tag" id="settings-version-tag" />
+                                    <label for="settings-version-tag">Specific Version</label>
+                                </RadioGroup>
+                                <br/>
 
-                        <label for="settings-desc">Description:</label>
-                        <input type="text" id="settings-desc" name="desc" value={state.data.description} onChange={linkState(this, 'data.description')}/>
-                        <br/>
+                                {
+                                    state.versionType === 'tag' ? this._renderTagSelector(state)
+                                    // : state.versionType === 'sha' ? this._renderShaSelector(state)
+                                    : ''
+                                }
+                            </fieldset>
 
-                        <label for="settings-author">Author:</label>
-                        <input type="text" id="settings-author" name="author" value={state.data.author} onChange={linkState(this, 'data.author')}/>
-                        <br/>
+                            <fieldset>
+                                <h4><label for="settings-name">Name</label></h4>
+                                <input
+                                    type="text"
+                                    className="fullwidth"
+                                    id="settings-name"
+                                    name="name"
+                                    placeholder="e.g. My Cool Playground"
+                                    value={state.data.name}
+                                    onChange={linkState(this, 'data.name')} />
+                            </fieldset>
 
-                        <label>PixiJS Version:</label>
-                        <RadioGroup name="settings-version" selectedValue={state.versionType} onChange={this._onVersionChange}>
-                            <Radio value="release" />Latest Release
-                            <Radio value="tag" />Specific Version
-                            {/* <Radio value="sha" />Git Sha */}
-                        </RadioGroup>
+                            <fieldset>
+                                <h4><label for="settings-desc">Description</label></h4>
+                                <input
+                                    type="text"
+                                    className="fullwidth"
+                                    id="settings-desc"
+                                    name="desc"
+                                    placeholder="e.g. A demo of how cool PixiJS is!"
+                                    value={state.data.description}
+                                    onChange={linkState(this, 'data.description')} />
+                            </fieldset>
 
-                        {
-                            state.versionType === 'tag' ? this._renderTagSelector(state)
-                            // : state.versionType === 'sha' ? this._renderShaSelector(state)
-                            : ''
-                        }
-                        <br/>
+                            <fieldset>
+                                <h4><label for="settings-author">Author</label></h4>
+                                <input
+                                    type="text"
+                                    className="fullwidth"
+                                    id="settings-author"
+                                    name="author"
+                                    placeholder="e.g. Chester McDoodle"
+                                    value={state.data.author}
+                                    onChange={linkState(this, 'data.author')} />
+                            </fieldset>
 
-                        {/*
-                        <input type="radio" name="pixiVersion" id="settings-version-release" />
-                        <label for="settings-version-release">Latest Release</label>
+                            <fieldset>
+                                <h4><label>Attributes</label></h4>
 
-                        <input type="radio" name="pixiVersion" id="settings-version-tag" />
-                        <label for="settings-version-tag">Specific Version</label>
-
-                        <input type="radio" name="pixiVersion" id="settings-version-git" />
-                        <label for="settings-version-git">Git Sha</label>
-
-                        <input type="text" name="version" value={state.pixiVersion} onChange={linkState(this, 'data.pixiVersion')}/>
-                        <br/>
-                        */}
-
-                        <label for="public">Public:</label>
-                        <input type="checkbox" name="public" checked={state.data.isPublic} onClick={this._onToggle}/>
-                        <br/>
-                    </form>
-                    <button id="save" className="btn" onClick={this._onSaveClick}>
-                        <span className="fa fa-bookmark" aria-hidden="true" />
-                        <span className="label">Save</span>
-                    </button>
+                                <input
+                                    type="checkbox"
+                                    name="public"
+                                    id="settings-attr-public"
+                                    checked={state.data.isPublic}
+                                    onClick={this._onToggle}/>
+                                <label for="settings-attr-public">Public</label>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>
             </div>
         );
@@ -126,7 +151,12 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     private _renderTagSelector(state: IState)
     {
         return (
-            <select id="settings-version-tag" value={this.state.data.pixiVersion} onChange={linkState(this, 'data.pixiVersion')}>
+            <select
+                id="settings-version-tag"
+                className="fullwidth"
+                value={this.state.data.pixiVersion}
+                onChange={linkState(this, 'data.pixiVersion')}>
+                <option hidden disabled value="release">-- Select a version --</option>
                 {state.versionOptions.map(this._renderTagOption)}
             </select>
         );
