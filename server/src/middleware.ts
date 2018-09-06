@@ -21,9 +21,10 @@ export function setupMiddleware(app: restify.Server)
     }));
 
     app.use(restify.plugins.jsonBodyParser({
+        maxBodySize: 15 * 1024 * 1024, // 15 MB, we use mediumtext for MySQL which is ~16MB max
         mapParams: true,
         overrideParams: false,
-    }));
+    } as any));
 
     app.use(restify.plugins.throttle({
         burst: 100,
