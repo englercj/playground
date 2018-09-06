@@ -361,8 +361,6 @@ export class Editor extends Component<IProps, IState>
         {
             createPlayground(this.state.data, (err, data: IPlayground) =>
             {
-                // TODO: Display save success/failure
-
                 if (!err && data)
                 {
                     this.setState({ data, saving: false });

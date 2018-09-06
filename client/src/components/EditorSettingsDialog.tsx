@@ -187,8 +187,6 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     @bind
     private _onVersionChange(versionType: VersionType)
     {
-        // TODO: After this gets saved the main view needs to be updated.
-        // New typings need to be downloaded, the preview needs to reload, etc.
         const data = this.state.data;
         if (versionType === 'release')
             data.pixiVersion = 'release';
