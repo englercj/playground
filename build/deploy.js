@@ -162,12 +162,18 @@ function deployServer()
                     mv -v _new_${remoteAppName} ${remoteAppName} &&
                     mv -v .env ${remoteAppName}/.env &&
                     cd ${remoteAppName} &&
+                    echo "Running npm install..." &&
                     npm install --production &&
+                    echo "Stopping service..." &&
                     pm2 stop ecosystem.config.js --env production &&
-                    npm run migrate-db &&
+                    echo "Running DB migration..." &&
+                    NODE_ENV=production node migrate.js | ./node_modules/.bin/bunyan &&
+                    echo "Starting service..." &&
                     pm2 start ecosystem.config.js --env production &&
+                    echo "Performing cleanup..." &&
                     cd .. &&
-                    rm -rv _old_${remoteAppName} &&
+                    rm -r _old_${remoteAppName} &&
+                    echo "removed directory _old_${remoteAppName}" &&
                     rm -v ${serverFileName}
                 `, function (err, stream)
                 {

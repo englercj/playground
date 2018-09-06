@@ -17,9 +17,6 @@
     "build": "npm run clean && tsc -p tsconfig.json --outDir dist",
     "clean": "rimraf dist",
     "dev": "ts-node src/migrate.ts | bunyan && nodemon | bunyan",
-    "start": "pm2 start --env production",
-    "restart": "pm2 reload all",
-    "migrate-db": "NODE_ENV=production node migrate.js | bunyan",
     "test": "mocha -r ts-node/register test/unit/**/*.ts"
   },
   "devDependencies": {
