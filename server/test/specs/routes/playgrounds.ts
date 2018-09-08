@@ -4,6 +4,7 @@ import { suite, test } from 'mocha-typescript';
 import { expect } from 'chai';
 import { request, clearDb } from '../../fixtures/server';
 import { Playground } from '../../../src/models/Playground';
+import { Tag } from '../../../src/models/Tag';
 import { IPlayground } from '../../../../shared/types';
 
 const testPlaygroundData: IPlayground = {
@@ -120,6 +121,48 @@ class PlaygroundRoot
             .send(data)
             .expect(CODES.UNPROCESSABLE_ENTITY);
     }
+
+    @test 'POST with tags should create associations'()
+    {
+        const tag1 = new Tag({ name: 'tag1' });
+        const tag2 = new Tag({ name: 'tag2' });
+
+        let tagModels: Tag[] = [];
+
+        return Promise.all([
+            tag1.save(),
+            tag2.save()
+        ])
+        .then((tags) =>
+        {
+            tagModels = tags;
+
+            const data = { ...testPlaygroundData };
+            data.tags = [{ id: tags[0].id }, { id: tags[1].id }];
+
+            return request.post('/api/playground')
+                .send(data)
+                .expect(CODES.CREATED);
+        })
+        .then((res1) =>
+        {
+            return request.get(`/api/playground/${res1.body.slug}`)
+                .expect(CODES.OK)
+                .expect((res: supertest.Response) =>
+                {
+                    const item = res.body;
+
+                    expect(item)
+                        .to.have.property('tags')
+                        .with.length(2);
+
+                        expect(item.tags[0]).to.have.property('id', tagModels[0].id);
+                        expect(item.tags[0]).to.have.property('name', tagModels[0].name);
+                        expect(item.tags[1]).to.have.property('id', tagModels[1].id);
+                        expect(item.tags[1]).to.have.property('name', tagModels[1].name);
+                });
+        });
+    }
 }
 
 @suite('/api/playground/:slug')
@@ -201,12 +244,105 @@ class PlaygroundSlug
 
     @test 'PUT without contents returns 422'()
     {
-        const data = { ...testPlaygroundData };
+        const data = { id: 1, ...testPlaygroundData };
         data.contents = '';
 
         return request.put(`/api/playground/${testPlaygroundData.slug}`)
             .send(data)
             .expect(CODES.UNPROCESSABLE_ENTITY);
+    }
+
+    @test 'PUT without id returns 404'()
+    {
+        const data = { ...testPlaygroundData };
+
+        return request.put(`/api/playground/${testPlaygroundData.slug}`)
+            .send(data)
+            .expect(CODES.NOT_FOUND);
+    }
+
+    @test 'PUT with tags should create associations'()
+    {
+        const tag1 = new Tag({ name: 'tag1' });
+        const tag2 = new Tag({ name: 'tag2' });
+
+        let tagModels: Tag[] = [];
+
+        return Promise.all([
+            tag1.save(),
+            tag2.save()
+        ])
+        .then((tags) =>
+        {
+            tagModels = tags;
+
+            const data = { id: 1, ...testPlaygroundData };
+            data.tags = [{ id: tags[0].id }, { id: tags[1].id }];
+
+            return request.put(`/api/playground/${testPlaygroundData.slug}`)
+                .send(data)
+                .expect(CODES.OK);
+        })
+        .then(() =>
+        {
+            return request.get(`/api/playground/${testPlaygroundData.slug}`)
+                .expect(CODES.OK)
+                .expect((res: supertest.Response) =>
+                {
+                    const item = res.body;
+
+                    expect(item)
+                        .to.have.property('tags')
+                        .with.length(2);
+
+                        expect(item.tags[0]).to.have.property('id', tagModels[0].id);
+                        expect(item.tags[0]).to.have.property('name', tagModels[0].name);
+                        expect(item.tags[1]).to.have.property('id', tagModels[1].id);
+                        expect(item.tags[1]).to.have.property('name', tagModels[1].name);
+                });
+        });
+    }
+
+    @test 'PUT with different tags should create associations'()
+    {
+        const tag1 = new Tag({ name: 'tag1' });
+        const tag2 = new Tag({ name: 'tag2' });
+
+        let tagModels: Tag[] = [];
+
+        return Promise.all([
+            tag1.save(),
+            tag2.save()
+        ])
+        .then((tags) =>
+        {
+            tagModels = tags;
+
+            const data = { id: 1, ...testPlaygroundData };
+            data.tags = [{ id: tags[0].id }, { id: tags[1].id }];
+
+            return request.put(`/api/playground/${testPlaygroundData.slug}`)
+                .send(data)
+                .expect(CODES.OK);
+        })
+        .then(() =>
+        {
+            return request.get(`/api/playground/${testPlaygroundData.slug}`)
+                .expect(CODES.OK)
+                .expect((res: supertest.Response) =>
+                {
+                    const item = res.body;
+
+                    expect(item)
+                        .to.have.property('tags')
+                        .with.length(2);
+
+                        expect(item.tags[0]).to.have.property('id', tagModels[0].id);
+                        expect(item.tags[0]).to.have.property('name', tagModels[0].name);
+                        expect(item.tags[1]).to.have.property('id', tagModels[1].id);
+                        expect(item.tags[1]).to.have.property('name', tagModels[1].name);
+                });
+        });
     }
 }
 
