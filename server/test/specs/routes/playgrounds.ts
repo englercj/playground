@@ -56,7 +56,7 @@ class PlaygroundsSearch
 }
 
 @suite('/api/playground')
-class PlaygroundCreate
+class PlaygroundRoot
 {
     static before()
     {
@@ -125,6 +125,11 @@ class PlaygroundCreate
 @suite('/api/playground/:slug')
 class PlaygroundSlug
 {
+    static before()
+    {
+        return clearDb().then(() => createPlayground());
+    }
+
     @test 'GET without version should return version 0'()
     {
         return request.get(`/api/playground/${testPlaygroundData.slug}`)
@@ -178,6 +183,21 @@ class PlaygroundSlug
     //                 .expect(confirmPlaygroundData(testPlaygroundData.slug, 1));
     //         });
     // }
+
+    @test 'PUT updates a playground'()
+    {
+        const name = 'new-name';
+        const data = { id: 1, ...testPlaygroundData };
+        data.name = name;
+
+        return request.put(`/api/playground/${data.slug}`)
+            .send(data)
+            .expect(CODES.OK)
+            .expect((res: supertest.Response) =>
+            {
+                expect(res.body).to.have.property('name', name);
+            });
+    }
 
     @test 'PUT without contents returns 422'()
     {
