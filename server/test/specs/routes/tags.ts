@@ -15,8 +15,8 @@ function createTag()
     return (new Tag(testTagData)).save();
 }
 
-@suite('/api/tag - READ')
-class ReadRoutes
+@suite('/api/tags')
+class TagsSearch
 {
     static before()
     {
@@ -34,22 +34,6 @@ class ReadRoutes
             });
     }
 
-    @test 'GET should return the test tag'()
-    {
-        return request.get(`/api/tag/1`)
-            .expect(CODES.OK)
-            .expect(confirmTagResponse());
-    }
-}
-
-@suite('/api/tag - READ ERRORS')
-class ReadRouteErrors
-{
-    static before()
-    {
-        return clearDb();
-    }
-
     @test 'GET search with no results should return 404'()
     {
         return request.get('/api/tags?q=nope')
@@ -61,16 +45,10 @@ class ReadRouteErrors
         return request.get('/api/tags?q=')
             .expect(CODES.UNPROCESSABLE_ENTITY);
     }
-
-    @test 'GET non-existant id should return 404'()
-    {
-        return request.get('/api/playground/0')
-            .expect(CODES.NOT_FOUND);
-    }
 }
 
-@suite('/api/tag - WRITE')
-class WriteRoutes
+@suite('/api/tag')
+class TagRoot
 {
     static before()
     {
@@ -93,6 +71,35 @@ class WriteRoutes
             });
     }
 
+    @test 'POST without name returns 422'()
+    {
+        return request.post('/api/tag')
+            .send({})
+            .expect(CODES.UNPROCESSABLE_ENTITY);
+    }
+}
+
+@suite('/api/tag/:id')
+class TagId
+{
+    static before()
+    {
+        return clearDb().then(() => createTag());
+    }
+
+    @test 'GET should return the test tag'()
+    {
+        return request.get(`/api/tag/1`)
+            .expect(CODES.OK)
+            .expect(confirmTagResponse());
+    }
+
+    @test 'GET non-existant id should return 404'()
+    {
+        return request.get('/api/tag/0')
+            .expect(CODES.NOT_FOUND);
+    }
+
     @test 'PUT updates a tag'()
     {
         const name = 'new-name';
@@ -104,22 +111,6 @@ class WriteRoutes
             {
                 expect(res.body).to.have.property('name', name);
             });
-    }
-}
-
-@suite('/api/tag - WRITE ERRORS')
-class WriteRouteErrors
-{
-    static before()
-    {
-        return clearDb().then(() => createTag());
-    }
-
-    @test 'POST without name returns 422'()
-    {
-        return request.post('/api/tag')
-            .send({})
-            .expect(CODES.UNPROCESSABLE_ENTITY);
     }
 
     @test 'PUT without name returns 422'()

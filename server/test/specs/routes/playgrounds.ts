@@ -23,8 +23,8 @@ function createPlayground()
     return (new Playground(testPlaygroundData as any)).save();
 }
 
-@suite('/api/playground - READ')
-class ReadRoutes
+@suite('/api/playgrounds')
+class PlaygroundsSearch
 {
     static before()
     {
@@ -42,29 +42,6 @@ class ReadRoutes
             });
     }
 
-    @test 'GET without version should return version 0'()
-    {
-        return request.get(`/api/playground/${testPlaygroundData.slug}`)
-            .expect(CODES.OK)
-            .expect(confirmPlaygroundResponse());
-    }
-
-    // @test 'GET with version should return proper data'()
-    // {
-    //     return request.get(`/api/playground/${testPlaygroundData.slug}/0`)
-    //         .expect(CODES.OK)
-    //         .expect(confirmPlaygroundData());
-    // }
-}
-
-@suite('/api/playground - READ ERRORS')
-class ReadRouteErrors
-{
-    static before()
-    {
-        return clearDb();
-    }
-
     @test 'GET search with no results should return 404'()
     {
         return request.get('/api/playgrounds?q=nope')
@@ -76,34 +53,10 @@ class ReadRouteErrors
         return request.get('/api/playgrounds?q=')
             .expect(CODES.UNPROCESSABLE_ENTITY);
     }
-
-    @test 'GET non-existant slug should return 404'()
-    {
-        return request.get('/api/playground/nope')
-            .expect(CODES.NOT_FOUND);
-    }
-
-    // @test 'GET invalid version should return 422'()
-    // {
-    //     return request.get(`/api/playground/${testPlaygroundData.slug}/nope`)
-    //         .expect(CODES.UNPROCESSABLE_ENTITY);
-    // }
-
-    // @test 'GET non-existant version should return 404'()
-    // {
-    //     return request.get(`/api/playground/${testPlaygroundData.slug}/100`)
-    //         .expect(CODES.NOT_FOUND);
-    // }
-
-    // @test 'GET non-existant slug/version should return 404'()
-    // {
-    //     return request.get(`/api/playground/nope/100`)
-    //         .expect(CODES.NOT_FOUND);
-    // }
 }
 
-@suite('/api/playground - WRITE')
-class WriteRoutes
+@suite('/api/playground')
+class PlaygroundCreate
 {
     static before()
     {
@@ -158,6 +111,58 @@ class WriteRoutes
             });
     }
 
+    @test 'POST without contents returns 422'()
+    {
+        const data = { ...testPlaygroundData };
+        data.contents = '';
+
+        return request.post('/api/playground')
+            .send(data)
+            .expect(CODES.UNPROCESSABLE_ENTITY);
+    }
+}
+
+@suite('/api/playground/:slug')
+class PlaygroundSlug
+{
+    @test 'GET without version should return version 0'()
+    {
+        return request.get(`/api/playground/${testPlaygroundData.slug}`)
+            .expect(CODES.OK)
+            .expect(confirmPlaygroundResponse());
+    }
+
+    // @test 'GET with version should return proper data'()
+    // {
+    //     return request.get(`/api/playground/${testPlaygroundData.slug}/0`)
+    //         .expect(CODES.OK)
+    //         .expect(confirmPlaygroundData());
+    // }
+
+    @test 'GET non-existant slug should return 404'()
+    {
+        return request.get('/api/playground/nope')
+            .expect(CODES.NOT_FOUND);
+    }
+
+    // @test 'GET invalid version should return 422'()
+    // {
+    //     return request.get(`/api/playground/${testPlaygroundData.slug}/nope`)
+    //         .expect(CODES.UNPROCESSABLE_ENTITY);
+    // }
+
+    // @test 'GET non-existant version should return 404'()
+    // {
+    //     return request.get(`/api/playground/${testPlaygroundData.slug}/100`)
+    //         .expect(CODES.NOT_FOUND);
+    // }
+
+    // @test 'GET non-existant slug/version should return 404'()
+    // {
+    //     return request.get(`/api/playground/nope/100`)
+    //         .expect(CODES.NOT_FOUND);
+    // }
+
     // @test 'POST with slug creates a new playground version'()
     // {
     //     return request.post(`/api/playground/${testPlaygroundData.slug}`)
@@ -173,32 +178,16 @@ class WriteRoutes
     //                 .expect(confirmPlaygroundData(testPlaygroundData.slug, 1));
     //         });
     // }
-}
 
-@suite('/api/playground - WRITE ERRORS')
-class WriteRouteErrors
-{
-    static before()
-    {
-        return clearDb().then(() => createPlayground());
-    }
-
-    @test 'POST without contents returns 422'()
+    @test 'PUT without contents returns 422'()
     {
         const data = { ...testPlaygroundData };
         data.contents = '';
 
-        return request.post('/api/playground')
+        return request.put(`/api/playground/${testPlaygroundData.slug}`)
             .send(data)
             .expect(CODES.UNPROCESSABLE_ENTITY);
     }
-
-    // @test 'POST with slug, and without contents returns 422'()
-    // {
-    //     return request.post('/api/playground/nope')
-    //         .send(testPlaygroundData)
-    //         .expect(CODES.UNPROCESSABLE_ENTITY);
-    // }
 }
 
 function confirmPlaygroundResponse(slug: string = testPlaygroundData.slug, version: number = 0)
