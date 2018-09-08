@@ -11,7 +11,7 @@ import { PlaygroundTag } from './PlaygroundTag';
 
 const searchQuery: { [dialect: string]: literal } = {
     postgres: Sequelize.literal('"PlaygroundSearchText" @@ plainto_tsquery(\'english\', :search)'),
-    sqlite: Sequelize.literal('playgrounds_fts MATCH :search'),
+    sqlite: Sequelize.literal('(name LIKE :search) OR (description LIKE :search) OR (author LIKE :search)'),
     mysql: Sequelize.literal('MATCH (name, description, author) AGAINST(:search)'),
 };
 
@@ -25,6 +25,10 @@ export class Playground extends Model<Playground> implements IPlayground
     @BelongsToMany(() => Tag, () => PlaygroundTag)
     tags: Tag[];
 
+    @Column({
+        type: DataType.TEXT,
+        allowNull: true,
+    })
     get externalJs()
     {
         return JSON.parse(this.getDataValue('externalJs'));

@@ -1,27 +1,15 @@
 // TODO: Optimistic locking failure retries!
 
-import * as https from 'https';
 import * as CODES from 'http-codes';
 import * as restify from 'restify';
-import { Tag } from './models/Tag';
-import { Playground } from './models/Playground';
-import { db } from './lib/db';
-import { isProductionEnv, cloudflare } from './config';
-import { ITag } from '../../shared/types';
+import { Tag } from '../models/Tag';
+import { Playground } from '../models/Playground';
+import { db } from '../lib/db';
+import { ITag } from '../../../shared/types';
+import { purgeCacheForUrls } from '../lib/cloudflare';
 
 export function setupRoutes(app: restify.Server)
 {
-    /**
-     * GET /health
-     *
-     * Returns 200 for AWS health checks.
-     */
-    app.get('/api/health', (req, res, next) =>
-    {
-        res.send(CODES.OK);
-        next();
-    });
-
     /**
      * GET /playgrounds
      *
@@ -29,7 +17,7 @@ export function setupRoutes(app: restify.Server)
      *
      * 200: The stored playground data.
      * 404: No data found for the given query.
-     * 422: No query given for searching.
+     * 422: Invalid query given for searching.
      * 500: Server error, some error happened when trying to load the playgrounds.
      */
     app.get('/api/playgrounds', (req, res, next) =>
@@ -40,7 +28,7 @@ export function setupRoutes(app: restify.Server)
 
         if (!q)
         {
-            const msg = `Failed to search playgrounds, query is invalid. q: ${q}.`;
+            const msg = `Failed to search playgrounds, query param is empty.`;
 
             req.log.error(logState, msg);
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg });
@@ -54,14 +42,14 @@ export function setupRoutes(app: restify.Server)
             {
                 if (!values || !values.length)
                 {
-                    const msg = `No playgrounds found with query: ${q}.`;
+                    const msg = `No playgrounds found during search.`;
 
                     req.log.info(logState, msg);
                     res.json(CODES.NOT_FOUND, { msg });
                 }
                 else
                 {
-                    req.log.info(`Loaded ${values.length} playgrounds using query: ${q}`);
+                    req.log.info(`Loaded ${values.length} playgrounds by searching.`);
                     res.json(CODES.OK, values);
                 }
 
@@ -72,7 +60,7 @@ export function setupRoutes(app: restify.Server)
                 logState.err = err;
                 req.log.error(logState, 'Failed to search playgrounds.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, {
-                    msg: `There was an error trying to load playgrounds using query: ${q}`,
+                    msg: `There was an error trying to load playgrounds during search.`,
                 });
 
                 next();
@@ -140,11 +128,11 @@ export function setupRoutes(app: restify.Server)
         const tagsData: ITag[] = req.body.tags || [];
         const externalJs: string[] = req.body.externalJs || [];
 
-        if (!contents)
+        if (!contents || contents.length > 16777214)
         {
             req.log.error(logState, 'Failed to save playground, invalid params');
 
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params contents is empty.` });
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, 'contents' is empty.` });
 
             next();
             return;
@@ -172,7 +160,7 @@ export function setupRoutes(app: restify.Server)
                 .then((value) =>
                 {
                     req.log.info(`Created a new playground: ${value.slug}`);
-                    res.json(CODES.OK, value);
+                    res.json(CODES.CREATED, value);
 
                     next();
                 })
@@ -207,11 +195,11 @@ export function setupRoutes(app: restify.Server)
         const tagsData: ITag[] = req.body.tags || [];
         const externalJs: string[] = req.body.externalJs || [];
 
-        if (!slug || !contents)
+        if (!slug || !contents || slug.length !== 21 || contents.length > 16777214)
         {
             req.log.error(logState, 'Failed save playground, invalid params');
 
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either slug or contents is empty.` });
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either 'slug' or 'contents' is invalid.` });
 
             next();
             return;
@@ -258,7 +246,12 @@ export function setupRoutes(app: restify.Server)
                             else
                             {
                                 req.log.info(`Created new playground version using slug: ${slug}, added version: ${value.versionsCount}`);
-                                purgeCache(req, slug);
+                                purgeCacheForUrls(req.log, [
+                                    `https://pixiplayground.com/api/playground/${slug}`,
+                                    `https://www.pixiplayground.com/api/playground/${slug}`,
+                                    `http://pixiplayground.com/api/playground/${slug}`,
+                                    `http://www.pixiplayground.com/api/playground/${slug}`,
+                                ]);
                                 res.json(CODES.OK, value);
                             }
 
@@ -276,88 +269,3 @@ export function setupRoutes(app: restify.Server)
         });
     });
 };
-
-function prepareTags(tags: ITag[], t: any): Promise<Tag[]>
-{
-    const tagTasks: Promise<Tag>[] = [];
-
-    for (let i = 0; i < tags.length; ++i)
-    {
-        const tag = tags[i];
-
-        if (tag.id)
-        {
-            tagTasks.push(Tag.findById(tag.id, { transaction: t }) as any);
-        }
-        else
-        {
-            tagTasks.push(Tag.findOrCreate({
-                where: { name: tag.name },
-                defaults: { name: tag.name },
-                transaction: t,
-            }) as any);
-        }
-    }
-
-    return Promise.all(tagTasks);
-}
-
-function purgeCache(req: restify.Request, slug: string)
-{
-    if (!isProductionEnv)
-        return;
-
-    const postData = JSON.stringify({
-        files: [
-            `https://pixiplayground.com/api/playground/${slug}`,
-            `https://www.pixiplayground.com/api/playground/${slug}`,
-            `http://pixiplayground.com/api/playground/${slug}`,
-            `http://www.pixiplayground.com/api/playground/${slug}`,
-        ],
-    });
-
-    const cfReq = https.request(
-        `https://api.cloudflare.com/client/v4/zones/${cloudflare.zoneId}/purge_cache`,
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': postData.length,
-                'X-Auth-Email': cloudflare.authName,
-                'X-Auth-Key': cloudflare.authKey,
-            },
-        },
-        (res) =>
-        {
-            let resStr = '';
-
-            res.on('data', (chunk) => resStr += chunk);
-            res.on('end', () =>
-            {
-                if (res.statusCode !== CODES.OK)
-                    return req.log.error({ code: res.statusCode, headers: res.headers }, `Failed to purge Cloudflare cache for slug: ${slug}`);
-
-                try
-                {
-                    let resBody = JSON.parse(resStr);
-
-                    if (resBody.success)
-                        req.log.info(resBody, `Successfully purged Cloudflare cache for slug: ${slug}`);
-                    else
-                        req.log.error(resBody, `Failed to purge Cloudflare cache for slug: ${slug}`);
-                }
-                catch (e)
-                {
-                    req.log.error({ err: e }, `Failed to parse response from Cloudflare API during cache purge for slug: ${slug}`);
-                }
-            });
-        });
-
-    cfReq.on('error', (err) =>
-    {
-        req.log.error({ err }, `Failed to purge cache for slug: ${slug}.`);
-    });
-
-    cfReq.write(postData);
-    cfReq.end();
-}
