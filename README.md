@@ -27,6 +27,7 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 - UI to star a playground
 - Embed view that embeds just the preview with a link back
     * Useful for blog/forums posts and such.
+- Data attachments like images, or json to power a demo.
 
 ### Nice to Have (v2+)
 
@@ -39,6 +40,5 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 - Infinite loop detection (https://github.com/CodePen/InfiniteLoopBuster)
 - Add some snippets for monaco, and enable command palette
 - More editor settings (tabs, theme, etc)
-- Data attachments like images, or json to power a demo.
 - Different default demos for different versions
 - Minify the JS that gets output (index.js & result.js)
