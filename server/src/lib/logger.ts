@@ -16,7 +16,7 @@ if (cluster.isWorker)
 
 if (config.isProductionEnv)
 {
-    bunyanConfig.level = 'info';
+    // bunyanConfig.level = 'info';
     // bunyanConfig.streams = [
     //     {
     //         type: 'raw',
