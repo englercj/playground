@@ -13,5 +13,12 @@ export interface IPlayground
     isFeatured?: boolean;
     isOfficial?: boolean;
 
+    tags?: ITag[];
     externalJs?: string[];
+}
+
+export interface ITag
+{
+    id?: number;
+    name?: string;
 }

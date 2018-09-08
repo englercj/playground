@@ -1,12 +1,13 @@
 import nanoid = require('nanoid');
 import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { Table, Column, Model, CreatedAt, UpdatedAt, DataType } from 'sequelize-typescript';
-import { IDefineOptions } from 'sequelize-typescript/lib/interfaces/IDefineOptions';
+import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsToMany, HasMany } from 'sequelize-typescript';
 import { db as dbConfig } from '../config';
 import { db } from '../lib/db';
 import { dbLogger } from '../lib/db-logger';
 import { IPlayground } from '../../../shared/types';
+import { Tag } from './Tag';
+import { PlaygroundTag } from './PlaygroundTag';
 
 const searchQuery: { [dialect: string]: literal } = {
     postgres: Sequelize.literal('"PlaygroundSearchText" @@ plainto_tsquery(\'english\', :search)'),
@@ -21,6 +22,9 @@ const searchQuery: { [dialect: string]: literal } = {
 })
 export class Playground extends Model<Playground> implements IPlayground
 {
+    @BelongsToMany(() => Tag, () => PlaygroundTag)
+    tags: Tag[];
+
     get externalJs()
     {
         return JSON.parse(this.getDataValue('externalJs'));

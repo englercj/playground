@@ -129,12 +129,7 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             onDelete: 'cascade',
             onUpdate: 'cascade',
         },
-    }))
-    .then(() => query.addIndex('playground_js_urls', {
-        name: 'playground_tags_unique_playround_tag',
-        type: 'UNIQUE',
-        fields: ['playgroundId', 'tagId'],
-    } as any));
+    }));
 }
 
 export function down(query: QueryInterface) {

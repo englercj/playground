@@ -3,9 +3,11 @@
 import * as https from 'https';
 import * as CODES from 'http-codes';
 import * as restify from 'restify';
+import { Tag } from './models/Tag';
 import { Playground } from './models/Playground';
 import { db } from './lib/db';
 import { isProductionEnv, cloudflare } from './config';
+import { ITag } from '../../shared/types';
 
 export function setupRoutes(app: restify.Server)
 {
@@ -91,7 +93,7 @@ export function setupRoutes(app: restify.Server)
         const { slug } = req.params;
         const logState: any = { params: { slug } };
 
-        Playground.findOne({ where: { slug } })
+        Playground.findOne({ where: { slug }, include: [Tag] })
             .then((value) =>
             {
                 if (!value)
@@ -135,6 +137,7 @@ export function setupRoutes(app: restify.Server)
 
         const logState: any = { params };
 
+        const tagsData: ITag[] = req.body.tags || [];
         const externalJs: string[] = req.body.externalJs || [];
 
         if (!contents)
@@ -147,10 +150,24 @@ export function setupRoutes(app: restify.Server)
             return;
         }
 
+        const tags: Tag[] = [];
+
+        for (let i = 0; i < tagsData.length; ++i)
+        {
+            if (tagsData[i] && typeof tagsData[i].id === 'number')
+            {
+                tags.push(new Tag({ id: tagsData[i].id }));
+            }
+            else
+            {
+                req.log.info(`Invalid tag listed in create, skipping. Tag: ${JSON.stringify(tagsData[i])}`);
+            }
+        }
+
         db.transaction((t) =>
         {
             return Playground.create(
-                { name, description, contents, author, pixiVersion, isPublic, externalJs },
+                { name, description, contents, author, pixiVersion, isPublic, externalJs, tags },
                 { transaction: t })
                 .then((value) =>
                 {
@@ -187,6 +204,7 @@ export function setupRoutes(app: restify.Server)
 
         const logState: any = { params };
 
+        const tagsData: ITag[] = req.body.tags || [];
         const externalJs: string[] = req.body.externalJs || [];
 
         if (!slug || !contents)
@@ -199,13 +217,27 @@ export function setupRoutes(app: restify.Server)
             return;
         }
 
+        const tags: Tag[] = [];
+
+        for (let i = 0; i < tagsData.length; ++i)
+        {
+            if (tagsData[i] && typeof tagsData[i].id === 'number')
+            {
+                tags.push(new Tag({ id: tagsData[i].id }));
+            }
+            else
+            {
+                req.log.info(`Invalid tag listed in create, skipping. Tag: ${JSON.stringify(tagsData[i])}`);
+            }
+        }
+
         db.transaction((t) =>
         {
             return Playground.findById(id, { transaction: t })
                 .then((value) =>
                 {
                     return value.update(
-                        { name, description, contents, author, pixiVersion, isPublic, externalJs, versionsCount: value.versionsCount + 1 },
+                        { name, description, contents, author, pixiVersion, isPublic, externalJs, tags, versionsCount: value.versionsCount + 1 },
                         { transaction: t })
                         .then((value) =>
                         {
@@ -244,6 +276,31 @@ export function setupRoutes(app: restify.Server)
         });
     });
 };
+
+function prepareTags(tags: ITag[], t: any): Promise<Tag[]>
+{
+    const tagTasks: Promise<Tag>[] = [];
+
+    for (let i = 0; i < tags.length; ++i)
+    {
+        const tag = tags[i];
+
+        if (tag.id)
+        {
+            tagTasks.push(Tag.findById(tag.id, { transaction: t }) as any);
+        }
+        else
+        {
+            tagTasks.push(Tag.findOrCreate({
+                where: { name: tag.name },
+                defaults: { name: tag.name },
+                transaction: t,
+            }) as any);
+        }
+    }
+
+    return Promise.all(tagTasks);
+}
 
 function purgeCache(req: restify.Request, slug: string)
 {
