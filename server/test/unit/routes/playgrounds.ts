@@ -73,8 +73,8 @@ class ReadRouteErrors
 
     @test 'GET empty search query should return 422'()
     {
-        return request.get('/api/playgrounds?q=nope')
-            .expect(CODES.NOT_FOUND);
+        return request.get('/api/playgrounds?q=')
+            .expect(CODES.UNPROCESSABLE_ENTITY);
     }
 
     @test 'GET non-existant slug should return 404'()

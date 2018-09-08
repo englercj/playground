@@ -141,7 +141,7 @@ export function setupRoutes(app: restify.Server)
                 .then((value) =>
                 {
                     req.log.info(`Created a new tag: ${value.id}`);
-                    res.json(CODES.OK, value);
+                    res.json(CODES.CREATED, value);
 
                     next();
                 })
