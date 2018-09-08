@@ -23,7 +23,7 @@ function createPlayground()
     return (new Playground(testPlaygroundData as any)).save();
 }
 
-@suite('Read Routes')
+@suite('/api/playground - READ')
 class ReadRoutes
 {
     static before()
@@ -57,7 +57,7 @@ class ReadRoutes
     // }
 }
 
-@suite('Read Route Errors')
+@suite('/api/playground - READ ERRORS')
 class ReadRouteErrors
 {
     static before()
@@ -102,7 +102,7 @@ class ReadRouteErrors
     // }
 }
 
-@suite('Write Routes')
+@suite('/api/playground - WRITE')
 class WriteRoutes
 {
     static before()
@@ -175,7 +175,7 @@ class WriteRoutes
     // }
 }
 
-@suite('Write Route Errors')
+@suite('/api/playground - WRITE ERRORS')
 class WriteRouteErrors
 {
     static before()

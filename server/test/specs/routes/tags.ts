@@ -15,7 +15,7 @@ function createTag()
     return (new Tag(testTagData)).save();
 }
 
-@suite('Read Routes')
+@suite('/api/tag - READ')
 class ReadRoutes
 {
     static before()
@@ -42,7 +42,7 @@ class ReadRoutes
     }
 }
 
-@suite('Read Route Errors')
+@suite('/api/tag - READ ERRORS')
 class ReadRouteErrors
 {
     static before()
@@ -69,7 +69,7 @@ class ReadRouteErrors
     }
 }
 
-@suite('Write Routes')
+@suite('/api/tag - WRITE')
 class WriteRoutes
 {
     static before()
@@ -107,7 +107,7 @@ class WriteRoutes
     }
 }
 
-@suite('Write Route Errors')
+@suite('/api/tag - WRITE ERRORS')
 class WriteRouteErrors
 {
     static before()
