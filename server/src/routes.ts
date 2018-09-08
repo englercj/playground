@@ -59,7 +59,7 @@ export function setupRoutes(app: restify.Server)
                 }
                 else
                 {
-                    req.log.debug(`Loaded ${values.length} playgrounds using query: ${q}`);
+                    req.log.info(`Loaded ${values.length} playgrounds using query: ${q}`);
                     res.json(CODES.OK, values);
                 }
 
@@ -103,7 +103,7 @@ export function setupRoutes(app: restify.Server)
                 }
                 else
                 {
-                    req.log.debug(`Loaded playground using slug: ${slug}`);
+                    req.log.info(`Loaded playground using slug: ${slug}`);
                     res.json(CODES.OK, value);
                 }
 
@@ -152,7 +152,7 @@ export function setupRoutes(app: restify.Server)
                 { transaction: t })
                 .then((value) =>
                 {
-                    req.log.debug(`Created a new playground: ${value.slug}`);
+                    req.log.info(`Created a new playground: ${value.slug}`);
                     res.json(CODES.OK, value);
 
                     next();
@@ -216,12 +216,12 @@ export function setupRoutes(app: restify.Server)
                             {
                                 const msg = `Playground found with id: ${id}, but has mismatched slug. Expected '${slug}', but got '${value.slug}'.`;
 
-                                req.log.info(logState, msg);
+                                req.log.error(logState, msg);
                                 res.json(CODES.INTERNAL_SERVER_ERROR, { msg });
                             }
                             else
                             {
-                                req.log.debug(`Created new playground version using slug: ${slug}, added version: ${value.versionsCount}`);
+                                req.log.info(`Created new playground version using slug: ${slug}, added version: ${value.versionsCount}`);
                                 purgeCache(req, slug);
                                 res.json(CODES.OK, value);
                             }
@@ -281,7 +281,7 @@ function purgeCache(req: restify.Request, slug: string)
                     let resBody = JSON.parse(resStr);
 
                     if (resBody.success)
-                        req.log.debug(resBody, `Successfully purged Cloudflare cache for slug: ${slug}`);
+                        req.log.info(resBody, `Successfully purged Cloudflare cache for slug: ${slug}`);
                     else
                         req.log.error(resBody, `Failed to purge Cloudflare cache for slug: ${slug}`);
                 }
