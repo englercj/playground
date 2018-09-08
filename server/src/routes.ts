@@ -135,6 +135,8 @@ export function setupRoutes(app: restify.Server)
 
         const logState: any = { params };
 
+        const externalJs: string[] = req.body.externalJs || [];
+
         if (!contents)
         {
             req.log.error(logState, 'Failed to save playground, invalid params');
@@ -148,7 +150,7 @@ export function setupRoutes(app: restify.Server)
         db.transaction((t) =>
         {
             return Playground.create(
-                { name, description, contents, author, pixiVersion, isPublic },
+                { name, description, contents, author, pixiVersion, isPublic, externalJs },
                 { transaction: t })
                 .then((value) =>
                 {
@@ -185,6 +187,8 @@ export function setupRoutes(app: restify.Server)
 
         const logState: any = { params };
 
+        const externalJs: string[] = req.body.externalJs || [];
+
         if (!slug || !contents)
         {
             req.log.error(logState, 'Failed save playground, invalid params');
@@ -201,7 +205,7 @@ export function setupRoutes(app: restify.Server)
                 .then((value) =>
                 {
                     return value.update(
-                        { name, description, contents, author, pixiVersion, isPublic, versionsCount: value.versionsCount + 1 },
+                        { name, description, contents, author, pixiVersion, isPublic, externalJs, versionsCount: value.versionsCount + 1 },
                         { transaction: t })
                         .then((value) =>
                         {

@@ -12,4 +12,6 @@ export interface IPlayground
     isPublic?: boolean;
     isFeatured?: boolean;
     isOfficial?: boolean;
+
+    externalJs?: string[];
 }

@@ -9,21 +9,21 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             autoIncrement: true,
         },
         slug: {
-            type: DataTypes.CHAR(63),
+            type: DataTypes.CHAR(31),
             allowNull: false,
         },
         name: {
-            type: DataTypes.STRING(1023),
+            type: DataTypes.STRING(127),
         },
         description: {
-            type: DataTypes.STRING(4095),
+            type: DataTypes.STRING(511),
         },
         contents: {
             type: DataTypes.TEXT('medium'),
             allowNull: false,
         },
         author: {
-            type: DataTypes.STRING(511),
+            type: DataTypes.STRING(127),
         },
         versionsCount: {
             type: DataTypes.INTEGER,
@@ -34,7 +34,7 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             defaultValue: 0,
         },
         pixiVersion: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(31),
             allowNull: false,
         },
         isPublic: {
@@ -65,6 +65,13 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
         fields: ['slug'],
     } as any))
     .then(() => query.addIndex('playgrounds', {
+        name: 'playgrounds_is_public',
+        fields: ['isPublic'],
+        where: {
+            isPublic: true,
+        },
+    } as any))
+    .then(() => query.addIndex('playgrounds', {
         name: 'playgrounds_is_featured',
         fields: ['isFeatured'],
         where: {
@@ -90,8 +97,17 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             autoIncrement: true,
         },
         name: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             allowNull: false,
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
+        },
+        lockVersion: {
+            type: DataTypes.INTEGER,
         },
     }))
     .then(() => query.createTable('playground_tags', {
@@ -110,8 +126,15 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
                 model: 'tags',
                 key: 'id',
             },
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
         },
     }))
+    .then(() => query.addIndex('playground_js_urls', {
+        name: 'playground_tags_unique_playround_tag',
+        type: 'UNIQUE',
+        fields: ['playgroundId', 'tagId'],
+    } as any));
 }
 
 export function down(query: QueryInterface) {

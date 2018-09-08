@@ -18,16 +18,21 @@ const searchQuery: { [dialect: string]: literal } = {
     tableName: 'playgrounds',
     modelName: 'playground',
     timestamps: true,
-    indexes: [
-        { fields: ['isFeatured'], where: { isFeatured: true } },
-        { fields: ['isOfficial'], where: { isOfficial: true } },
-    ] as any // 'where' is not in the dts :(
-} as IDefineOptions)
+})
 export class Playground extends Model<Playground> implements IPlayground
 {
+    get externalJs()
+    {
+        return JSON.parse(this.getDataValue('externalJs'));
+    }
+
+    set externalJs(value)
+    {
+        this.setDataValue('externalJs', JSON.stringify(value));
+    }
+
     /**
-     * The primary ID key. Together the ID/Version uniquely identify a playground.
-     * When creating a brand new playground, the ID is incremented.
+     * A unique identifier that is used in the URL when referring to a Playground.
      *
      */
     @Column({
