@@ -17,7 +17,7 @@
     "build": "npm run clean && tsc -p tsconfig.json --outDir dist",
     "clean": "rimraf dist",
     "dev": "ts-node src/migrate.ts | bunyan && nodemon | bunyan",
-    "test": "mocha -r ts-node/register test/unit/**/*.ts"
+    "test": "mocha -r ts-node/register test/specs/**/*.ts"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.4",
