@@ -113,12 +113,43 @@ class WriteRoutes
     @test 'POST creates a new playground'()
     {
         return request.post('/api/playground')
-            .send({ ...testPlaygroundData })
+            .send(testPlaygroundData)
             .expect(CODES.CREATED)
             .expect(confirmPlaygroundResponse(null))
             .then((res) =>
             {
                 const item = res.body;
+
+                expect(item)
+                    .to.have.property('externalJs')
+                    .that.is.an('array')
+                    .with.length(0);
+
+                // return request.get(`/api/playground/${item.slug}/${item.version}`)
+                return request.get(`/api/playground/${item.slug}`)
+                    .expect(CODES.OK)
+                    .expect(confirmPlaygroundResponse(null));
+            });
+    }
+
+    @test 'POST creates a new playground with externalJs'()
+    {
+        const externalJs = ['https://test.com/file.js'];
+        const data = { ...testPlaygroundData };
+        data.externalJs = externalJs;
+
+        return request.post('/api/playground')
+            .send(data)
+            .expect(CODES.CREATED)
+            .expect(confirmPlaygroundResponse(null))
+            .then((res) =>
+            {
+                const item = res.body;
+
+                expect(item)
+                    .to.have.property('externalJs')
+                    .that.is.an('array')
+                    .and.eql(externalJs);
 
                 // return request.get(`/api/playground/${item.slug}/${item.version}`)
                 return request.get(`/api/playground/${item.slug}`)
@@ -172,7 +203,10 @@ class WriteRouteErrors
 
 function confirmPlaygroundResponse(slug: string = testPlaygroundData.slug, version: number = 0)
 {
-    return (res: supertest.Response) => checkPlaygroundData(res.body);
+    return (res: supertest.Response) =>
+    {
+        checkPlaygroundData(res.body);
+    };
 }
 
 function checkPlaygroundData(item: IPlayground, slug: string = item.slug, version: number = (item.versionsCount || 0))
@@ -191,7 +225,7 @@ function checkPlaygroundData(item: IPlayground, slug: string = item.slug, versio
     expect(item).to.have.property('createdAt').that.is.a('string');
     expect(item).to.have.property('updatedAt').that.is.a('string');
 
-    expect(item).to.have.property('externalJs').that.is.an('array').with.length(0);
+    expect(item).to.have.property('externalJs').that.is.an('array');
 
     if (item.hasOwnProperty('description'))
         expect(item).to.have.property('description', null);
