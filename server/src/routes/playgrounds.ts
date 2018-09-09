@@ -5,7 +5,9 @@ import * as restify from 'restify';
 import * as bunyan from 'bunyan';
 import { Tag } from '../models/Tag';
 import { Playground } from '../models/Playground';
+import { ExternalJs } from '../models/ExternalJs';
 import { db } from '../lib/db';
+import { HttpError } from '../lib/HttpError';
 import { ITag } from '../../../shared/types';
 import { purgeCacheForUrls } from '../lib/cloudflare';
 
@@ -33,7 +35,6 @@ export function setupRoutes(app: restify.Server)
 
             req.log.error(logState, msg);
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg });
-
             next();
             return;
         }
@@ -82,7 +83,7 @@ export function setupRoutes(app: restify.Server)
         const { slug } = req.params;
         const logState: any = { params: { slug } };
 
-        Playground.findOne({ where: { slug }, include: [Tag] })
+        Playground.findOne({ where: { slug }, include: [Tag, ExternalJs] })
             .then((value) =>
             {
                 if (!value)
@@ -105,7 +106,6 @@ export function setupRoutes(app: restify.Server)
                 logState.err = err;
                 req.log.error(logState, 'Failed to get playground.');
                 res.json(CODES.INTERNAL_SERVER_ERROR, { msg: `There was an error trying to load playground ${slug}.` });
-
                 next();
             });
     });
@@ -127,14 +127,12 @@ export function setupRoutes(app: restify.Server)
         const logState: any = { params };
 
         const tagsData: ITag[] = req.body.tags || [];
-        const externalJs: string[] = req.body.externalJs || [];
+        const externaljsData: string[] = req.body.externaljs || [];
 
         if (!contents || contents.length > 16777214)
         {
             req.log.error(logState, 'Failed to save playground, invalid params');
-
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, 'contents' is empty.` });
-
             next();
             return;
         }
@@ -142,8 +140,23 @@ export function setupRoutes(app: restify.Server)
         db.transaction((t) =>
         {
             return Playground.create(
-                { name, description, contents, author, pixiVersion, isPublic, externalJs },
+                { name, description, contents, author, pixiVersion, isPublic },
                 { transaction: t })
+                .then((value) =>
+                {
+                    const externaljsTasks = [];
+
+                    for (let i = 0; i < externaljsData.length; ++i)
+                    {
+                        externaljsTasks.push(value.$create(
+                            'externalj', // Sequelize removes the 's' of 'externaljs'
+                            { url: externaljsData[i] },
+                            { transaction: t }));
+                    }
+
+                    return Promise.all(externaljsTasks)
+                        .then(() => Promise.resolve(value));
+                })
                 .then((value) =>
                 {
                     req.log.info(`Created a new playground: ${value.slug}`);
@@ -156,6 +169,15 @@ export function setupRoutes(app: restify.Server)
                     }
 
                     return Promise.resolve(value);
+                })
+                .then((value) =>
+                {
+                    return Playground.findById(
+                        value.id,
+                        {
+                            include: [Tag, ExternalJs],
+                            transaction: t
+                        });
                 })
                 .then((value) =>
                 {
@@ -191,14 +213,12 @@ export function setupRoutes(app: restify.Server)
         const logState: any = { params };
 
         const tagsData: ITag[] = req.body.tags || [];
-        const externalJs: string[] = req.body.externalJs || [];
+        const externaljsData: string[] = req.body.externaljs || [];
 
         if (!slug || !contents || slug.length !== 21 || contents.length > 16777214)
         {
             req.log.error(logState, 'Failed save playground, invalid params');
-
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either 'slug' or 'contents' is invalid.` });
-
             next();
             return;
         }
@@ -210,60 +230,91 @@ export function setupRoutes(app: restify.Server)
                 {
                     if (!value)
                     {
-                        const msg = `No playground found with id: ${id}.`;
-
-                        req.log.info(logState, msg);
-                        res.json(CODES.NOT_FOUND, { msg });
-                        next();
-                        return;
+                        return Promise.reject(
+                            new HttpError(
+                                CODES.NOT_FOUND,
+                                `No playground found with id: ${id}.`));
                     }
 
                     return value.update(
-                        { name, description, contents, author, pixiVersion, isPublic, externalJs, versionsCount: value.versionsCount + 1 },
-                        { transaction: t })
-                        .then((value) =>
+                        { name, description, contents, author, pixiVersion, isPublic, versionsCount: value.versionsCount + 1 },
+                        { transaction: t });
+                })
+                .then((value) =>
+                {
+                    return ExternalJs.destroy({
+                        where: { playgroundId: value.id },
+                        transaction: t,
+                    })
+                    .then(() => Promise.resolve(value));
+                })
+                .then((value) =>
+                {
+                    const externaljsTasks = [];
+
+                    for (let i = 0; i < externaljsData.length; ++i)
+                    {
+                        externaljsTasks.push(value.$create(
+                            'externalj', // Sequelize removes the 's' of 'externaljs'
+                            { url: externaljsData[i] },
+                            { transaction: t }));
+                    }
+
+                    return Promise.all(externaljsTasks)
+                        .then(() => Promise.resolve(value));
+                })
+                .then((value) =>
+                {
+                    if (value.slug !== slug)
+                    {
+                        return Promise.reject(
+                            new HttpError(
+                                CODES.INTERNAL_SERVER_ERROR,
+                                `Playground found with id: ${id}, but has mismatched slug. Expected '${slug}', but got '${value.slug}'.`));
+                    }
+                    else
+                    {
+                        req.log.info(`Updated playground with slug: ${slug}, added version: ${value.versionsCount}`);
+
+                        if (tagsData.length)
                         {
-                            if (value.slug !== slug)
-                            {
-                                const msg = `Playground found with id: ${id}, but has mismatched slug. Expected '${slug}', but got '${value.slug}'.`;
+                            const tags = prepareTags(req.log, tagsData);
+                            return value.$set('tags', tags, { transaction: t })
+                                .then(() => Promise.resolve(value));
+                        }
 
-                                req.log.error(logState, msg);
-                                res.json(CODES.INTERNAL_SERVER_ERROR, { msg });
-                                next();
-                            }
-                            else
-                            {
-                                req.log.info(`Updated playground with slug: ${slug}, added version: ${value.versionsCount}`);
-
-                                if (tagsData.length)
-                                {
-                                    const tags = prepareTags(req.log, tagsData);
-                                    return value.$set('tags', tags, { transaction: t })
-                                        .then(() => Promise.resolve(value));
-                                }
-
-                                return Promise.resolve(value);
-                            }
-                        })
-                        .then((value) =>
+                        return Promise.resolve(value);
+                    }
+                })
+                .then((value) =>
+                {
+                    return Playground.findById(
+                        value.id,
                         {
-                            purgeCacheForUrls(req.log, [
-                                `https://pixiplayground.com/api/playground/${slug}`,
-                                `https://www.pixiplayground.com/api/playground/${slug}`,
-                                `http://pixiplayground.com/api/playground/${slug}`,
-                                `http://www.pixiplayground.com/api/playground/${slug}`,
-                            ]);
-                            res.json(CODES.OK, value);
-                            next();
-                        })
-                        .catch((err) =>
-                        {
-                            logState.err = err;
-                            req.log.error(logState, 'Failed to save playground.');
-                            res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
-
-                            next();
+                            include: [Tag, ExternalJs],
+                            transaction: t
                         });
+                })
+                .then((value) =>
+                {
+                    purgeCacheForUrls(req.log, [
+                        `https://pixiplayground.com/api/playground/${slug}`,
+                        `https://www.pixiplayground.com/api/playground/${slug}`,
+                        `http://pixiplayground.com/api/playground/${slug}`,
+                        `http://www.pixiplayground.com/api/playground/${slug}`,
+                    ]);
+                    res.json(CODES.OK, value);
+                    next();
+                })
+                .catch((err) =>
+                {
+                    logState.err = err;
+                    req.log.error(logState, 'Failed to save playground.');
+                    res.json(
+                        err.httpCode ? err.httpCode : CODES.INTERNAL_SERVER_ERROR,
+                        { msg: 'There was an error trying to save the playground.' });
+
+                    next();
                 });
         });
     });

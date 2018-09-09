@@ -8,6 +8,7 @@ import { dbLogger } from '../lib/db-logger';
 import { IPlayground } from '../../../shared/types';
 import { Tag } from './Tag';
 import { PlaygroundTag } from './PlaygroundTag';
+import { ExternalJs } from './ExternalJs';
 
 const searchQuery: { [dialect: string]: literal } = {
     postgres: Sequelize.literal('"PlaygroundSearchText" @@ plainto_tsquery(\'english\', :search)'),
@@ -25,19 +26,8 @@ export class Playground extends Model<Playground> implements IPlayground
     @BelongsToMany(() => Tag, () => PlaygroundTag)
     tags: Tag[];
 
-    @Column({
-        type: DataType.TEXT,
-        allowNull: true,
-    })
-    get externalJs()
-    {
-        return JSON.parse(this.getDataValue('externalJs'));
-    }
-
-    set externalJs(value)
-    {
-        this.setDataValue('externalJs', JSON.stringify(value));
-    }
+    @HasMany(() => ExternalJs)
+    externaljs: ExternalJs[];
 
     /**
      * A unique identifier that is used in the URL when referring to a Playground.
@@ -180,6 +170,7 @@ export class Playground extends Model<Playground> implements IPlayground
         return Playground.findAll({
             where: searchQuery[dbConfig.dialect],
             replacements: { search },
+            // include: [Tag,ExternalJs],
         } as any) as any; // looks like types are wrong for findAll params, and Bluebird is not compat with raw promises
     }
 }

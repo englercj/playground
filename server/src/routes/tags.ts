@@ -28,10 +28,8 @@ export function setupRoutes(app: restify.Server)
         if (!q)
         {
             const msg = `Failed to search tags, query param is empty.`;
-
             req.log.error(logState, msg);
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg });
-
             next();
             return;
         }
@@ -128,9 +126,7 @@ export function setupRoutes(app: restify.Server)
         if (!name || name.length > 255)
         {
             req.log.error(logState, 'Failed to save tag, invalid params');
-
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, 'name' is invalid.` });
-
             next();
             return;
         }
@@ -175,9 +171,7 @@ export function setupRoutes(app: restify.Server)
         if (!name || name.length > 255)
         {
             req.log.error(logState, 'Failed save tag, invalid params');
-
             res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, 'name' is invalid.` });
-
             next();
             return;
         }
@@ -187,38 +181,38 @@ export function setupRoutes(app: restify.Server)
             return Tag.findById(id, { transaction: t })
                 .then((value) =>
                 {
-                    return value.update({ name }, { transaction: t })
-                        .then((value) =>
-                        {
-                            if (!value)
-                            {
-                                const msg = `No tag found with id: ${id}.`;
+                    return value.update({ name }, { transaction: t });
+                })
+                .then((value) =>
+                {
+                    if (!value)
+                    {
+                        const msg = `No tag found with id: ${id}.`;
 
-                                req.log.info(logState, msg);
-                                res.json(CODES.NOT_FOUND, { msg });
-                            }
-                            else
-                            {
-                                req.log.info(`Updated tag with id ${id} to use name: ${name}.`);
-                                purgeCacheForUrls(req.log, [
-                                    `https://pixiplayground.com/api/tag/${id}`,
-                                    `https://www.pixiplayground.com/api/tag/${id}`,
-                                    `http://pixiplayground.com/api/tag/${id}`,
-                                    `http://www.pixiplayground.com/api/tag/${id}`,
-                                ]);
-                                res.json(CODES.OK, value);
-                            }
+                        req.log.info(logState, msg);
+                        res.json(CODES.NOT_FOUND, { msg });
+                    }
+                    else
+                    {
+                        req.log.info(`Updated tag with id ${id} to use name: ${name}.`);
+                        purgeCacheForUrls(req.log, [
+                            `https://pixiplayground.com/api/tag/${id}`,
+                            `https://www.pixiplayground.com/api/tag/${id}`,
+                            `http://pixiplayground.com/api/tag/${id}`,
+                            `http://www.pixiplayground.com/api/tag/${id}`,
+                        ]);
+                        res.json(CODES.OK, value);
+                    }
 
-                            next();
-                        })
-                        .catch((err) =>
-                        {
-                            logState.err = err;
-                            req.log.error(logState, 'Failed to save playground.');
-                            res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
+                    next();
+                })
+                .catch((err) =>
+                {
+                    logState.err = err;
+                    req.log.error(logState, 'Failed to save playground.');
+                    res.json(CODES.INTERNAL_SERVER_ERROR, { msg: 'There was an error trying to save the playground.' });
 
-                            next();
-                        });
+                    next();
                 });
         });
     });

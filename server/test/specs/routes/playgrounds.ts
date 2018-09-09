@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { request, clearDb } from '../../fixtures/server';
 import { Playground } from '../../../src/models/Playground';
 import { Tag } from '../../../src/models/Tag';
-import { IPlayground } from '../../../../shared/types';
+import { IPlayground, ITag } from '../../../../shared/types';
 
 const testPlaygroundData: IPlayground = {
     slug: 'hN4tERudnG0mMDZrafh7U',
@@ -15,7 +15,7 @@ const testPlaygroundData: IPlayground = {
     author: 'Chad Engler',
     pixiVersion: 'v5.0.0',
     isPublic: undefined,
-    externalJs: [],
+    externaljs: [],
     tags: [],
 };
 
@@ -39,7 +39,9 @@ class PlaygroundsSearch
             .expect((res: supertest.Response) =>
             {
                 expect(res.body).to.be.an('array').with.length(1);
+
                 checkPlaygroundData(res.body[0]);
+                checkPlaygroundExtras(res.body[0], testPlaygroundData.slug, null, null);
             });
     }
 
@@ -75,41 +77,27 @@ class PlaygroundRoot
                 const item = res.body;
 
                 expect(item)
-                    .to.have.property('externalJs')
+                    .to.have.property('externaljs')
                     .that.is.an('array')
                     .with.length(0);
 
                 // return request.get(`/api/playground/${item.slug}/${item.version}`)
                 return request.get(`/api/playground/${item.slug}`)
                     .expect(CODES.OK)
-                    .expect(confirmPlaygroundResponse(null));
+                    .expect(confirmPlaygroundResponse(item.slug));
             });
     }
 
-    @test 'POST creates a new playground with externalJs'()
+    @test 'POST creates a new playground with externaljs'()
     {
-        const externalJs = ['https://test.com/file.js'];
+        const externaljs = ['https://test.com/file.js'];
         const data = { ...testPlaygroundData };
-        data.externalJs = externalJs;
+        data.externaljs = externaljs;
 
         return request.post('/api/playground')
             .send(data)
             .expect(CODES.CREATED)
-            .expect(confirmPlaygroundResponse(null))
-            .then((res) =>
-            {
-                const item = res.body;
-
-                expect(item)
-                    .to.have.property('externalJs')
-                    .that.is.an('array')
-                    .and.eql(externalJs);
-
-                // return request.get(`/api/playground/${item.slug}/${item.version}`)
-                return request.get(`/api/playground/${item.slug}`)
-                    .expect(CODES.OK)
-                    .expect(confirmPlaygroundResponse(null));
-            });
+            .expect(confirmPlaygroundResponse(null, null, externaljs));
     }
 
     @test 'POST without contents returns 422'()
@@ -142,25 +130,24 @@ class PlaygroundRoot
 
             return request.post('/api/playground')
                 .send(data)
-                .expect(CODES.CREATED);
+                .expect(CODES.CREATED)
+                .expect(confirmPlaygroundResponse(
+                    null,
+                    [
+                        { id: tagModels[0].id, name: tagModels[0].name },
+                        { id: tagModels[1].id, name: tagModels[1].name },
+                    ]));
         })
         .then((res1) =>
         {
             return request.get(`/api/playground/${res1.body.slug}`)
                 .expect(CODES.OK)
-                .expect((res: supertest.Response) =>
-                {
-                    const item = res.body;
-
-                    expect(item)
-                        .to.have.property('tags')
-                        .with.length(2);
-
-                        expect(item.tags[0]).to.have.property('id', tagModels[0].id);
-                        expect(item.tags[0]).to.have.property('name', tagModels[0].name);
-                        expect(item.tags[1]).to.have.property('id', tagModels[1].id);
-                        expect(item.tags[1]).to.have.property('name', tagModels[1].name);
-                });
+                .expect(confirmPlaygroundResponse(
+                    null,
+                    [
+                        { id: tagModels[0].id, name: tagModels[0].name },
+                        { id: tagModels[1].id, name: tagModels[1].name },
+                    ]));
         });
     }
 }
@@ -346,22 +333,23 @@ class PlaygroundSlug
     }
 }
 
-function confirmPlaygroundResponse(slug: string = testPlaygroundData.slug, version: number = 0)
+function confirmPlaygroundResponse(slug: string = testPlaygroundData.slug, tags: ITag[] = null, externaljs: string[] = [])
 {
     return (res: supertest.Response) =>
     {
         checkPlaygroundData(res.body);
+        checkPlaygroundExtras(res.body, slug, tags, externaljs);
     };
 }
 
-function checkPlaygroundData(item: IPlayground, slug: string = item.slug, version: number = (item.versionsCount || 0))
+function checkPlaygroundData(item: IPlayground)
 {
     expect(item).to.have.property('id').that.is.a('number');
-    expect(item).to.have.property('slug', slug);
     expect(item).to.have.property('name', testPlaygroundData.name);
+    expect(item).to.have.property('description', null);
     expect(item).to.have.property('contents', testPlaygroundData.contents);
     expect(item).to.have.property('author', testPlaygroundData.author);
-    expect(item).to.have.property('versionsCount', version);
+    expect(item).to.have.property('versionsCount', 1);
     expect(item).to.have.property('starCount', 0);
     expect(item).to.have.property('pixiVersion', testPlaygroundData.pixiVersion);
     expect(item).to.have.property('isPublic', true);
@@ -369,12 +357,32 @@ function checkPlaygroundData(item: IPlayground, slug: string = item.slug, versio
     expect(item).to.have.property('isOfficial', false);
     expect(item).to.have.property('createdAt').that.is.a('string');
     expect(item).to.have.property('updatedAt').that.is.a('string');
+}
 
-    expect(item).to.have.property('externalJs').that.is.an('array');
+function checkPlaygroundExtras(item: IPlayground, slug: string, tags: ITag[], externaljs: string[])
+{
+    if (slug)
+        expect(item).to.have.property('slug', slug);
 
-    if (item.hasOwnProperty('description'))
-        expect(item).to.have.property('description', null);
+    if (tags)
+    {
+        expect(item).to.have.property('tags').with.length(tags.length);
 
-    if (item.hasOwnProperty('tags'))
-        expect(item).to.have.property('tags').that.is.an('array').with.length(0);
+        for (let i = 0; i < tags.length; ++i)
+        {
+            expect(item.tags[i]).to.have.property('id', tags[i].id);
+            expect(item.tags[i]).to.have.property('name', tags[i].name);
+        }
+
+    }
+
+    if (externaljs)
+    {
+        expect(item).to.have.property('externaljs').with.length(externaljs.length);
+
+        for (let i = 0; i < externaljs.length; ++i)
+        {
+            expect(item.externaljs[i]).to.have.property('url', externaljs[i]);
+        }
+    }
 }
