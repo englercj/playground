@@ -4,6 +4,7 @@ $DOMAIN_NAME="pixiplayground.com"
 
 # Create 'deploy' user that will deploy and run the app
 useradd -s /bin/bash -m -d /home/deploy -c "deploy" deploy
+# Upload `~/.ssh/pixi_playground_deploy_rsa.pub` as an authorized key
 
 # Install Nginx
 apt update
@@ -20,7 +21,7 @@ chmod 755 /var/www/$DOMAIN_NAME
 touch /etc/nginx/sites-available/$DOMAIN_NAME
 chown deploy:deploy /etc/nginx/sites-available/$DOMAIN_NAME
 chmod 644 /etc/nginx/sites-available/$DOMAIN_NAME
-# ... fill config ...
+# Copy contents of `server/pixiplayground.com.conf` into `/etc/nginx/sites-available/$DOMAIN_NAME`
 ln -s /etc/nginx/sites-available/$DOMAIN_NAME /etc/nginx/sites-enabled/
 nginx -t
 systemctl restart nginx
@@ -29,8 +30,10 @@ systemctl restart nginx
 add-apt-repository ppa:certbot/certbot
 apt install python-certbot-nginx
 certbot --nginx -d $DOMAIN_NAME -d www.$DOMAIN_NAME
+nginx -t
+systemctl restart nginx
 
-# Install Node v10.x from nodesource
+# Install Node v10.x and setup pm2
 curl -sL https://deb.nodesource.com/setup_10.x -o /tmp/nodesource_setup.sh
 bash /tmp/nodesource_setup.sh
 apt install nodejs build-essential

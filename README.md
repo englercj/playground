@@ -1,7 +1,7 @@
-# PIXI Playground
+# PixiJS Playground
 
 The playground application is a server and client that allow you to create, view, save,
-and share small Pixi demos.
+and share small PixiJS demos.
 
 - Client code is in the [client folder][cf].
 - Server code is in the [server folder][sf].
