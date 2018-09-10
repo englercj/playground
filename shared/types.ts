@@ -14,7 +14,13 @@ export interface IPlayground
     isOfficial?: boolean;
 
     tags?: ITag[];
-    externaljs?: string[];
+    externaljs?: IExternalJs[];
+}
+
+export interface IExternalJs
+{
+    id?: number;
+    url?: string;
 }
 
 export interface ITag

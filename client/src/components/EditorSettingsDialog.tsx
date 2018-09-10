@@ -1,7 +1,7 @@
 import linkState from 'linkstate';
 import { h, Component } from 'preact';
 import { bind } from 'decko';
-import { IPlayground } from '../../../shared/types';
+import { IPlayground, IExternalJs } from '../../../shared/types';
 import { Radio, RadioGroup } from './Radio';
 import { getReleases } from '../service';
 
@@ -131,6 +131,18 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                             </fieldset>
 
                             <fieldset>
+                                <h4><label>External Scripts</label></h4>
+
+                                { console.log('state: ', state.data.externaljs) }
+                                { (state.data.externaljs || []).map(this._renderExternaljs) }
+
+                                <button id="settings-add-externaljs" className="btn" onClick={this._onAddExternaljs}>
+                                    <span className="fa fa-plus" aria-hidden="true" />
+                                    <span className="label">Add Script</span>
+                                </button>
+                            </fieldset>
+
+                            <fieldset>
                                 <h4><label>Attributes</label></h4>
 
                                 <input
@@ -162,10 +174,32 @@ export class EditorSettingsDialog extends Component<IProps, IState>
         );
     }
 
-    private _renderTagOption(tag: string)
+    @bind
+    private _renderTagOption(tag: string, index: number)
     {
         return (
-            <option value={tag}>{tag}</option>
+            <option key={`tag-option-${index}`} value={tag}>{tag}</option>
+        );
+    }
+
+    @bind
+    private _renderExternaljs(externaljs: IExternalJs, index: number)
+    {
+        return (
+            <div className="externaljs-row">
+                <input
+                    key={`externaljs-input-${index}`}
+                    data-index={index}
+                    type="text"
+                    placeholder="https://mydomain.com/file.js"
+                    value={externaljs.url}
+                    onChange={this._onExternaljsChanged} />
+                <span
+                    className="fa fa-times"
+                    title="Remove Script"
+                    data-index={index}
+                    onClick={this._onRemoveExternaljs} />
+            </div>
         );
     }
 
@@ -183,6 +217,39 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     //         </div>
     //     );
     // }
+
+    @bind
+    private _onAddExternaljs(e: Event)
+    {
+        e.preventDefault();
+
+        if (!this.state.data.externaljs)
+            this.state.data.externaljs = [];
+
+        console.log('pre', this.state.data.externaljs);
+        this.state.data.externaljs.push({ url: '' });
+        console.log('post', this.state.data.externaljs);
+        this.setState({ data: this.state.data });
+    }
+
+    @bind
+    private _onRemoveExternaljs(e: Event)
+    {
+        const target = e.target as HTMLInputElement;
+        const index = parseInt(target.dataset.index, 10);
+
+        this.state.data.externaljs.splice(index, 1);
+        this.setState({ data: this.state.data });
+    }
+
+    @bind
+    private _onExternaljsChanged(e: Event)
+    {
+        const target = e.target as HTMLInputElement;
+        const index = parseInt(target.dataset.index, 10);
+
+        this.state.data.externaljs[index].url = target.value;
+    }
 
     @bind
     private _onVersionChange(versionType: VersionType)
@@ -207,8 +274,10 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     }
 
     @bind
-    private _onSaveClick()
+    private _onSaveClick(e: Event)
     {
+        e.preventDefault();
+        console.log(this.state.data);
         if (this.props.onSaveClick)
             this.props.onSaveClick(this.state.data);
     }

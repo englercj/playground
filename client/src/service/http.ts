@@ -26,7 +26,8 @@ function sendRequest(method: string, url: string, data: any, callback: THttpCall
 
         let err = null;
 
-        if (xhr.status !== 200)
+        // if non-2XX code
+        if (Math.floor(xhr.status / 100) !== 2)
         {
             let msg = xhr.statusText;
 

@@ -129,6 +129,15 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             onDelete: 'cascade',
             onUpdate: 'cascade',
         },
+        createdAt: {
+            type: DataTypes.DATE,
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
+        },
+        lockVersion: {
+            type: DataTypes.INTEGER,
+        },
     }));
 }
 

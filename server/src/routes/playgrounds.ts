@@ -8,7 +8,7 @@ import { Playground } from '../models/Playground';
 import { ExternalJs } from '../models/ExternalJs';
 import { db } from '../lib/db';
 import { HttpError } from '../lib/HttpError';
-import { ITag } from '../../../shared/types';
+import { ITag, IExternalJs } from '../../../shared/types';
 import { purgeCacheForUrls } from '../lib/cloudflare';
 
 export function setupRoutes(app: restify.Server)
@@ -127,7 +127,7 @@ export function setupRoutes(app: restify.Server)
         const logState: any = { params };
 
         const tagsData: ITag[] = req.body.tags || [];
-        const externaljsData: string[] = req.body.externaljs || [];
+        const externaljsData: IExternalJs[] = req.body.externaljs || [];
 
         if (!contents || contents.length > 16777214)
         {
@@ -144,17 +144,7 @@ export function setupRoutes(app: restify.Server)
                 { transaction: t })
                 .then((value) =>
                 {
-                    const externaljsTasks = [];
-
-                    for (let i = 0; i < externaljsData.length; ++i)
-                    {
-                        externaljsTasks.push(value.$create(
-                            'externalj', // Sequelize removes the 's' of 'externaljs'
-                            { url: externaljsData[i] },
-                            { transaction: t }));
-                    }
-
-                    return Promise.all(externaljsTasks)
+                    return prepareExternaljs(value, t, externaljsData)
                         .then(() => Promise.resolve(value));
                 })
                 .then((value) =>
@@ -213,7 +203,7 @@ export function setupRoutes(app: restify.Server)
         const logState: any = { params };
 
         const tagsData: ITag[] = req.body.tags || [];
-        const externaljsData: string[] = req.body.externaljs || [];
+        const externaljsData: IExternalJs[] = req.body.externaljs || [];
 
         if (!slug || !contents || slug.length !== 21 || contents.length > 16777214)
         {
@@ -250,17 +240,7 @@ export function setupRoutes(app: restify.Server)
                 })
                 .then((value) =>
                 {
-                    const externaljsTasks = [];
-
-                    for (let i = 0; i < externaljsData.length; ++i)
-                    {
-                        externaljsTasks.push(value.$create(
-                            'externalj', // Sequelize removes the 's' of 'externaljs'
-                            { url: externaljsData[i] },
-                            { transaction: t }));
-                    }
-
-                    return Promise.all(externaljsTasks)
+                    return prepareExternaljs(value, t, externaljsData)
                         .then(() => Promise.resolve(value));
                 })
                 .then((value) =>
@@ -337,4 +317,32 @@ function prepareTags(log: bunyan, tagsData: ITag[]): Tag[]
     }
 
     return tags;
+}
+
+function prepareExternaljs(value: Playground, t: any, externaljsData: IExternalJs[])
+{
+    const externaljsTasks = [];
+
+    for (let i = 0; i < externaljsData.length; ++i)
+    {
+        if (!externaljsData[i])
+            continue;
+
+        let url = externaljsData[i].url;
+
+        if (!url || typeof url !== 'string')
+            continue;
+
+        url = url.trim();
+
+        if (!url || url.length > 1023)
+            continue;
+
+        externaljsTasks.push(value.$create(
+            'externalj', // Sequelize removes the 's' of 'externaljs'
+            { url },
+            { transaction: t }));
+    }
+
+    return Promise.all(externaljsTasks);
 }

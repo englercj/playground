@@ -34,7 +34,7 @@ export function setupRoutes(app: restify.Server)
             return;
         }
 
-        const search = `%${q}%`;
+        const search = `%${db.escape(q)}%`;
 
         Tag.findAll({ where: { name: { [Op.like]: search } } })
             .then((values) =>
@@ -119,7 +119,10 @@ export function setupRoutes(app: restify.Server)
      */
     app.post('/api/tag', (req, res, next) =>
     {
-        const { name } = req.body;
+        let { name } = req.body;
+
+        if (name)
+            name = name.trim();
 
         const logState: any = { params: { name } };
 
@@ -164,7 +167,10 @@ export function setupRoutes(app: restify.Server)
     app.put('/api/tag/:id', (req, res, next) =>
     {
         const { id } = req.params;
-        const { name } = req.body;
+        let { name } = req.body;
+
+        if (name)
+            name = name.trim();
 
         const logState: any = { params: { id, name } };
 
