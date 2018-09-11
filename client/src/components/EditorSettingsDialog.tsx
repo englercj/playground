@@ -133,7 +133,6 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                             <fieldset>
                                 <h4><label>External Scripts</label></h4>
 
-                                { console.log('state: ', state.data.externaljs) }
                                 { (state.data.externaljs || []).map(this._renderExternaljs) }
 
                                 <button id="settings-add-externaljs" className="btn" onClick={this._onAddExternaljs}>
@@ -226,9 +225,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
         if (!this.state.data.externaljs)
             this.state.data.externaljs = [];
 
-        console.log('pre', this.state.data.externaljs);
         this.state.data.externaljs.push({ url: '' });
-        console.log('post', this.state.data.externaljs);
         this.setState({ data: this.state.data });
     }
 
@@ -277,7 +274,6 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     private _onSaveClick(e: Event)
     {
         e.preventDefault();
-        console.log(this.state.data);
         if (this.props.onSaveClick)
             this.props.onSaveClick(this.state.data);
     }
