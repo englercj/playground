@@ -11,5 +11,6 @@ cache:
     - client/node_modules
     - server/node_modules
 
-install: cd $TEST_DIR && npm install
-script: cd $TEST_DIR && npm run build && npm test
+before_install: cd $TEST_DIR
+install: npm install
+script: npm run build && npm test
