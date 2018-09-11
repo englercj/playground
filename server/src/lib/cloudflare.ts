@@ -6,7 +6,7 @@ import { isProductionEnv, cloudflare } from '../config';
 export function purgeEntireCache(log: bunyan): Promise<void>
 {
     if (!isProductionEnv)
-        return;
+        return Promise.resolve();
 
     const postData = JSON.stringify({ purge_everything: true });
 
@@ -16,7 +16,7 @@ export function purgeEntireCache(log: bunyan): Promise<void>
 export function purgeCacheForUrls(log: bunyan, urls: string[]): Promise<void>
 {
     if (!isProductionEnv)
-        return;
+        return Promise.resolve();
 
     const postData = JSON.stringify({ files: urls });
 
