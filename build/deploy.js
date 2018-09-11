@@ -4,6 +4,7 @@ const path = require('path');
 const ssh = require('ssh2');
 const waterfall = require('async/waterfall');
 const parallel = require('async/parallel');
+const dotenv = require('dotenv');
 
 const server = '138.68.26.148';
 const privateKeyPath = path.join(os.homedir(), '.ssh/pixi_playground_deploy_rsa');
@@ -27,6 +28,10 @@ const archiveFormat = 'zip';
 const clientFile = path.join(buildDir, 'client.zip');
 const serverFile = path.join(buildDir, 'server.zip');
 const serverEnvFile = path.join(buildDir, 'server.env');
+
+// load server env vars
+dotenv.config({ path: serverEnvFile });
+const cf = require('../server/dist/server/src/lib/cloudflare');
 
 if (process.argv.length !== 3)
     exitAndShowHelp();
@@ -100,6 +105,17 @@ function deployClient()
                     });
                 });
             },
+            function (next)
+            {
+                cf.purgeCacheForUrls([
+                    'https://pixiplayground.com/index.html',
+                    'https://www.pixiplayground.com/index.html',
+                    'http://pixiplayground.com/results.html',
+                    'http://www.pixiplayground.com/results.html',
+                ])
+                .then(next)
+                .catch(next);
+            }
         ], function (err)
         {
             conn.end();

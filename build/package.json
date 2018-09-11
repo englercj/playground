@@ -16,6 +16,7 @@
   "dependencies": {
     "archiver": "^3.0.0",
     "async": "^2.6.1",
+    "dotenv": "^6.0.0",
     "ssh2": "^0.6.1"
   },
   "engines": {
