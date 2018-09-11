@@ -178,12 +178,14 @@ export class Editor extends Component<IProps, IState>
     @bind
     onResultIFrameMount(iframe: HTMLIFrameElement)
     {
+        if (this._resultIFrame)
+        {
+            this._resultIFrame.removeEventListener('load', this._onResultIFrameLoaded, false);
+        }
+
         this._resultIFrame = iframe;
 
-        iframe.addEventListener('load', () =>
-        {
-            iframe.contentWindow.postMessage(this.state.data, location.origin);
-        }, false);
+        iframe.addEventListener('load', this._onResultIFrameLoaded, false);
     }
 
     @bind
@@ -311,6 +313,12 @@ export class Editor extends Component<IProps, IState>
         {
             this.loadTypings();
         }
+    }
+
+    @bind
+    private _onResultIFrameLoaded()
+    {
+        this._resultIFrame.contentWindow.postMessage(this.state.data, location.origin);
     }
 
     @bind
