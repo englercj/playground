@@ -2,10 +2,14 @@ language: node_js
 node_js:
     - "10.x"
 
+env:
+  - TEST_DIR=client
+  - TEST_DIR=server
+
 cache:
   directories:
     - client/node_modules
     - server/node_modules
 
-install: ./build/install-dependencies.sh
-script: ./build/build-application.sh
+install: cd $TEST_DIR && npm install
+script: cd $TEST_DIR && npm run build && npm test

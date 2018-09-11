@@ -16,7 +16,8 @@
   "scripts": {
     "build": "npm run clean && webpack --progress",
     "clean": "rimraf dist",
-    "dev": "webpack-dev-server --content-base dist/ --colors --inline"
+    "dev": "webpack-dev-server --content-base dist/ --colors --inline",
+    "test": "echo 'No client tests yet!'"
   },
   "devDependencies": {
     "@types/history": "^4.7.0",
