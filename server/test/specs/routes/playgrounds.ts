@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { request, clearDb } from '../../fixtures/server';
 import { Playground } from '../../../src/models/Playground';
 import { Tag } from '../../../src/models/Tag';
-import { IPlayground, ITag } from '../../../../shared/types';
+import { IPlayground, ITag, IExternalJs } from '../../../../shared/types';
 
 const testPlaygroundData: IPlayground = {
     slug: 'hN4tERudnG0mMDZrafh7U',
@@ -90,7 +90,7 @@ class PlaygroundRoot
 
     @test 'POST creates a new playground with externaljs'()
     {
-        const externaljs = ['https://test.com/file.js'];
+        const externaljs = [{ url: 'https://test.com/file.js' }];
         const data = { ...testPlaygroundData };
         data.externaljs = externaljs;
 
@@ -333,7 +333,7 @@ class PlaygroundSlug
     }
 }
 
-function confirmPlaygroundResponse(slug: string = testPlaygroundData.slug, tags: ITag[] = null, externaljs: string[] = [])
+function confirmPlaygroundResponse(slug: string = testPlaygroundData.slug, tags: ITag[] = null, externaljs: IExternalJs[] = [])
 {
     return (res: supertest.Response) =>
     {
@@ -359,7 +359,7 @@ function checkPlaygroundData(item: IPlayground)
     expect(item).to.have.property('updatedAt').that.is.a('string');
 }
 
-function checkPlaygroundExtras(item: IPlayground, slug: string, tags: ITag[], externaljs: string[])
+function checkPlaygroundExtras(item: IPlayground, slug: string, tags: ITag[], externaljs: IExternalJs[])
 {
     if (slug)
         expect(item).to.have.property('slug', slug);

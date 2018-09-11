@@ -3,7 +3,7 @@ import * as CODES from 'http-codes';
 import * as bunyan from 'bunyan';
 import { isProductionEnv, cloudflare } from '../config';
 
-export function purgeCache(log: bunyan)
+export function purgeEntireCache(log: bunyan)
 {
     if (!isProductionEnv)
         return;
