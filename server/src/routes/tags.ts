@@ -34,7 +34,7 @@ export function setupRoutes(app: restify.Server)
             return;
         }
 
-        const search = `%${db.escape(q)}%`;
+        const search = `%${q}%`;
 
         Tag.findAll({ where: { name: { [Op.like]: search } } })
             .then((values) =>
