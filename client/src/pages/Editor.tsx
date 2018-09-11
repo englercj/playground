@@ -78,13 +78,13 @@ export class Editor extends Component<IProps, IState>
     componentWillMount()
     {
         window.addEventListener('keydown', this._onKeydown);
-        // window.onbeforeunload = this._onBeforeUnload;
+        window.onbeforeunload = this._onBeforeUnload;
     }
 
     componentWillUnmount()
     {
         window.removeEventListener('keydown', this._onKeydown);
-        // window.onbeforeunload = null;
+        window.onbeforeunload = null;
     }
 
     loadPlayground()
