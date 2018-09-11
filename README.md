@@ -1,4 +1,4 @@
-# PixiJS Playground
+# PixiJS Playground [![Build Status](https://travis-ci.org/englercj/playground.svg?branch=master)](https://travis-ci.org/englercj/playground)
 
 The playground application is a server and client that allow you to create, view, save,
 and share small PixiJS demos.
