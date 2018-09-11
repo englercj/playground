@@ -11,12 +11,12 @@ fi
 
 if [ "$1" == "client" ] || [ "$1" == "both" ] ; then
     echo "Deploying client..."
-    node ./build/deploy.js client
+    NODE_ENV=production node ./build/deploy.js client
 fi
 
 if [ "$1" == "server" ] || [ "$1" == "both" ] ; then
     echo "Deploying server..."
-    node ./build/deploy.js server
+    NODE_ENV=production node ./build/deploy.js server
 fi
 
 echo "Done"

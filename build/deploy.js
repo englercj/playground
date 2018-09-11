@@ -107,7 +107,7 @@ function deployClient()
             },
             function (next)
             {
-                cf.purgeCacheForUrls([
+                cf.purgeCacheForUrls(console, [
                     'https://pixiplayground.com/index.html',
                     'https://www.pixiplayground.com/index.html',
                     'http://pixiplayground.com/results.html',
