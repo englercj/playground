@@ -311,7 +311,12 @@ export class Editor extends Component<IProps, IState>
 
         if (this.state.data.pixiVersion != this.state.oldPixiVersion)
         {
+            // this will cause an update of the demo after loading
             this.loadTypings();
+        }
+        else
+        {
+            this.updateDemo();
         }
     }
 
