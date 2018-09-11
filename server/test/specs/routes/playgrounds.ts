@@ -382,7 +382,7 @@ function checkPlaygroundExtras(item: IPlayground, slug: string, tags: ITag[], ex
 
         for (let i = 0; i < externaljs.length; ++i)
         {
-            expect(item.externaljs[i]).to.have.property('url', externaljs[i]);
+            expect(item.externaljs[i]).to.have.property('url', externaljs[i].url);
         }
     }
 }
