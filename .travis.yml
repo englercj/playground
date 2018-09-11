@@ -8,8 +8,7 @@ env:
 
 cache:
   directories:
-    - client/node_modules
-    - server/node_modules
+    - $TEST_DIR/node_modules
 
 before_install: cd $TEST_DIR
 install: npm install
