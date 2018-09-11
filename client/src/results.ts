@@ -42,47 +42,23 @@ function handleMessage(event: MessageEvent) {
 }
 
 function updateDemo(data: IPlayground) {
-    updatePixi(data, () => {
-        updateExternalScripts(data, () => {
-            updateDemoCode(data);
-        });
-    });
+    updateScripts(data, () => updateDemoCode(data));
 }
 
-function updatePixi(data: IPlayground, cb: () => void) {
-    const script = document.createElement('script');
-    script.src = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`;
-    script.onload = cb;
-    script.onerror = cb;
+function updateScripts(data: IPlayground, cb: () => void) {
+    let scripts = [];
 
-    document.body.appendChild(script);
-}
+    // Add pixi version
+    scripts.push(`https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`);
 
-function updateExternalScripts(data: IPlayground, cb: () => void) {
-    if (!data.externaljs || data.externaljs.length === 0)
+    // Add external scripts
+    if (data.externaljs && data.externaljs.length > 0)
     {
-        cb();
-        return;
+        scripts = scripts.concat(data.externaljs.map((v) => v.url));
     }
 
-    let loadsDone = 0;
-    const loadsNeeded = data.externaljs.length;
-    const loadCallback = () => {
-        console.log(loadsDone);
-        loadsDone++;
-        if (loadsDone === loadsNeeded)
-            cb();
-    };
-
-    for (let i = 0; i < data.externaljs.length; ++i)
-    {
-        const script = document.createElement('script');
-        script.src = data.externaljs[i].url;
-        script.onload = loadCallback;
-        script.onerror = loadCallback;
-
-        document.body.appendChild(script);
-    }
+    // load each in series
+    eachSeries(scripts, loadScript, cb);
 }
 
 function updateDemoCode(data: IPlayground) {
@@ -90,4 +66,30 @@ function updateDemoCode(data: IPlayground) {
     script.textContent = `${data.contents}\n//# sourceURL=demo.js\n`;
 
     document.body.appendChild(script);
+}
+
+function loadScript(url: string, cb: () => void)
+{
+    const script = document.createElement('script');
+    script.src = url;
+    script.onload = cb;
+    script.onerror = cb;
+
+    document.body.appendChild(script);
+}
+
+type TNextCallback = () => void;
+type TIterator<T> = (value: T, next: TNextCallback) => void;
+function eachSeries<T>(array: T[], iter: TIterator<T>, done: TNextCallback)
+{
+    let index = 0;
+    const next = () =>
+    {
+        if (index === array.length)
+            return done();
+
+        iter(array[index++], next);
+    };
+
+    next();
 }
