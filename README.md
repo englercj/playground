@@ -20,11 +20,10 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 
 ### Should Have (v1 or v2)
 
-1. Add external js resources in settings dialog
-2. Data attachments like images, or json to power a demo.
-3. Embed view that embeds just the preview with a link back
+1. Data attachments like images, or json to power a demo.
+2. Embed view that embeds just the preview with a link back
     * Useful for blog/forums posts and such.
-5. UI to star a playground
+3. UI to star a playground
 4. Add homepage and search results
     * Show highly starred/trending playgrounds on homepage
     * Also use official/features flags for homepage
