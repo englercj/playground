@@ -37,6 +37,6 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 5. Add github auth integration for login
     * List your own playgrounds
     * Consistent author field
-    * Import from gist functionality
+    * Import/Export from/to Gist functionality
 6. Multi-file support, as well as custom html/css
 7. Move logic/state out of views and use a pattern (reflux/redux, or something)
