@@ -9,11 +9,6 @@ const validOrigins = [
 let windowLoaded: boolean = false;
 let queuedData: IPlayground = null;
 
-let lastPixiVersion: string = '';
-let lastDemoContents: string = '';
-let pixiScriptElement: HTMLScriptElement = null;
-let demoScriptElement: HTMLScriptElement = null;
-
 window.addEventListener('load', handleLoad, false);
 window.addEventListener('message', handleMessage, false);
 
@@ -48,54 +43,51 @@ function handleMessage(event: MessageEvent) {
 
 function updateDemo(data: IPlayground) {
     updatePixi(data, () => {
-        updateDemoCode(data);
+        updateExternalScripts(data, () => {
+            updateDemoCode(data);
+        });
     });
 }
 
 function updatePixi(data: IPlayground, cb: () => void) {
-    if (lastPixiVersion === data.pixiVersion) {
-        cb();
+    const script = document.createElement('script');
+    script.src = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`;
+    script.onload = cb;
+    script.onerror = cb;
 
+    document.body.appendChild(script);
+}
+
+function updateExternalScripts(data: IPlayground, cb: () => void) {
+    if (!data.externaljs || data.externaljs.length === 0)
+    {
+        cb();
         return;
     }
 
-    // remove old lib element
-    if (pixiScriptElement) {
-        pixiScriptElement.remove();
+    let loadsDone = 0;
+    const loadsNeeded = data.externaljs.length;
+    const loadCallback = () => {
+        console.log(loadsDone);
+        loadsDone++;
+        if (loadsDone === loadsNeeded)
+            cb();
+    };
+
+    for (let i = 0; i < data.externaljs.length; ++i)
+    {
+        const script = document.createElement('script');
+        script.src = data.externaljs[i].url;
+        script.onload = loadCallback;
+        script.onerror = loadCallback;
+
+        document.body.appendChild(script);
     }
-
-    // create new lib element
-    pixiScriptElement = document.createElement('script');
-    pixiScriptElement.src = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`;
-    pixiScriptElement.onload = cb;
-
-    document.body.appendChild(pixiScriptElement);
-
-    lastPixiVersion = data.pixiVersion;
 }
 
 function updateDemoCode(data: IPlayground) {
-    if (lastDemoContents === data.contents) {
-        return;
-    }
+    const script = document.createElement('script');
+    script.textContent = `${data.contents}\n//# sourceURL=demo.js\n`;
 
-    // remove old demo script
-    if (demoScriptElement) {
-        demoScriptElement.remove();
-    }
-
-    // remove any canvases that were there before
-    const canvases = document.getElementsByTagName('canvas');
-
-    for (let i = canvases.length - 1; i >= 0; --i) {
-        canvases[i].remove();
-    }
-
-    // create demo script
-    demoScriptElement = document.createElement('script');
-    demoScriptElement.textContent = `${data.contents}\n//# sourceURL=demo.js\n`;
-
-    document.body.appendChild(demoScriptElement);
-
-    lastDemoContents = data.contents;
+    document.body.appendChild(script);
 }
