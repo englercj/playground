@@ -13,40 +13,41 @@ let queuedData: IPlayground = null;
 window.addEventListener('load', handleLoad, false);
 window.addEventListener('message', handleMessage, false);
 
-function handleLoad() {
+function handleLoad()
+{
     windowLoaded = true;
 
-    if (queuedData) {
+    if (queuedData)
+    {
         updateDemo(queuedData);
         queuedData = null;
     }
 }
 
-function handleMessage(event: MessageEvent) {
+function handleMessage(event: MessageEvent)
+{
     // Ensure this is a trusted domain
-    if (validOrigins.indexOf(event.origin) === -1) {
+    if (validOrigins.indexOf(event.origin) === -1)
         return;
-    }
 
     const data: IPlayground = event.data;
 
-    if (!data || !data.contents) {
+    if (!data || !data.contents)
         return;
-    }
 
-    if (windowLoaded) {
+    if (windowLoaded)
         updateDemo(data);
-    }
-    else {
+    else
         queuedData = data;
-    }
 }
 
-function updateDemo(data: IPlayground) {
+function updateDemo(data: IPlayground)
+{
     updateScripts(data, () => updateDemoCode(data));
 }
 
-function updateScripts(data: IPlayground, cb: () => void) {
+function updateScripts(data: IPlayground, cb: () => void)
+{
     let scripts = [];
 
     // Add pixi version
@@ -62,9 +63,7 @@ function updateScripts(data: IPlayground, cb: () => void) {
 
     // Add external scripts
     if (data.externaljs && data.externaljs.length > 0)
-    {
         scripts = scripts.concat(data.externaljs.map((v) => v.url));
-    }
 
     // load each in series
     eachSeries(scripts, loadScript, cb);
