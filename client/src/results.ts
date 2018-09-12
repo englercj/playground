@@ -69,7 +69,8 @@ function updateScripts(data: IPlayground, cb: () => void)
     eachSeries(scripts, loadScript, cb);
 }
 
-function updateDemoCode(data: IPlayground) {
+function updateDemoCode(data: IPlayground)
+{
     const script = document.createElement('script');
     script.textContent = `${data.contents}\n//# sourceURL=demo.js\n`;
 
