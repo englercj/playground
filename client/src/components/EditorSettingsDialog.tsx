@@ -5,6 +5,7 @@ import { IPlayground, IExternalJs } from '../../../shared/types';
 import { Radio, RadioGroup } from './Radio';
 import { getReleases } from '../service';
 import { rgxSemVer } from '../util/semver';
+import { assertNever } from '../util/assertNever';
 
 type VersionType = 'release'|'tag'|'custom';
 
@@ -85,7 +86,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                                     <label for="settings-version-tag">Specific Version</label>
 
                                     <Radio value="custom" id="settings-version-custom" />
-                                    <label for="settings-version-tag">Custom Url</label>
+                                    <label for="settings-version-custom">Custom Url</label>
                                 </RadioGroup>
                                 <br/>
 
@@ -267,8 +268,25 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     private _onVersionChange(versionType: VersionType)
     {
         const data = this.state.data;
-        if (versionType === 'release')
-            data.pixiVersion = 'release';
+
+        switch (versionType)
+        {
+            case 'release':
+                data.pixiVersion = 'release';
+                break;
+
+            case 'tag':
+                data.pixiVersion = this.state.versionOptions[0] || 'release';
+                break;
+
+            case 'custom':
+                data.pixiVersion = '';
+                break;
+
+            default:
+                assertNever(versionType);
+        }
+
         this.setState({ data, versionType });
     }
 
