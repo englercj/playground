@@ -1,4 +1,5 @@
 import { IPlayground } from '../../shared/types';
+import { rgxSemVer } from './util/semver';
 
 const validOrigins = [
     'https://www.pixiplayground.com',
@@ -49,7 +50,14 @@ function updateScripts(data: IPlayground, cb: () => void) {
     let scripts = [];
 
     // Add pixi version
-    scripts.push(`https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`);
+    let pixiUrl = '';
+
+    if (data.pixiVersion === 'release' || data.pixiVersion.match(rgxSemVer) !== null)
+        pixiUrl = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`;
+    else
+        pixiUrl = data.pixiVersion;
+
+    scripts.push(pixiUrl);
 
     // Add external scripts
     if (data.externaljs && data.externaljs.length > 0)

@@ -4,10 +4,9 @@ import { bind } from 'decko';
 import { IPlayground, IExternalJs } from '../../../shared/types';
 import { Radio, RadioGroup } from './Radio';
 import { getReleases } from '../service';
+import { rgxSemVer } from '../util/semver';
 
-const rgxSemVer = /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
-
-type VersionType = 'release'|'tag';//|'sha';
+type VersionType = 'release'|'tag'|'custom';
 
 interface IProps
 {
@@ -53,8 +52,8 @@ export class EditorSettingsDialog extends Component<IProps, IState>
             versionType = 'release';
         else if (data.pixiVersion.match(rgxSemVer) !== null)
             versionType = 'tag';
-        // else
-        //     versionType = 'sha';
+        else
+            versionType = 'custom';
 
         this.setState({ data, versionType });
     }
@@ -84,12 +83,15 @@ export class EditorSettingsDialog extends Component<IProps, IState>
 
                                     <Radio value="tag" id="settings-version-tag" />
                                     <label for="settings-version-tag">Specific Version</label>
+
+                                    <Radio value="custom" id="settings-version-custom" />
+                                    <label for="settings-version-tag">Custom Url</label>
                                 </RadioGroup>
                                 <br/>
 
                                 {
-                                    state.versionType === 'tag' ? this._renderTagSelector(state)
-                                    // : state.versionType === 'sha' ? this._renderShaSelector(state)
+                                    state.versionType === 'tag' ? this._renderTagVersionSelector(state)
+                                    : state.versionType === 'custom' ? this._renderCustomVersionSelector(state)
                                     : ''
                                 }
                             </fieldset>
@@ -159,17 +161,30 @@ export class EditorSettingsDialog extends Component<IProps, IState>
         );
     }
 
-    private _renderTagSelector(state: IState)
+    private _renderTagVersionSelector(state: IState)
     {
         return (
             <select
-                id="settings-version-tag"
+                id="settings-version-tag-input"
                 className="fullwidth"
-                value={this.state.data.pixiVersion}
+                value={state.data.pixiVersion}
                 onChange={linkState(this, 'data.pixiVersion')}>
                 <option hidden disabled value="release">-- Select a version --</option>
                 {state.versionOptions.map(this._renderTagOption)}
             </select>
+        );
+    }
+
+    private _renderCustomVersionSelector(state: IState)
+    {
+        return (
+            <input
+                type="text"
+                id="settings-version-custom-input"
+                className="fullwidth"
+                placeholder="e.g. https://mydomain.com/pixi.js"
+                value={state.data.pixiVersion}
+                onChange={linkState(this, 'data.pixiVersion')} />
         );
     }
 
