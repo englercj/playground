@@ -34,7 +34,7 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             defaultValue: 0,
         },
         pixiVersion: {
-            type: DataTypes.STRING(31),
+            type: DataTypes.STRING(1023),
             allowNull: false,
         },
         isPublic: {
