@@ -129,10 +129,11 @@ export function setupRoutes(app: restify.Server)
         const tagsData: ITag[] = req.body.tags || [];
         const externaljsData: IExternalJs[] = req.body.externaljs || [];
 
-        if (!contents || contents.length > 16777214)
+        if (!contents || contents.length > 16777214
+            || !pixiVersion || pixiVersion.length > 1023)
         {
             req.log.error(logState, 'Failed to save playground, invalid params');
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, 'contents' is empty.` });
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, 'contents' or 'pixiVersion' is invalid.` });
             next();
             return;
         }
@@ -205,10 +206,12 @@ export function setupRoutes(app: restify.Server)
         const tagsData: ITag[] = req.body.tags || [];
         const externaljsData: IExternalJs[] = req.body.externaljs || [];
 
-        if (!slug || !contents || slug.length !== 21 || contents.length > 16777214)
+        if (!slug || slug.length !== 21
+            || !contents || contents.length > 16777214
+            || !pixiVersion || pixiVersion.length > 1023)
         {
             req.log.error(logState, 'Failed save playground, invalid params');
-            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either 'slug' or 'contents' is invalid.` });
+            res.json(CODES.UNPROCESSABLE_ENTITY, { msg: `Invalid params, either 'slug', 'contents', or 'pixiVersion' is invalid.` });
             next();
             return;
         }
