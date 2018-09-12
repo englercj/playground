@@ -1,5 +1,5 @@
 import { IPlayground } from '../../shared/types';
-import { rgxSemVer } from './util/semver';
+import { PixiVersionType, getPixiVersionType } from './util/pixiVersionType';
 
 const validOrigins = [
     'https://www.pixiplayground.com',
@@ -50,9 +50,10 @@ function updateScripts(data: IPlayground, cb: () => void) {
     let scripts = [];
 
     // Add pixi version
+    const versionType = getPixiVersionType(data.pixiVersion);
     let pixiUrl = '';
 
-    if (data.pixiVersion === 'release' || data.pixiVersion.match(rgxSemVer) !== null)
+    if (versionType === PixiVersionType.Release || versionType === PixiVersionType.Tag)
         pixiUrl = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`;
     else
         pixiUrl = data.pixiVersion;

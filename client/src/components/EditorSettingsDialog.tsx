@@ -4,10 +4,8 @@ import { bind } from 'decko';
 import { IPlayground, IExternalJs } from '../../../shared/types';
 import { Radio, RadioGroup } from './Radio';
 import { getReleases } from '../service';
-import { rgxSemVer } from '../util/semver';
 import { assertNever } from '../util/assertNever';
-
-type VersionType = 'release'|'tag'|'custom';
+import { PixiVersionType, getPixiVersionType } from '../util/pixiVersionType';
 
 interface IProps
 {
@@ -20,7 +18,7 @@ interface IProps
 interface IState
 {
     data: IPlayground;
-    versionType: VersionType;
+    versionType: PixiVersionType;
     versionOptions: string[];
 }
 
@@ -32,7 +30,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
 
         this.state = {
             data: props.data,
-            versionType: 'release',
+            versionType: PixiVersionType.Release,
             versionOptions: [],
         };
 
@@ -47,14 +45,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
 
     updatePlaygroundData(data: IPlayground)
     {
-        let versionType: VersionType = 'release';
-
-        if (data.pixiVersion === 'release')
-            versionType = 'release';
-        else if (data.pixiVersion.match(rgxSemVer) !== null)
-            versionType = 'tag';
-        else
-            versionType = 'custom';
+        let versionType = getPixiVersionType(data.pixiVersion);
 
         this.setState({ data, versionType });
     }
@@ -91,8 +82,8 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                                 <br/>
 
                                 {
-                                    state.versionType === 'tag' ? this._renderTagVersionSelector(state)
-                                    : state.versionType === 'custom' ? this._renderCustomVersionSelector(state)
+                                    state.versionType === PixiVersionType.Tag ? this._renderTagVersionSelector(state)
+                                    : state.versionType === PixiVersionType.Custom ? this._renderCustomVersionSelector(state)
                                     : ''
                                 }
                             </fieldset>
@@ -265,21 +256,26 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     }
 
     @bind
-    private _onVersionChange(versionType: VersionType)
+    private _onVersionChange(versionTypeStr: string)
     {
         const data = this.state.data;
+        const versionType: PixiVersionType = parseInt(versionTypeStr, 10);
+
+        // Shouldn't be possible, but here as an extra careful check
+        if (!(versionType in PixiVersionType))
+            return;
 
         switch (versionType)
         {
-            case 'release':
+            case PixiVersionType.Release:
                 data.pixiVersion = 'release';
                 break;
 
-            case 'tag':
+            case PixiVersionType.Tag:
                 data.pixiVersion = this.state.versionOptions[0] || 'release';
                 break;
 
-            case 'custom':
+            case PixiVersionType.Custom:
                 data.pixiVersion = '';
                 break;
 
