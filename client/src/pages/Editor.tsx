@@ -231,8 +231,10 @@ export class Editor extends Component<IProps, IState>
                     name={state.data.name}
                     saving={state.saving}
                     dirty={state.dirty}
-                    onSaveClick={this._save}
-                    onSettingsClick={this._showSettings} />
+                    showClone={!!this.state.data.id}
+                    onSettingsClick={this._showSettings}
+                    onCloneClick={this._clone}
+                    onSaveClick={this._save} />
                 <div id="editor-wrapper">
                     <MonacoEditor
                         value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
@@ -347,6 +349,27 @@ export class Editor extends Component<IProps, IState>
             event.preventDefault();
             return '';
         }
+    }
+
+    @bind
+    private _clone()
+    {
+        this.setState({ saving: true });
+
+        createPlayground(this.state.data, (err, data: IPlayground) =>
+        {
+            if (!err && data)
+            {
+                this.setState({ data, saving: false, dirty: false });
+                route(`/edit/${data.slug}`);
+                this._showAlert('success', 'Playground Cloned!');
+            }
+            else
+            {
+                this.setState({ saving: false });
+                this._showAlert('error', err.message);
+            }
+        });
     }
 
     @bind

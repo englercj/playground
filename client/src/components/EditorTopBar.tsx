@@ -6,13 +6,15 @@ interface IProps
     name: string;
     saving: boolean;
     dirty: boolean;
-    onSaveClick?: () => void;
+    showClone: boolean;
     onSettingsClick?: () => void;
+    onCloneClick?: () => void;
+    onSaveClick?: () => void;
 }
 
 export class EditorTopBar extends Component<IProps, {}>
 {
-    render({ name, saving, dirty }: IProps)
+    render(props: IProps)
     {
         return (
             <nav id="editor-topbar">
@@ -24,14 +26,22 @@ export class EditorTopBar extends Component<IProps, {}>
                     <span>{name}</span>
                 </div>
                 <div className="btn-group">
-                    <button id="settings" className="btn" onClick={this._onSettingsClick}>
+                    <button className="btn" onClick={this._onSettingsClick}>
                         <span className="fa fa-cogs" aria-hidden="true" />
                         <span className="label">Settings</span>
                     </button>
-                    <button id="save" className={"btn" + (dirty ? " glow" : "")} onClick={this._onSaveClick}>
+                    {
+                        props.showClone ? (
+                            <button className="btn" onClick={this._onCloneClick}>
+                                <span className="far fa-clone" aria-hidden="true" />
+                                <span className="label">Clone</span>
+                            </button>
+                        ) : ''
+                    }
+                    <button className={"btn" + (props.dirty ? " glow" : "")} onClick={this._onSaveClick}>
                         <span className="fa fa-bookmark" aria-hidden="true" />
                         <span className="label">Save</span>
-                        <span className={saving ? "loading" : " hidden"} />
+                        <span className={props.saving ? "loading" : " hidden"} />
                     </button>
                 </div>
             </nav>
@@ -39,16 +49,23 @@ export class EditorTopBar extends Component<IProps, {}>
     }
 
     @bind
-    private _onSaveClick()
-    {
-        if (this.props.onSaveClick)
-            this.props.onSaveClick();
-    }
-
-    @bind
     private _onSettingsClick()
     {
         if (this.props.onSettingsClick)
             this.props.onSettingsClick();
+    }
+
+    @bind
+    private _onCloneClick()
+    {
+        if (this.props.onCloneClick)
+            this.props.onCloneClick();
+    }
+
+    @bind
+    private _onSaveClick()
+    {
+        if (this.props.onSaveClick)
+            this.props.onSaveClick();
     }
 }
