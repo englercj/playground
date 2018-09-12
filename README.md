@@ -20,13 +20,12 @@ locally. Finally, visit http://localhost:8080. Details can be found in the respe
 
 ### Should Have (v1 or v2)
 
-1. Add ability to use custom URL for pixi versions.
-2. Load all scripts at once in results, then only execute in order.
-3. Data attachments like images, or json to power a demo.
-4. Embed view that embeds just the preview with a link back
+1. Load all scripts at once in results, then only execute in order.
+2. Data attachments like images, or json to power a demo.
+3. Embed view that embeds just the preview with a link back
     * Useful for blog/forums posts and such.
-5. UI to star a playground
-6. Add homepage and search results
+4. UI to star a playground
+5. Add homepage and search results
     * Show highly starred/trending playgrounds on homepage
     * Also use official/features flags for homepage
 
