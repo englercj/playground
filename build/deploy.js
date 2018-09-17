@@ -110,8 +110,13 @@ function deployClient()
                 cf.purgeCacheForUrls(console, [
                     'https://pixiplayground.com/index.html',
                     'https://www.pixiplayground.com/index.html',
+                    'http://pixiplayground.com/index.html',
+                    'http://www.pixiplayground.com/index.html',
+
                     'http://pixiplayground.com/results.html',
                     'http://www.pixiplayground.com/results.html',
+                    'https://pixiplayground.com/results.html',
+                    'https://www.pixiplayground.com/results.html',
                 ])
                 .then(next)
                 .catch(next);
