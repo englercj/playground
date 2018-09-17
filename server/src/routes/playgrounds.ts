@@ -283,8 +283,6 @@ export function setupRoutes(app: restify.Server)
                     purgeCacheForUrls(req.log, [
                         `https://pixiplayground.com/api/playground/${slug}`,
                         `https://www.pixiplayground.com/api/playground/${slug}`,
-                        `http://pixiplayground.com/api/playground/${slug}`,
-                        `http://www.pixiplayground.com/api/playground/${slug}`,
                     ]);
                     res.json(CODES.OK, value);
                     next();

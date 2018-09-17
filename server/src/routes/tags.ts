@@ -204,8 +204,6 @@ export function setupRoutes(app: restify.Server)
                         purgeCacheForUrls(req.log, [
                             `https://pixiplayground.com/api/tag/${id}`,
                             `https://www.pixiplayground.com/api/tag/${id}`,
-                            `http://pixiplayground.com/api/tag/${id}`,
-                            `http://www.pixiplayground.com/api/tag/${id}`,
                         ]);
                         res.json(CODES.OK, value);
                     }
