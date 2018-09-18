@@ -70,13 +70,13 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                             <fieldset>
                                 <h4><label>PixiJS Version</label></h4>
                                 <RadioGroup name="settings-version" selectedValue={state.versionType} onChange={this._onVersionChange}>
-                                    <Radio value="release" id="settings-version-release" />
+                                    <Radio value={PixiVersionType.Release} id="settings-version-release" />
                                     <label for="settings-version-release">Latest Release</label>
 
-                                    <Radio value="tag" id="settings-version-tag" />
+                                    <Radio value={PixiVersionType.Tag} id="settings-version-tag" />
                                     <label for="settings-version-tag">Specific Version</label>
 
-                                    <Radio value="custom" id="settings-version-custom" />
+                                    <Radio value={PixiVersionType.Custom} id="settings-version-custom" />
                                     <label for="settings-version-custom">Custom Url</label>
                                 </RadioGroup>
                                 <br/>
@@ -161,7 +161,6 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                 className="fullwidth"
                 value={state.data.pixiVersion}
                 onChange={linkState(this, 'data.pixiVersion')}>
-                <option hidden disabled value="release">-- Select a version --</option>
                 {state.versionOptions.map(this._renderTagOption)}
             </select>
         );
