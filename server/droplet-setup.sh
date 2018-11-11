@@ -28,7 +28,10 @@ systemctl restart nginx
 
 # Install Certbot for SSL Cert
 add-apt-repository ppa:certbot/certbot
-apt install python-certbot-nginx
+apt install python3-pip python-certbot-nginx
+pip install certbot-dns-cloudflare
+
+# Run certbot to install the certificate
 certbot --nginx -d $DOMAIN_NAME -d www.$DOMAIN_NAME
 nginx -t
 systemctl restart nginx
@@ -39,3 +42,8 @@ bash /tmp/nodesource_setup.sh
 apt install nodejs build-essential
 npm install pm2@latest -g
 pm2 startup systemd -u deploy --hp /home/deploy
+
+# Once the server is setup in cloudflare, you will need to edit /etc/cron.d/certbot to use
+# the cloudflare DNS plugin. The command should look like:
+certbot renew --dns-cloudflare --dns-cloudflare-credentials /root/.secrets/certbot/cloudflare.ini
+# The secrets file should be created that contains the creds. All permissions should be 700 or 600.
