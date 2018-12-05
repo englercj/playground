@@ -422,16 +422,20 @@ function getDefaultPlayground()
 */
 
 // Create our application instance
-var app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: 0x2c3e50 });
+var app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    backgroundColor: 0x2c3e50
+});
 document.body.appendChild(app.view);
 
 // Load the bunny texture
-PIXI.loader.add('bunny', 'https://pixijs.io/examples/required/assets/basics/bunny.png')
+app.loader.add('bunny', 'https://pixijs.io/examples/required/assets/basics/bunny.png')
     .load(startup);
 
 function startup()
 {
-    var bunny = new PIXI.Sprite(PIXI.loader.resources.bunny.texture);
+    var bunny = new PIXI.Sprite(app.loader.resources.bunny.texture);
 
     // Center the sprite's anchor point
     bunny.anchor.set(0.5);
