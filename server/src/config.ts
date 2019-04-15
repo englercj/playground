@@ -18,7 +18,7 @@ export const cloudflare = {
 };
 
 export const cors: corsMiddleware.Options = {
-    origins: [isProductionEnv ? '*.pixiplayground.com' : '*'],
+    origins: isProductionEnv ? ['*.pixiplayground.com', 'pixijs.io'] : ['*'],
     allowHeaders: [],
     exposeHeaders: [],
 };
