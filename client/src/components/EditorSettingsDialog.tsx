@@ -144,7 +144,10 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                                     id="settings-attr-public"
                                     checked={state.data.isPublic}
                                     onClick={this._onToggle}/>
-                                <label for="settings-attr-public">Public</label>
+                                <label
+                                    for="settings-attr-public"
+                                    title="When checked this playground is publicly accessible."
+                                >Public</label>
                                 <br/>
                                 <input
                                     type="checkbox"
@@ -152,7 +155,10 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                                     id="settings-attr-autoUpdate"
                                     checked={state.data.autoUpdate}
                                     onClick={this._onToggle}/>
-                                <label for="settings-attr-autoUpdate">Auto Update</label>
+                                <label
+                                    for="settings-attr-autoUpdate"
+                                    title="When checked the preview pane will automatically update when you make code changes."
+                                >Auto Update</label>
                             </fieldset>
                         </form>
                     </div>
