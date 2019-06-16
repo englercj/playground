@@ -121,7 +121,7 @@ export function setupRoutes(app: restify.Server)
      */
     app.post('/api/playground', (req, res, next) =>
     {
-        const { name, description, contents, author, pixiVersion, isPublic } = req.body;
+        const { name, description, contents, author, pixiVersion, isPublic, autoUpdate } = req.body;
         const params = { name, isPublic, pixiVersion, isContentsEmpty: !contents };
 
         const logState: any = { params };
@@ -141,7 +141,7 @@ export function setupRoutes(app: restify.Server)
         db.transaction((t) =>
         {
             return Playground.create(
-                { name, description, contents, author, pixiVersion, isPublic },
+                { name, description, contents, author, pixiVersion, isPublic, autoUpdate },
                 { transaction: t })
                 .then((value) =>
                 {
@@ -198,7 +198,7 @@ export function setupRoutes(app: restify.Server)
     app.put('/api/playground/:slug', (req, res, next) =>
     {
         const { slug } = req.params;
-        const { id, name, description, contents, author, pixiVersion, isPublic } = req.body;
+        const { id, name, description, contents, author, pixiVersion, isPublic, autoUpdate } = req.body;
         const params = { id, slug, name, isPublic, pixiVersion, isContentsEmpty: !contents };
 
         const logState: any = { params };
@@ -230,7 +230,7 @@ export function setupRoutes(app: restify.Server)
                     }
 
                     return value.update(
-                        { name, description, contents, author, pixiVersion, isPublic, versionsCount: value.versionsCount + 1 },
+                        { name, description, contents, author, pixiVersion, isPublic, autoUpdate, versionsCount: value.versionsCount + 1 },
                         { transaction: t });
                 })
                 .then((value) =>

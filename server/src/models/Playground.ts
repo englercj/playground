@@ -142,6 +142,17 @@ export class Playground extends Model<Playground> implements IPlayground
     isOfficial: boolean;
 
     /**
+     * If autoUpdate is `true` (default) the preview pane will update automatically
+     * on a timed interval.
+     *
+     */
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: true,
+    })
+    autoUpdate: boolean;
+
+    /**
      * The date this record was created.
      *
      */

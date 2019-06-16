@@ -145,6 +145,14 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                                     checked={state.data.isPublic}
                                     onClick={this._onToggle}/>
                                 <label for="settings-attr-public">Public</label>
+                                <br/>
+                                <input
+                                    type="checkbox"
+                                    name="autoUpdate"
+                                    id="settings-attr-autoUpdate"
+                                    checked={state.data.autoUpdate}
+                                    onClick={this._onToggle}/>
+                                <label for="settings-attr-autoUpdate">Auto Update</label>
                             </fieldset>
                         </form>
                     </div>
@@ -288,11 +296,17 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     @bind
     private _onToggle(evt: MouseEvent)
     {
+        const data = this.state.data;
+
         switch ((evt.target as HTMLInputElement).name)
         {
             case 'public':
-                const data = this.state.data;
                 data.isPublic = !data.isPublic;
+                this.setState({ data });
+                break;
+
+            case 'autoUpdate':
+                data.autoUpdate = !data.autoUpdate;
                 this.setState({ data });
                 break;
         }

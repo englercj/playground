@@ -7,6 +7,7 @@ interface IProps
     saving: boolean;
     dirty: boolean;
     showClone: boolean;
+    onUpdateClick?: () => void;
     onSettingsClick?: () => void;
     onCloneClick?: () => void;
     onSaveClick?: () => void;
@@ -26,6 +27,10 @@ export class EditorTopBar extends Component<IProps, {}>
                     <span>{name}</span>
                 </div>
                 <div className="btn-group">
+                    <button className="btn" onClick={this._onUpdateClick}>
+                        <span className="fa fa-sync" aria-hidden="true" />
+                        <span className="label">Refresh</span>
+                    </button>
                     <button className="btn" onClick={this._onSettingsClick}>
                         <span className="fa fa-cogs" aria-hidden="true" />
                         <span className="label">Settings</span>
@@ -46,6 +51,13 @@ export class EditorTopBar extends Component<IProps, {}>
                 </div>
             </nav>
         );
+    }
+
+    @bind
+    private _onUpdateClick()
+    {
+        if (this.props.onUpdateClick)
+            this.props.onUpdateClick();
     }
 
     @bind

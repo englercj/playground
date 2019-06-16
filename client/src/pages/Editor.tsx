@@ -63,6 +63,7 @@ export class Editor extends Component<IProps, IState>
             data: {
                 pixiVersion: 'master',
                 isPublic: true,
+                autoUpdate: true,
             },
             alert: {
                 type: 'info',
@@ -199,10 +200,13 @@ export class Editor extends Component<IProps, IState>
         this.setState({ dirty: true });
 
         clearTimeout(this._onChangeTimer);
-        this._onChangeTimer = setTimeout(() =>
+        if (this.state.data.autoUpdate)
         {
-            this.updateDemo();
-        }, this._onChangeDelay);
+            this._onChangeTimer = setTimeout(() =>
+            {
+                this.updateDemo();
+            }, this._onChangeDelay);
+        }
     }
 
     render(props: IProps, state: IState)
@@ -232,6 +236,7 @@ export class Editor extends Component<IProps, IState>
                     saving={state.saving}
                     dirty={state.dirty}
                     showClone={!!this.state.data.id}
+                    onUpdateClick={this.updateDemo}
                     onSettingsClick={this._showSettings}
                     onCloneClick={this._clone}
                     onSaveClick={this._save} />

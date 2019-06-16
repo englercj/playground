@@ -12,6 +12,7 @@ export interface IPlayground
     isPublic?: boolean;
     isFeatured?: boolean;
     isOfficial?: boolean;
+    autoUpdate?: boolean;
 
     tags?: ITag[];
     externaljs?: IExternalJs[];
