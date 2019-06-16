@@ -1,7 +1,7 @@
 import { IPlayground } from '../../../shared/types';
 import { get, put, post, THttpCallback } from './http';
-
-const pixiTypingsCache: { [key: string]: string } = {};
+import { Storage } from '../util/Storage';
+import { getPixiVersionType, PixiVersionType } from '../util/pixiVersionType';
 
 let baseOrigin = __BASE_ORIGIN__;
 
@@ -57,22 +57,37 @@ export function getReleases(cb: THttpCallback<string[]>)
 
 export function getTypings(version: string, cb: (typings: string) => void)
 {
-    if (pixiTypingsCache[version])
+    let url = '';
+
+    if (version.indexOf('v4') === 0)
+        url = `/definitions/${version}/pixi.d.ts`;
+    else if (version.indexOf('v5.0.') === 0 && parseInt(version.split('.')[2], 10) < 5)
+        url = `/definitions/${version}/pixi.js.d.ts`;
+    else if (version === 'master')
+        url = `/definitions/master/pixi.js.d.ts`; // Temp, remove when we can use pixijs.download
+    else
+        url = `https://pixijs.download/${version}/types/pixi.js.d.ts`;
+
+    const cacheable = getPixiVersionType(version) === PixiVersionType.Tag;
+
+    if (cacheable)
     {
-        setTimeout(() => cb(pixiTypingsCache[version]), 1);
-        return;
+        const cachedTypings = Storage.get(url);
+
+        if (cachedTypings)
+        {
+            setTimeout(() => cb(cachedTypings), 1);
+            return;
+        }
     }
-
-    if (version === 'release')
-        version = 'master';
-
-    const url = `https://cdn.rawgit.com/pixijs/pixi-typescript/${version}/pixi.js.d.ts`;
 
     get(url, (err, str) =>
     {
         if (!err)
         {
-            pixiTypingsCache[version] = str;
+            if (cacheable)
+                Storage.set(url, str);
+
             cb(str);
         }
         else

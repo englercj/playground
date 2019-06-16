@@ -9,7 +9,7 @@ export enum PixiVersionType
 
 export function getPixiVersionType(version: string): PixiVersionType
 {
-    if (version === 'release')
+    if (version === 'master')
         return PixiVersionType.Release;
 
     if (version.match(rgxSemVer) !== null)

@@ -55,7 +55,7 @@ function updateScripts(data: IPlayground, cb: () => void)
     let pixiUrl = '';
 
     if (versionType === PixiVersionType.Release || versionType === PixiVersionType.Tag)
-        pixiUrl = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'release'}/pixi.js`;
+        pixiUrl = `https://d157l7jdn8e5sf.cloudfront.net/${data.pixiVersion || 'master'}/pixi.js`;
     else
         pixiUrl = data.pixiVersion;
 

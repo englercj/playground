@@ -267,11 +267,11 @@ export class EditorSettingsDialog extends Component<IProps, IState>
         switch (versionType)
         {
             case PixiVersionType.Release:
-                data.pixiVersion = 'release';
+                data.pixiVersion = 'master';
                 break;
 
             case PixiVersionType.Tag:
-                data.pixiVersion = this.state.versionOptions[0] || 'release';
+                data.pixiVersion = this.state.versionOptions[0] || 'master';
                 break;
 
             case PixiVersionType.Custom:

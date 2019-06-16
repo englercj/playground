@@ -59,9 +59,9 @@ export class Editor extends Component<IProps, IState>
             saving: false,
             showSettings: false,
             dirty: true,
-            oldPixiVersion: 'release',
+            oldPixiVersion: 'master',
             data: {
-                pixiVersion: 'release',
+                pixiVersion: 'master',
                 isPublic: true,
             },
             alert: {
@@ -143,7 +143,7 @@ export class Editor extends Component<IProps, IState>
 
         const jsDefaults = this._monacoRef.languages.typescript.javascriptDefaults;
 
-        activePixiTypings = jsDefaults.addExtraLib(typings, 'pixi.d.ts');
+        activePixiTypings = jsDefaults.addExtraLib(typings, 'pixi.js.d.ts');
     }
 
     @bind
