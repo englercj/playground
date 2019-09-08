@@ -4,34 +4,56 @@
 
 #editor-topbar {
     position: relative;
+    display: flex;
     height: @topbar-height;
     background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%);
     z-index: 100;
     border-bottom:1px solid #999;
     box-sizing: border-box;
+
     .brand, .title {
         display:inline-block;
         font-size:16px;
         color: #333;
         line-height: @topbar-height;
+        flex: auto;
+    }
 
+    .brand {
+        font-weight:bold;
         .logo {
             vertical-align: bottom;
         }
     }
 
-    .brand {
-        font-weight:bold;
-    }
-
-    .title {
-        margin-left: 100px;
-    }
-
     .btn-group {
-        position:absolute;
-        top:3px;
-        right:1px;
+        margin:3px 2px;
+
+        .btn {
+            height: 100%;
+            width: auto;
+        }
+    }
+
+    @media (max-width: 540px) {
+        .btn-group{
+            .btn {
+                padding: 2px;
+                min-width: 50px;
+                text-align: center;
+                font-size: 1em;
+            }
+
+            .fa {
+                margin: 0;
+            }
+            .label {
+                display: none;
+            }
+        }
+        .brand span {
+            display: none;
+        }
     }
 }
 

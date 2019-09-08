@@ -59,7 +59,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                         <h2 className="title">Playground Settings</h2>
                         <div className="btn-group">
                             <button id="settings-save" className="btn" onClick={this._onSaveClick}>
-                                <span className="fa fa-bookmark" aria-hidden="true" />
+                                <span className="fa fa-save" aria-hidden="true" />
                                 <span className="label">Save</span>
                             </button>
                         </div>
