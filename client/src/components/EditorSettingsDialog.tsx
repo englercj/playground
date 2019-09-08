@@ -53,7 +53,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     render(props: IProps, state: IState)
     {
         return (
-            <div id="settings-dialog" className="modal" style={props.visible ? "display: block" : "display: none"}>
+            <div id="settings-dialog" className="modal" style={props.visible ? "display: flex" : "display: none"}>
                 <div className="modal-content">
                     <header>
                         <h2 className="title">Playground Settings</h2>
