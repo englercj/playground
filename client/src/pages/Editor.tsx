@@ -32,10 +32,14 @@ interface IState
     oldPixiVersion: string;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
+    editorView: {
+        splittingAmmount : number;
+    }
 }
 
 export class Editor extends Component<IProps, IState>
 {
+    private _splitter: any;
     private _editorInstance: monaco.editor.IStandaloneCodeEditor;
     private _monacoRef: typeof monaco;
     private _resultIFrame: HTMLIFrameElement;
@@ -46,6 +50,7 @@ export class Editor extends Component<IProps, IState>
     {
         super(props, context);
 
+        this._splitter = null;
         this._editorInstance = null;
         this._monacoRef = null;
         this._resultIFrame = null;
@@ -71,11 +76,17 @@ export class Editor extends Component<IProps, IState>
                 timeout: 0,
                 show: false,
             },
+            editorView : {
+                 splittingAmmount: 50
+            }
         };
 
         this.loadPlayground();
     }
 
+    componentDidMount() {
+
+    }
     componentWillMount()
     {
         window.addEventListener('keydown', this._onKeydown);
@@ -85,6 +96,9 @@ export class Editor extends Component<IProps, IState>
     componentWillUnmount()
     {
         window.removeEventListener('keydown', this._onKeydown);
+        if(this._splitter) {
+            this._splitter.removeEventListener('pointerdown', this._onSplitterDown);
+        }
         window.onbeforeunload = null;
     }
 
@@ -156,6 +170,24 @@ export class Editor extends Component<IProps, IState>
         }
 
         this._resultIFrame.contentWindow.location.reload();
+    }
+
+    @bind
+    onSplitterMounded(splitter: Element) {
+        if(!this._splitter){
+            this._splitter = splitter;
+        }
+
+        this._splitter.addEventListener("pointerdown",this._onSplitterDown);
+    }
+
+    @bind
+    _onSplitterDown(event: PointerEvent) {
+        console.log(event);
+
+        this._splitter.addEventListener("pointermove", (e : PointerEvent) => {
+            console.log(e);
+        });
     }
 
     @bind
@@ -240,19 +272,25 @@ export class Editor extends Component<IProps, IState>
                     onSettingsClick={this._showSettings}
                     onCloneClick={this._clone}
                     onSaveClick={this._save} />
-                <div id="editor-wrapper">
-                    <MonacoEditor
-                        value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
-                        options={{
-                            theme: 'vs-dark',
-                            automaticLayout: true,
-                        }}
-                        onChange={this.onEditorValueChange}
-                        editorDidMount={this.onEditorMount}
-                    />
-                </div>
-                <div id="results-wrapper">
-                    <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
+
+                <div className="wrap-container">
+                    <div id="editor-wrapper" className="wrap-item" style={"width:" + state.editorView.splittingAmmount + "%"}>
+                        <MonacoEditor
+                            value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
+                            options={{
+                                theme: 'vs-dark',
+                                automaticLayout: true,
+                            }}
+                            onChange={this.onEditorValueChange}
+                            editorDidMount={this.onEditorMount}
+                        />
+                    </div>
+                    <div id="results-wrapper" className="wrap-item" style={"width:" + (100 - state.editorView.splittingAmmount) + "%"}>
+                        <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
+                    </div>
+                    <div className="wrap-overlay"></div>
+                    <div className="wrap-splitter" ref={this.onSplitterMounded} style={"left:" + state.editorView.splittingAmmount + "%"}></div>
+
                 </div>
             </div>
         );
