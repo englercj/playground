@@ -107,20 +107,17 @@
 #editor-loading-info {
     color: #fff;
     background: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
     ul {
         display: block;
-        width: @loading-info-width;
-        height: @loading-info-height;
-
         font-size: 2em;
         list-style: none;
-
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-top: unit(-(@loading-info-height / 2), px);
-        margin-left: unit(-(@loading-info-width / 2), px);
+        margin-left: -1em;
+        width: auto;
 
         li.loading {
             .spinner(20px, 1px);
