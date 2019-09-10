@@ -37,22 +37,37 @@
 
 .wrap-container {
     width: 100%;
-    height: 100%;
+    height: calc(100% - @topbar-height);
 
     .wrap-splitter {
         position: absolute;
         top: 0;
         left: 50%;
         height: 100%;
-        width: 4px;
+        width: 2px;
         opacity: 0;
-        background: white;
+        background: #ddd;
         cursor: e-resize;
-        z-index: 1000;
 
-        &:hover{
+        &:hover,
+        &.active {
             opacity: 1;
         }
+    }
+
+    .wrap-overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #333;
+        opacity: 0.0;
+        display: none;
+
+        &.active {
+            display: block;
+            opacity: 0.2;
+        }
+
     }
 
     .wrap-item {
@@ -75,7 +90,6 @@
     position: relative;
     float: left;
     width: 50%;
-    //height: calc(100% - @topbar-height);
     border-right:1px solid #999;
 }
 
@@ -83,7 +97,6 @@
     position: relative;
     float: left;
     width: 50%;
-    //height: calc(100% - @topbar-height);
     background-color:#fff;
     background-image:
       -moz-linear-gradient(45deg, #ddd 25%, transparent 25%),

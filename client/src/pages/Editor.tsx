@@ -32,14 +32,14 @@ interface IState
     oldPixiVersion: string;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
-    editorView: {
-        splittingAmmount : number;
-    }
+    splittingAmmount : number;
+    splitterIsDraged: boolean;
 }
 
 export class Editor extends Component<IProps, IState>
 {
-    private _splitter: any;
+    private _splitter: Element;
+    private _splitterOverlay: Element;
     private _editorInstance: monaco.editor.IStandaloneCodeEditor;
     private _monacoRef: typeof monaco;
     private _resultIFrame: HTMLIFrameElement;
@@ -76,9 +76,9 @@ export class Editor extends Component<IProps, IState>
                 timeout: 0,
                 show: false,
             },
-            editorView : {
-                 splittingAmmount: 50
-            }
+            splittingAmmount: 50,
+            splitterIsDraged: false,
+
         };
 
         this.loadPlayground();
@@ -183,10 +183,35 @@ export class Editor extends Component<IProps, IState>
 
     @bind
     _onSplitterDown(event: PointerEvent) {
-        console.log(event);
+        this.setState({
+            splitterIsDraged : true
+        });
+        this._splitterOverlay.addEventListener("pointermove", this._onSplitterMove);
+        this._splitterOverlay.addEventListener("pointercancel", this._onSplitterReleased);
+        this._splitterOverlay.addEventListener("pointerout", this._onSplitterReleased);
+        this._splitterOverlay.addEventListener("pointerup", this._onSplitterReleased);
+    }
 
-        this._splitter.addEventListener("pointermove", (e : PointerEvent) => {
-            console.log(e);
+    @bind
+    _onSplitterReleased(event: PointerEvent) {
+
+        this.setState({
+            splitterIsDraged : false
+        })
+        this._splitterOverlay.removeEventListener("pointermove", this._onSplitterMove);
+        this._splitterOverlay.removeEventListener("pointercancel", this._onSplitterReleased);
+        this._splitterOverlay.removeEventListener("pointerout", this._onSplitterReleased);
+        this._splitterOverlay.removeEventListener("pointerup", this._onSplitterReleased);
+    }
+
+    @bind
+    _onSplitterMove(event: PointerEvent) {
+        const width = this._splitterOverlay.clientWidth;
+        const x = event.clientX;
+        const ammount = 100 * x / width;
+
+        this.setState({
+            splittingAmmount: ammount
         });
     }
 
@@ -274,7 +299,7 @@ export class Editor extends Component<IProps, IState>
                     onSaveClick={this._save} />
 
                 <div className="wrap-container">
-                    <div id="editor-wrapper" className="wrap-item" style={"width:" + state.editorView.splittingAmmount + "%"}>
+                    <div id="editor-wrapper" className="wrap-item" style={"width:" + state.splittingAmmount + "%"}>
                         <MonacoEditor
                             value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
                             options={{
@@ -285,12 +310,11 @@ export class Editor extends Component<IProps, IState>
                             editorDidMount={this.onEditorMount}
                         />
                     </div>
-                    <div id="results-wrapper" className="wrap-item" style={"width:" + (100 - state.editorView.splittingAmmount) + "%"}>
+                    <div id="results-wrapper" className="wrap-item" style={"width:" + (100 - state.splittingAmmount) + "%"}>
                         <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
                     </div>
-                    <div className="wrap-overlay"></div>
-                    <div className="wrap-splitter" ref={this.onSplitterMounded} style={"left:" + state.editorView.splittingAmmount + "%"}></div>
-
+                    <div className={"wrap-splitter " + (state.splitterIsDraged ? "active" : "") } ref={this.onSplitterMounded} style={"left:" + state.splittingAmmount + "%"}></div>
+                    <div className= { "wrap-overlay " +  (state.splitterIsDraged ? "active" : "") } ref={ ov => this._splitterOverlay = ov}></div>
                 </div>
             </div>
         );
