@@ -37,13 +37,13 @@ interface IState
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
     editorState : IEditorState;
-    spliterIsDragged : boolean;
+    splitterIsDragged : boolean;
 }
 
 
 export class Editor extends Component<IProps, IState>
 {
-     private _splitter: Element;
+    private _splitter: Element;
     private _splitterOverlay: Element;
     private _editorInstance: monaco.editor.IStandaloneCodeEditor;
     private _monacoRef: typeof monaco;
@@ -85,7 +85,7 @@ export class Editor extends Component<IProps, IState>
             editorState: {
                 splitAmount: 50
             },
-            spliterIsDragged : false,
+            splitterIsDragged : false,
         };
 
         this.loadEditorConfig();
@@ -213,7 +213,7 @@ export class Editor extends Component<IProps, IState>
     @bind
     _onSplitterDown(event: PointerEvent) {
         this.setState({
-            spliterIsDragged : true
+            splitterIsDragged : true
         });
 
         this._splitterOverlay.addEventListener("pointermove", this._onSplitterMove);
@@ -225,7 +225,7 @@ export class Editor extends Component<IProps, IState>
     @bind
     _onSplitterReleased(event: PointerEvent) {
         this.setState({
-            spliterIsDragged : false
+            splitterIsDragged : false
         });
 
         this._splitterOverlay.removeEventListener("pointermove", this._onSplitterMove);
@@ -340,11 +340,11 @@ export class Editor extends Component<IProps, IState>
                         <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
                     </div>
                     <div
-                        className={"wrap-splitter " + (state.spliterIsDragged ? "active" : "") }
+                        className={"wrap-splitter " + (state.splitterIsDragged ? "active" : "") }
                         ref={this.onSplitterMounded} style={"left:" + state.editorState.splitAmount + "%"}>
                     </div>
                     <div
-                        className={ "wrap-overlay " +  (state.spliterIsDragged ? "active" : "") }
+                        className={ "wrap-overlay " +  (state.splitterIsDragged ? "active" : "") }
                         ref={ ov => this._splitterOverlay = ov}>
                     </div>
                 </div>
