@@ -12,6 +12,9 @@ interface IProps
     onCloneClick?: () => void;
     onSaveClick?: () => void;
 }
+interface IState {
+    isEditorMode: boolean;
+}
 
 export class EditorTopBar extends Component<IProps, {}>
 {

@@ -5,6 +5,7 @@
 #editor-topbar {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     height: @topbar-height;
     background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%);
     z-index: 100;
@@ -57,6 +58,7 @@
     }
 }
 
+
 #editor-full-wrapper {
     position: relative;
     float: left;
@@ -73,6 +75,7 @@
     height: calc(100% - @topbar-height);
     border-right:1px solid #999;
 }
+
 
 #results-wrapper {
     position: relative;
@@ -136,5 +139,44 @@
             font-size: 20px;
             margin-right: 8px;
         }
+    }
+}
+
+
+.wrap {
+    @media (max-width: 540px) {
+        &.full {
+            width: 100% !important;
+        }
+        &.hide {
+            display: none;
+        }
+    }
+}
+
+
+.toggle-area {
+    flex-basis: 100%;
+    position: absolute;
+    display: none;
+    flex-direction: row-reverse;
+    width: auto;
+    height: auto;
+    bottom: 20px;
+    right: 4px;
+
+    @import url("./toggle.less");
+
+    span {
+        color: #fdd;
+        padding:6px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-size:15px;
+    }
+
+
+    @media (max-width: 540px) {
+        display: flex;
     }
 }
