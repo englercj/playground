@@ -12,6 +12,9 @@ interface IProps
     onCloneClick?: () => void;
     onSaveClick?: () => void;
 }
+interface IState {
+    isEditorMode: boolean;
+}
 
 export class EditorTopBar extends Component<IProps, {}>
 {
@@ -44,7 +47,7 @@ export class EditorTopBar extends Component<IProps, {}>
                         ) : ''
                     }
                     <button className={"btn" + (props.dirty ? " glow" : "")} onClick={this._onSaveClick}>
-                        <span className="fa fa-bookmark" aria-hidden="true" />
+                        <span className="fa fa-save" aria-hidden="true" />
                         <span className="label">Save</span>
                         <span className={props.saving ? "loading" : " hidden"} />
                     </button>

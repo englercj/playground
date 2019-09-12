@@ -10,42 +10,35 @@
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+    justify-content: center;
 
     /* Modal Content/Box */
     .modal-content {
-        position: absolute;
-        top: 70px;
-        left: 50%;
-        transform: scale(1) translateX(-50%);
-        width: 520px;
+        margin-top: 70px;
+        width: 100%;
+        max-width: 520px;
         height: 75vh;
-
         padding: 2px;
         border-radius: 4px;
-
         background-color: #fefefe;
 
         header {
             background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%);
             border-radius: 3px 3px 0 0;
             padding: 5px 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
 
             .title {
                 margin: 0;
                 padding: 2px;
-            }
-
-            .btn-group {
-                position:absolute;
-                top: 10px;
-                right: 30px;
+                flex: auto;
             }
 
             .close-btn {
-                position: absolute;
                 cursor: pointer;
-                top: 15px;
-                right: 10px;
+                margin: 0px 10px;
 
                 color: rgba(0, 0, 0, 0.6);
 
@@ -57,7 +50,6 @@
 
         .form-wrapper {
             height: calc(75vh - 47px);
-
             form {
                 height: 100%;
                 overflow-y: auto;

@@ -4,34 +4,57 @@
 
 #editor-topbar {
     position: relative;
+    display: flex;
+    flex-wrap: wrap;
     height: @topbar-height;
     background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%);
     z-index: 100;
     border-bottom:1px solid #999;
     box-sizing: border-box;
+
     .brand, .title {
         display:inline-block;
         font-size:16px;
         color: #333;
         line-height: @topbar-height;
+        flex: auto;
+    }
 
+    .brand {
+        font-weight:bold;
         .logo {
             vertical-align: bottom;
         }
     }
 
-    .brand {
-        font-weight:bold;
-    }
-
-    .title {
-        margin-left: 100px;
-    }
-
     .btn-group {
-        position:absolute;
-        top:3px;
-        right:1px;
+        margin:3px 2px;
+
+        .btn {
+            height: 100%;
+            width: auto;
+        }
+    }
+
+    @media (max-width: 540px) {
+        .btn-group{
+            .btn {
+                padding: 2px;
+                min-width: 50px;
+                text-align: center;
+                font-size: 1em;
+            }
+
+            .fa {
+                margin: 0;
+            }
+            .label {
+                display: none;
+            }
+        }
+        .brand span {
+            display: none;
+        }
     }
 }
 
@@ -94,6 +117,7 @@
     border-right:1px solid #999;
 }
 
+
 #results-wrapper {
     position: relative;
     float: left;
@@ -126,20 +150,17 @@
 #editor-loading-info {
     color: #fff;
     background: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
     ul {
         display: block;
-        width: @loading-info-width;
-        height: @loading-info-height;
-
         font-size: 2em;
         list-style: none;
-
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-top: unit(-(@loading-info-height / 2), px);
-        margin-left: unit(-(@loading-info-width / 2), px);
+        margin-left: -1em;
+        width: auto;
 
         li.loading {
             .spinner(20px, 1px);
@@ -158,5 +179,44 @@
             font-size: 20px;
             margin-right: 8px;
         }
+    }
+}
+
+
+.wrap {
+    @media (max-width: 540px) {
+        &.full {
+            width: 100% !important;
+        }
+        &.hide {
+            display: none;
+        }
+    }
+}
+
+
+.toggle-area {
+    flex-basis: 100%;
+    position: absolute;
+    display: none;
+    flex-direction: row-reverse;
+    width: auto;
+    height: auto;
+    bottom: 20px;
+    right: 4px;
+
+    @import url("./toggle.less");
+
+    span {
+        color: #fdd;
+        padding:6px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-size:15px;
+    }
+
+
+    @media (max-width: 540px) {
+        display: flex;
     }
 }
