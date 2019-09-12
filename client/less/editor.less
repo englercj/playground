@@ -94,10 +94,21 @@
 
     }
 
-    .wrap-item {
-        width: 100%;
+    .wrap {
         height: 100%;
-        flex: auto;
+    }
+
+    @media (max-width: 540px) {
+        .wrap.full {
+            width: 100% !important;
+        }
+        .wrap.hide {
+            display: none;
+        }
+
+        .wrap-splitter {
+            display: none;
+        }
     }
 }
 
@@ -181,19 +192,6 @@
         }
     }
 }
-
-
-.wrap {
-    @media (max-width: 540px) {
-        &.full {
-            width: 100% !important;
-        }
-        &.hide {
-            display: none;
-        }
-    }
-}
-
 
 .toggle-area {
     flex-basis: 100%;

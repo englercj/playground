@@ -329,33 +329,39 @@ export class Editor extends Component<IProps, IState>
                     onSettingsClick={this._showSettings}
                     onCloneClick={this._clone}
                     onSaveClick={this._save} />
-                <div id="editor-wrapper" className={"wrap " + (state.isEditor ? "full" : "hide")}>
-                    <MonacoEditor
-                        value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
-                        options={{
-                            theme: 'vs-dark',
-                            automaticLayout: true,
-                            fontSize: state.isMobile ? 10 : undefined,
-                            codeLens: !state.isMobile,
-                            readOnly: state.isMobile,
-                            minimap: {
-                                enabled : !state.isMobile
-                            }
-                        }}
-                        onChange={this.onEditorValueChange}
-                        editorDidMount={this.onEditorMount}
-                    />
+                <div className="wrap-container">
+                    <div id="editor-wrapper"
+                        style = {"width:" + (state.editorState.splitAmount) + "%"}
+                        className={"wrap " + (state.isEditor ? "full" : "hide")}>
+                        <MonacoEditor
+                            value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
+                            options={{
+                                theme: 'vs-dark',
+                                automaticLayout: true,
+                                fontSize: state.isMobile ? 10 : undefined,
+                                codeLens: !state.isMobile,
+                                readOnly: state.isMobile,
+                                minimap: {
+                                    enabled : !state.isMobile
+                                }
+                            }}
+                            onChange={this.onEditorValueChange}
+                            editorDidMount={this.onEditorMount}
+                        />
                     </div>
-                        ref={this.onSplitterMounded} style={"left:" + state.editorState.splitAmount + "%"}>
+                    <div id="results-wrapper"
+                        style = {"width:" + (100 - state.editorState.splitAmount) + "%"}
+                        className={"wrap " + (!state.isEditor ? "full" : "hide")} >
+                        <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
+                    </div>
+                    <div
+                        ref={ this.onSplitterMounded } style={"left:" + state.editorState.splitAmount + "%"}
                         className={"wrap-splitter " + (state.splitterIsDragged ? "active" : "") }
+                    />
                     <div
-                    </div>
-                        ref={ ov => this._splitterOverlay = ov}>
+                        ref={ ov => this._splitterOverlay = ov}
                         className={ "wrap-overlay " +  (state.splitterIsDragged ? "active" : "") }
-                    <div
-                </div>
-                <div id="results-wrapper" className={"wrap " + (!state.isEditor ? "full" : "hide")} >
-                    <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
+                    />
                 </div>
                 <div class="toggle-area">
                     <label class="switch">
@@ -407,7 +413,6 @@ export class Editor extends Component<IProps, IState>
     private _switchEditorMode(event : any)
     {
         const checked = event.target.checked;
-        if(!this.state.isMobile) return;
 
         this.setState({
             isEditor : checked
