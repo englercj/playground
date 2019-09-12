@@ -53,13 +53,13 @@ export class EditorSettingsDialog extends Component<IProps, IState>
     render(props: IProps, state: IState)
     {
         return (
-            <div id="settings-dialog" className="modal" style={props.visible ? "display: block" : "display: none"}>
+            <div id="settings-dialog" className="modal" style={props.visible ? "display: flex" : "display: none"}>
                 <div className="modal-content">
                     <header>
                         <h2 className="title">Playground Settings</h2>
                         <div className="btn-group">
                             <button id="settings-save" className="btn" onClick={this._onSaveClick}>
-                                <span className="fa fa-bookmark" aria-hidden="true" />
+                                <span className="fa fa-save" aria-hidden="true" />
                                 <span className="label">Save</span>
                             </button>
                         </div>

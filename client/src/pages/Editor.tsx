@@ -32,6 +32,8 @@ interface IState
     oldPixiVersion: string;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
+    isMobile: boolean;
+    isEditor: boolean;
 }
 
 export class Editor extends Component<IProps, IState>
@@ -52,6 +54,8 @@ export class Editor extends Component<IProps, IState>
         this._onChangeDelay = 1000;
         this._onChangeTimer = 0;
 
+        const isMobile = !!window.matchMedia("only screen and (max-width: 540px)").matches;
+
         this.state = {
             playgroundLoading: true,
             editorLoading: true,
@@ -71,6 +75,8 @@ export class Editor extends Component<IProps, IState>
                 timeout: 0,
                 show: false,
             },
+            isMobile: isMobile,
+            isEditor: false
         };
 
         this.loadPlayground();
@@ -218,7 +224,7 @@ export class Editor extends Component<IProps, IState>
                         {state.alert.msg}
                     </span>
                 </div>
-                <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoading() ? 'block' : 'none' }}>
+                <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoading() ? '' : 'none' }}>
                     <ul>
                         {this._renderLoadingInfoItem(state.playgroundLoading, 'Playground data')}
                         {this._renderLoadingInfoItem(state.editorLoading, 'Monaco editor')}
@@ -240,19 +246,32 @@ export class Editor extends Component<IProps, IState>
                     onSettingsClick={this._showSettings}
                     onCloneClick={this._clone}
                     onSaveClick={this._save} />
-                <div id="editor-wrapper">
+                <div id="editor-wrapper" className={"wrap " + (state.isEditor ? "full" : "hide")}>
                     <MonacoEditor
                         value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
                         options={{
                             theme: 'vs-dark',
                             automaticLayout: true,
+                            fontSize: state.isMobile ? 10 : undefined,
+                            codeLens: !state.isMobile,
+                            readOnly: state.isMobile,
+                            minimap: {
+                                enabled : !state.isMobile
+                            }
                         }}
                         onChange={this.onEditorValueChange}
                         editorDidMount={this.onEditorMount}
                     />
                 </div>
-                <div id="results-wrapper">
+                <div id="results-wrapper" className={"wrap " + (!state.isEditor ? "full" : "hide")} >
                     <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
+                </div>
+                <div class="toggle-area">
+                    <label class="switch">
+                        <input type="checkbox" checked={ state.isEditor } onChange={this._switchEditorMode}/>
+                        <span class="slider round"></span>
+                    </label>
+                    <span> {state.isEditor ? 'Editor': 'Preview' } </span>
                 </div>
             </div>
         );
@@ -291,6 +310,17 @@ export class Editor extends Component<IProps, IState>
             this.setState({ alert: { type: a.type, msg: a.msg, timeout: a.timeout, show: false } });
         }, alertShowTime);
         this.setState({ alert: { type, msg, timeout, show: true } });
+    }
+
+    @bind
+    private _switchEditorMode(event : any)
+    {
+        const checked = event.target.checked;
+        if(!this.state.isMobile) return;
+
+        this.setState({
+            isEditor : checked
+        });
     }
 
     @bind
