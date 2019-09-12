@@ -21,6 +21,10 @@ type TAlertType = 'success'|'info'|'warning'|'error';
 const alertShowTime = 4000;
 let activePixiTypings: monaco.IDisposable = null;
 
+interface IEditorState {
+    splitAmount: number;
+}
+
 interface IState
 {
     playgroundLoading: boolean;
@@ -32,22 +36,29 @@ interface IState
     oldPixiVersion: string;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
+    editorState : IEditorState;
+    splitterIsDragged : boolean;
     isMobile: boolean;
     isEditor: boolean;
 }
 
+
 export class Editor extends Component<IProps, IState>
 {
+    private _splitter: Element;
+    private _splitterOverlay: Element;
     private _editorInstance: monaco.editor.IStandaloneCodeEditor;
     private _monacoRef: typeof monaco;
     private _resultIFrame: HTMLIFrameElement;
     private _onChangeDelay: number;
     private _onChangeTimer: number;
+    private _onSaveTimer: number;
 
     constructor(props: IProps, context: any)
     {
         super(props, context);
 
+        this._splitter = null;
         this._editorInstance = null;
         this._monacoRef = null;
         this._resultIFrame = null;
@@ -75,11 +86,23 @@ export class Editor extends Component<IProps, IState>
                 timeout: 0,
                 show: false,
             },
+            editorState: {
+                splitAmount: 50
+            },
+            splitterIsDragged : false,
             isMobile: isMobile,
             isEditor: false
         };
 
+        this.loadEditorConfig();
+
         this.loadPlayground();
+    }
+
+    componentDidUpdate(props : IProps, state : IState) {
+
+        clearTimeout(this._onSaveTimer);
+        this._onSaveTimer = setTimeout( ()=> this.saveEditorConfig() , 300);
     }
 
     componentWillMount()
@@ -91,6 +114,9 @@ export class Editor extends Component<IProps, IState>
     componentWillUnmount()
     {
         window.removeEventListener('keydown', this._onKeydown);
+        if(this._splitter) {
+            this._splitter.removeEventListener('pointerdown', this._onSplitterDown);
+        }
         window.onbeforeunload = null;
     }
 
@@ -153,6 +179,23 @@ export class Editor extends Component<IProps, IState>
         activePixiTypings = jsDefaults.addExtraLib(typings, 'pixi.js.d.ts');
     }
 
+    loadEditorConfig() {
+        const data = JSON.parse(localStorage.getItem("editorState")) as IEditorState;
+
+        if(!data) {
+            return;
+        }
+
+        this.state.editorState.splitAmount = data.splitAmount || 50;
+    }
+
+    saveEditorConfig() {
+        const data = this.state.editorState;
+
+        localStorage.setItem("editorState" , JSON.stringify(data))
+
+    }
+
     @bind
     updateDemo()
     {
@@ -162,6 +205,46 @@ export class Editor extends Component<IProps, IState>
         }
 
         this._resultIFrame.contentWindow.location.reload();
+    }
+
+    @bind
+    onSplitterMounded(splitter: Element) {
+        if(!this._splitter){
+            this._splitter = splitter;
+        }
+
+        this._splitter.addEventListener("pointerdown",this._onSplitterDown);
+    }
+
+    @bind
+    _onSplitterDown(event: PointerEvent) {
+        this.setState({
+            splitterIsDragged : true
+        });
+
+        this._splitterOverlay.addEventListener("pointermove", this._onSplitterMove);
+        this._splitterOverlay.addEventListener("pointercancel", this._onSplitterReleased);
+        this._splitterOverlay.addEventListener("pointerout", this._onSplitterReleased);
+        this._splitterOverlay.addEventListener("pointerup", this._onSplitterReleased);
+    }
+
+    @bind
+    _onSplitterReleased(event: PointerEvent) {
+        this.setState({
+            splitterIsDragged : false
+        });
+
+        this._splitterOverlay.removeEventListener("pointermove", this._onSplitterMove);
+        this._splitterOverlay.removeEventListener("pointercancel", this._onSplitterReleased);
+        this._splitterOverlay.removeEventListener("pointerout", this._onSplitterReleased);
+        this._splitterOverlay.removeEventListener("pointerup", this._onSplitterReleased);
+    }
+
+    @bind
+    _onSplitterMove(event: PointerEvent) {
+        const width = this._splitterOverlay.clientWidth;
+        const x = event.clientX;
+        this.setState({ editorState : { splitAmount: 100 * x / width} });
     }
 
     @bind
@@ -246,25 +329,39 @@ export class Editor extends Component<IProps, IState>
                     onSettingsClick={this._showSettings}
                     onCloneClick={this._clone}
                     onSaveClick={this._save} />
-                <div id="editor-wrapper" className={"wrap " + (state.isEditor ? "full" : "hide")}>
-                    <MonacoEditor
-                        value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
-                        options={{
-                            theme: 'vs-dark',
-                            automaticLayout: true,
-                            fontSize: state.isMobile ? 10 : undefined,
-                            codeLens: !state.isMobile,
-                            readOnly: state.isMobile,
-                            minimap: {
-                                enabled : !state.isMobile
-                            }
-                        }}
-                        onChange={this.onEditorValueChange}
-                        editorDidMount={this.onEditorMount}
+                <div className="wrap-container">
+                    <div id="editor-wrapper"
+                        style = {"width:" + (state.editorState.splitAmount) + "%"}
+                        className={"wrap " + (state.isEditor ? "full" : "hide")}>
+                        <MonacoEditor
+                            value={state.data && state.data.contents ? state.data.contents : getDefaultPlayground() }
+                            options={{
+                                theme: 'vs-dark',
+                                automaticLayout: true,
+                                fontSize: state.isMobile ? 10 : undefined,
+                                codeLens: !state.isMobile,
+                                readOnly: state.isMobile,
+                                minimap: {
+                                    enabled : !state.isMobile
+                                }
+                            }}
+                            onChange={this.onEditorValueChange}
+                            editorDidMount={this.onEditorMount}
+                        />
+                    </div>
+                    <div id="results-wrapper"
+                        style = {"width:" + (100 - state.editorState.splitAmount) + "%"}
+                        className={"wrap " + (!state.isEditor ? "full" : "hide")} >
+                        <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
+                    </div>
+                    <div
+                        ref={ this.onSplitterMounded } style={"left:" + state.editorState.splitAmount + "%"}
+                        className={"wrap-splitter " + (state.splitterIsDragged ? "active" : "") }
                     />
-                </div>
-                <div id="results-wrapper" className={"wrap " + (!state.isEditor ? "full" : "hide")} >
-                    <iframe id="results-frame" src="results.html" ref={this.onResultIFrameMount} title="Playground Results" />
+                    <div
+                        ref={ ov => this._splitterOverlay = ov}
+                        className={ "wrap-overlay " +  (state.splitterIsDragged ? "active" : "") }
+                    />
                 </div>
                 <div class="toggle-area">
                     <label class="switch">
@@ -316,7 +413,6 @@ export class Editor extends Component<IProps, IState>
     private _switchEditorMode(event : any)
     {
         const checked = event.target.checked;
-        if(!this.state.isMobile) return;
 
         this.setState({
             isEditor : checked

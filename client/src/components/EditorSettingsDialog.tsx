@@ -135,30 +135,34 @@ export class EditorSettingsDialog extends Component<IProps, IState>
                                 </button>
                             </fieldset>
 
-                            <fieldset>
+                            <fieldset class = "stg-rows-group">
                                 <h4><label>Attributes</label></h4>
-
-                                <input
-                                    type="checkbox"
-                                    name="public"
-                                    id="settings-attr-public"
-                                    checked={state.data.isPublic}
-                                    onClick={this._onToggle}/>
-                                <label
-                                    for="settings-attr-public"
-                                    title="When checked this playground is publicly accessible."
-                                >Public</label>
-                                <br/>
-                                <input
-                                    type="checkbox"
-                                    name="autoUpdate"
-                                    id="settings-attr-autoUpdate"
-                                    checked={state.data.autoUpdate}
-                                    onClick={this._onToggle}/>
-                                <label
-                                    for="settings-attr-autoUpdate"
-                                    title="When checked the preview pane will automatically update when you make code changes."
-                                >Auto Update</label>
+                                <div class = "stg-row">
+                                    <input
+                                        type="checkbox"
+                                        name="public"
+                                        id="settings-attr-public"
+                                        checked={state.data.isPublic}
+                                        onClick={this._onToggle}/>
+                                    <label
+                                        for="settings-attr-public"
+                                        title="When checked this playground is publicly accessible.">
+                                            Public
+                                    </label>
+                                </div>
+                                <div class = "stg-row">
+                                    <input
+                                        type="checkbox"
+                                        name="autoUpdate"
+                                        id="settings-attr-autoUpdate"
+                                        checked={state.data.autoUpdate}
+                                        onClick={this._onToggle}/>
+                                    <label
+                                        for="settings-attr-autoUpdate"
+                                        title="When checked the preview pane will automatically update when you make code changes.">
+                                            Auto Update
+                                    </label>
+                                </div>
                             </fieldset>
                         </form>
                     </div>

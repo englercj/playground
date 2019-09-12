@@ -134,7 +134,7 @@
                         vertical-align: text-top;
                         width: 20px;
                         height: 20px;
-                        background: #eaeff0;
+                        background: #e72266;
                     }
 
                     // Box hover
@@ -145,11 +145,6 @@
                     // Box focus
                     &:focus + label::before {
                         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
-                    }
-
-                    // Box checked
-                    &:checked + label::before {
-                        background: #e72266;
                     }
 
                     // Disabled state label.
@@ -194,6 +189,12 @@
                     padding: 0 0 10px 0;
                     margin: 0;
                     border: none;
+                }
+
+                .stg-rows-group {
+                    .stg-row {
+                        margin-top: 4px;
+                    }
                 }
 
                 .radio-group {
