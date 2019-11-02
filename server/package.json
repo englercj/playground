@@ -50,7 +50,7 @@
     "reflect-metadata": "^0.1.12",
     "restify": "^7.2.1",
     "restify-cors-middleware": "^1.1.1",
-    "sequelize": "^4.38.0",
+    "sequelize": "^5.15.1",
     "sequelize-typescript": "^0.6.6",
     "nanoid": "^1.2.2",
     "umzug": "^2.1.0"
