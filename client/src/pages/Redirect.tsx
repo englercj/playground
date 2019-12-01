@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, Component, ComponentChild } from 'preact';
 import { route } from 'preact-router';
 
 interface IProps
@@ -13,7 +13,7 @@ export class Redirect extends Component<IProps, {}>
         route(this.props.to, true);
     }
 
-    render(): JSX.Element
+    render(): ComponentChild
     {
         return null;
     }

@@ -1,8 +1,7 @@
-import linkState from 'linkstate';
-import { h, Component, AnyComponent } from 'preact';
-import { bind } from 'decko';
+import { h, Component } from 'preact';
+import { JSXInternal } from 'preact/src/jsx';
 
-interface IRadioProps extends JSX.HTMLAttributes
+interface IRadioProps extends JSXInternal.HTMLAttributes
 {
 }
 

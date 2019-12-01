@@ -68,7 +68,7 @@ export class Editor extends Component<IProps, IState>
         const isMobile = !!window.matchMedia("only screen and (max-width: 540px)").matches;
 
         this.state = {
-            playgroundLoading: true,
+            playgroundLoading: !!this.props.slug,
             editorLoading: true,
             typingsLoading: true,
             saving: false,
@@ -96,13 +96,13 @@ export class Editor extends Component<IProps, IState>
 
         this.loadEditorConfig();
 
-        this.loadPlayground();
+        this._loadPlayground();
     }
 
     componentDidUpdate(props : IProps, state : IState) {
 
         clearTimeout(this._onSaveTimer);
-        this._onSaveTimer = setTimeout( ()=> this.saveEditorConfig() , 300);
+        this._onSaveTimer = window.setTimeout(()=> this.saveEditorConfig(), 300);
     }
 
     componentWillMount()
@@ -120,16 +120,14 @@ export class Editor extends Component<IProps, IState>
         window.onbeforeunload = null;
     }
 
-    loadPlayground()
+    private _loadPlayground()
     {
         if (!this.props.slug)
         {
-            this.setState({ playgroundLoading: false });
             this.onEditorValueChange(this._editorInstance ? this._editorInstance.getValue() : '');
         }
         else
         {
-            this.setState({ playgroundLoading: true });
             getPlayground(this.props.slug, (err, data) =>
             {
                 if (err)
@@ -291,7 +289,7 @@ export class Editor extends Component<IProps, IState>
         clearTimeout(this._onChangeTimer);
         if (this.state.data.autoUpdate)
         {
-            this._onChangeTimer = setTimeout(() =>
+            this._onChangeTimer = window.setTimeout(() =>
             {
                 this.updateDemo();
             }, this._onChangeDelay);
@@ -401,7 +399,7 @@ export class Editor extends Component<IProps, IState>
         if (this.state.alert)
             clearTimeout(this.state.alert.timeout);
 
-        const timeout = setTimeout(() =>
+        const timeout = window.setTimeout(() =>
         {
             const a = this.state.alert;
             this.setState({ alert: { type: a.type, msg: a.msg, timeout: a.timeout, show: false } });

@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, Component, ComponentChild } from 'preact';
 import { getQueryParam } from '../util/queryUtils';
 import { searchPlaygrounds } from '../service';
 import { TopBar } from '../components/TopBar';
@@ -51,7 +51,7 @@ export class Search extends Component<IPageProps, IState>
 
     render()
     {
-        let view: JSX.Element;
+        let view: ComponentChild;
 
         if (this.state.loading)
         {
