@@ -163,7 +163,7 @@ export function setupRoutes(app: restify.Server)
                 })
                 .then((value) =>
                 {
-                    return Playground.findById(
+                    return Playground.findByPk(
                         value.id,
                         {
                             include: [Tag, ExternalJs],
@@ -218,7 +218,7 @@ export function setupRoutes(app: restify.Server)
 
         db.transaction((t) =>
         {
-            return Playground.findById(id, { transaction: t })
+            return Playground.findByPk(id, { transaction: t })
                 .then((value) =>
                 {
                     if (!value)
@@ -271,7 +271,7 @@ export function setupRoutes(app: restify.Server)
                 })
                 .then((value) =>
                 {
-                    return Playground.findById(
+                    return Playground.findByPk(
                         value.id,
                         {
                             include: [Tag, ExternalJs],

@@ -1,7 +1,7 @@
-import nanoid = require('nanoid');
 import { QueryInterface, DataTypes } from 'sequelize';
 
-export function up(query: QueryInterface, DataTypes: DataTypes) {
+export function up(query: QueryInterface)
+{
     return query.createTable('playgrounds', {
         id: {
             type: DataTypes.INTEGER,
@@ -19,7 +19,7 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
             type: DataTypes.STRING(511),
         },
         contents: {
-            type: DataTypes.TEXT('medium'),
+            type: DataTypes.TEXT({ length: 'medium' }),
             allowNull: false,
         },
         author: {
@@ -141,7 +141,8 @@ export function up(query: QueryInterface, DataTypes: DataTypes) {
     }));
 }
 
-export function down(query: QueryInterface) {
+export function down(query: QueryInterface)
+{
     return query.dropTable('playground_tags')
         .then(() => query.dropTable('tags'))
         .then(() => query.dropTable('playgrounds'));

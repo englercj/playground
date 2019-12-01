@@ -17,7 +17,7 @@ const umzug = new Umzug({
     migrations: {
         path: path.join(__dirname, 'migrations'),
         pattern: /^\d+[\w-]+\.(j|t)s$/,
-        params: [db.getQueryInterface(), db.constructor],
+        params: [db.getQueryInterface()],
     },
 });
 

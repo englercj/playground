@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 import * as corsMiddleware from 'restify-cors-middleware';
-import { ISequelizeConfig } from 'sequelize-typescript';
+import { SequelizeOptions } from 'sequelize-typescript';
 
 export const env = process.env.NODE_ENV || 'development';
 
@@ -23,8 +23,7 @@ export const cors: corsMiddleware.Options = {
     exposeHeaders: [],
 };
 
-export const db: ISequelizeConfig = {
-    operatorsAliases: false,
+export const db: SequelizeOptions = {
     host: process.env.DB_HOSTNAME || 'localhost',
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
     username: process.env.DB_USERNAME || 'playground',

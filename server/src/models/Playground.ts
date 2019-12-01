@@ -1,5 +1,5 @@
 import nanoid = require('nanoid');
-import { literal } from 'sequelize';
+import { Literal } from 'sequelize/types/lib/utils';
 import { Sequelize } from 'sequelize-typescript';
 import { Table, Column, Model, CreatedAt, UpdatedAt, DataType, BelongsToMany, HasMany } from 'sequelize-typescript';
 import { db as dbConfig } from '../config';
@@ -10,7 +10,7 @@ import { Tag } from './Tag';
 import { PlaygroundTag } from './PlaygroundTag';
 import { ExternalJs } from './ExternalJs';
 
-const searchQuery: { [dialect: string]: literal } = {
+const searchQuery: { [dialect: string]: Literal } = {
     postgres: Sequelize.literal('"PlaygroundSearchText" @@ plainto_tsquery(\'english\', :search)'),
     sqlite: Sequelize.literal('(name LIKE :search) OR (description LIKE :search) OR (author LIKE :search)'),
     mysql: Sequelize.literal('MATCH (name, description, author) AGAINST(:search)'),
@@ -65,7 +65,7 @@ export class Playground extends Model<Playground> implements IPlayground
      *
      */
     @Column({
-        type: DataType.TEXT('medium'),
+        type: DataType.TEXT({ length: 'medium' }),
         allowNull: false,
     })
     contents: string;

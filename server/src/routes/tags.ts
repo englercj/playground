@@ -80,7 +80,7 @@ export function setupRoutes(app: restify.Server)
         const { id } = req.params;
         const logState: any = { params: { id } };
 
-        Tag.findById(id)
+        Tag.findByPk(id)
             .then((value) =>
             {
                 if (!value)
@@ -184,7 +184,7 @@ export function setupRoutes(app: restify.Server)
 
         db.transaction((t)=>
         {
-            return Tag.findById(id, { transaction: t })
+            return Tag.findByPk(id, { transaction: t })
                 .then((value) =>
                 {
                     return value.update({ name }, { transaction: t });
