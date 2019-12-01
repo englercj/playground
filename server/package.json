@@ -53,8 +53,5 @@
     "sequelize-typescript": "^1.0.0",
     "nanoid": "^2.1.7",
     "umzug": "^2.2.0"
-  },
-  "engines": {
-    "node": "^10.9.0"
   }
 }
