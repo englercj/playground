@@ -1,6 +1,6 @@
 {
   "name": "@pixi/playground-server",
-  "version": "1.0.0",
+  "version": "1.5.2",
   "description": "Server application for the pixi playground.",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",

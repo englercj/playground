@@ -1,6 +1,6 @@
 {
   "name": "@pixi/playground-client",
-  "version": "1.0.0",
+  "version": "1.5.2",
   "description": "Playground for exploring pixi code.",
   "author": "Chad Engler <chad@pantherdev.com>",
   "license": "MIT",
