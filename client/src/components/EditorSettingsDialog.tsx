@@ -45,8 +45,7 @@ export class EditorSettingsDialog extends Component<IProps, IState>
 
     updatePlaygroundData(data: IPlayground)
     {
-        let versionType = getPixiVersionType(data.pixiVersion);
-
+        const versionType = getPixiVersionType(data.pixiVersion);
         this.setState({ data, versionType });
     }
 

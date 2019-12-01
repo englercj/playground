@@ -27,9 +27,7 @@ interface IEditorState {
 
 interface IState
 {
-    playgroundLoading: boolean;
-    editorLoading: boolean;
-    typingsLoading: boolean;
+    loadingFlags: number;
     saving: boolean;
     showSettings: boolean;
     dirty: boolean;
@@ -42,17 +40,26 @@ interface IState
     isEditor: boolean;
 }
 
+enum LoadingFlag
+{
+    Playground  = (1 << 0),
+    Editor      = (1 << 1),
+    Typings     = (1 << 2),
+
+    All = Playground | Editor | Typings,
+}
 
 export class Editor extends Component<IProps, IState>
 {
     private _splitter: Element;
     private _splitterOverlay: Element;
     private _editorInstance: monaco.editor.IStandaloneCodeEditor;
-    private _monacoRef: typeof monaco;
+    private _dialogInstance: EditorSettingsDialog;
     private _resultIFrame: HTMLIFrameElement;
     private _onChangeDelay: number;
     private _onChangeTimer: number;
     private _onSaveTimer: number;
+    private _loadingFlags: number;
 
     constructor(props: IProps, context: any)
     {
@@ -60,17 +67,19 @@ export class Editor extends Component<IProps, IState>
 
         this._splitter = null;
         this._editorInstance = null;
-        this._monacoRef = null;
         this._resultIFrame = null;
         this._onChangeDelay = 1000;
         this._onChangeTimer = 0;
 
         const isMobile = !!window.matchMedia("only screen and (max-width: 540px)").matches;
 
+        this._loadingFlags = LoadingFlag.All;
+
+        if (!this.props.slug)
+            this._loadingFlags &= ~LoadingFlag.Playground;
+
         this.state = {
-            playgroundLoading: !!this.props.slug,
-            editorLoading: true,
-            typingsLoading: true,
+            loadingFlags: this._loadingFlags,
             saving: false,
             showSettings: false,
             dirty: true,
@@ -96,7 +105,22 @@ export class Editor extends Component<IProps, IState>
 
         this.loadEditorConfig();
 
-        this._loadPlayground();
+        this.loadPlayground();
+    }
+
+    setLoading(flag: LoadingFlag, loading: boolean): void
+    {
+        if (loading)
+            this._loadingFlags |= flag;
+        else
+            this._loadingFlags &= ~flag;
+
+        this.setState({ loadingFlags: this._loadingFlags });
+    }
+
+    isLoading(flag: LoadingFlag): boolean
+    {
+        return (this._loadingFlags & flag) === flag;
     }
 
     componentDidUpdate(props : IProps, state : IState) {
@@ -120,7 +144,7 @@ export class Editor extends Component<IProps, IState>
         window.onbeforeunload = null;
     }
 
-    private _loadPlayground()
+    loadPlayground()
     {
         if (!this.props.slug)
         {
@@ -132,14 +156,18 @@ export class Editor extends Component<IProps, IState>
             {
                 if (err)
                 {
-                    this.setState({ playgroundLoading: false });
+                    this.setLoading(LoadingFlag.Playground, false);
                     route(`/edit`);
                     this._showAlert('error', err.message);
                 }
                 else
                 {
-                    this.setState({ playgroundLoading: false, data });
+                    this.setLoading(LoadingFlag.Playground, false);
+                    this.setState({ data });
                 }
+
+                if (this._dialogInstance)
+                    this._dialogInstance.updatePlaygroundData(data);
 
                 this.onEditorValueChange(
                     data.contents || (this._editorInstance ? this._editorInstance.getValue() : '')
@@ -152,7 +180,7 @@ export class Editor extends Component<IProps, IState>
     {
         const version = this.state.data.pixiVersion;
 
-        this.setState({ typingsLoading: true });
+        this.setLoading(LoadingFlag.Typings, true);
         getTypings(version, (typings) =>
         {
             if (typings)
@@ -160,7 +188,7 @@ export class Editor extends Component<IProps, IState>
                 this.enableTypings(typings);
             }
 
-            this.setState({ typingsLoading: false });
+            this.setLoading(LoadingFlag.Typings, false);
             this.onEditorValueChange(this._editorInstance.getValue());
         });
     }
@@ -172,7 +200,7 @@ export class Editor extends Component<IProps, IState>
             activePixiTypings.dispose();
         }
 
-        const jsDefaults = this._monacoRef.languages.typescript.javascriptDefaults;
+        const jsDefaults = monaco.languages.typescript.javascriptDefaults;
 
         activePixiTypings = jsDefaults.addExtraLib(typings, 'pixi.js.d.ts');
     }
@@ -180,9 +208,8 @@ export class Editor extends Component<IProps, IState>
     loadEditorConfig() {
         const data = JSON.parse(localStorage.getItem("editorState")) as IEditorState;
 
-        if(!data) {
+        if (!data)
             return;
-        }
 
         this.state.editorState.splitAmount = data.splitAmount || 50;
     }
@@ -197,7 +224,7 @@ export class Editor extends Component<IProps, IState>
     @bind
     updateDemo()
     {
-        if (this._isLoading() || !this._resultIFrame || !this._resultIFrame.contentWindow)
+        if (this._isLoadingAny() || !this._resultIFrame || !this._resultIFrame.contentWindow)
         {
             return;
         }
@@ -248,6 +275,7 @@ export class Editor extends Component<IProps, IState>
     @bind
     onSettingsMount(dialog: EditorSettingsDialog)
     {
+        this._dialogInstance = dialog;
         dialog.updatePlaygroundData(this.state.data);
     }
 
@@ -255,11 +283,10 @@ export class Editor extends Component<IProps, IState>
     onEditorMount(editor: monaco.editor.IStandaloneCodeEditor, monacoRef: typeof monaco)
     {
         this._editorInstance = editor;
-        this._monacoRef = monaco;
 
         this.loadTypings();
 
-        this.setState({ editorLoading: false });
+        this.setLoading(LoadingFlag.Editor, false);
         this.onEditorValueChange(editor.getValue());
     }
 
@@ -279,7 +306,7 @@ export class Editor extends Component<IProps, IState>
     @bind
     onEditorValueChange(newValue: string)
     {
-        if (this._isLoading())
+        if (this._isLoadingAny())
             return;
 
         this.state.data.contents = newValue;
@@ -305,11 +332,11 @@ export class Editor extends Component<IProps, IState>
                         {state.alert.msg}
                     </span>
                 </div>
-                <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoading() ? '' : 'none' }}>
+                <div id="editor-loading-info" className="fullscreen" style={{ display: this._isLoadingAny() ? '' : 'none' }}>
                     <ul>
-                        {this._renderLoadingInfoItem(state.playgroundLoading, 'Playground data')}
-                        {this._renderLoadingInfoItem(state.editorLoading, 'Monaco editor')}
-                        {this._renderLoadingInfoItem(state.typingsLoading, 'PixiJS types')}
+                        {this._renderLoadingInfoItem(this.isLoading(LoadingFlag.Playground), 'Playground data')}
+                        {this._renderLoadingInfoItem(this.isLoading(LoadingFlag.Editor), 'Monaco editor')}
+                        {this._renderLoadingInfoItem(this.isLoading(LoadingFlag.Typings), 'PixiJS types')}
                     </ul>
                 </div>
                 <EditorSettingsDialog
@@ -389,9 +416,9 @@ export class Editor extends Component<IProps, IState>
         return
     }
 
-    private _isLoading()
+    private _isLoadingAny()
     {
-        return this.state.playgroundLoading || this.state.editorLoading || this.state.typingsLoading;
+        return (this._loadingFlags & LoadingFlag.All) !== 0;
     }
 
     private _showAlert(type: TAlertType, msg: string)
