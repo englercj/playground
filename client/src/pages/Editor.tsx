@@ -21,7 +21,8 @@ type TAlertType = 'success'|'info'|'warning'|'error';
 const alertShowTime = 4000;
 let activePixiTypings: monaco.IDisposable = null;
 
-interface IEditorState {
+interface IEditorState
+{
     splitAmount: number;
 }
 
@@ -34,8 +35,8 @@ interface IState
     oldPixiVersion: string;
     data: IPlayground;
     alert: { type: TAlertType, msg: string, timeout: number, show: boolean };
-    editorState : IEditorState;
-    splitterIsDragged : boolean;
+    editorState: IEditorState;
+    splitterIsDragged: boolean;
     isMobile: boolean;
     isEditor: boolean;
 }
@@ -98,7 +99,7 @@ export class Editor extends Component<IProps, IState>
             editorState: {
                 splitAmount: 50
             },
-            splitterIsDragged : false,
+            splitterIsDragged: false,
             isMobile: isMobile,
             isEditor: false
         };
@@ -123,8 +124,8 @@ export class Editor extends Component<IProps, IState>
         return (this._loadingFlags & flag) === flag;
     }
 
-    componentDidUpdate(props : IProps, state : IState) {
-
+    componentDidUpdate(props: IProps, state: IState)
+    {
         clearTimeout(this._onSaveTimer);
         this._onSaveTimer = window.setTimeout(()=> this.saveEditorConfig(), 300);
     }
@@ -138,9 +139,10 @@ export class Editor extends Component<IProps, IState>
     componentWillUnmount()
     {
         window.removeEventListener('keydown', this._onKeydown);
-        if(this._splitter) {
+
+        if (this._splitter)
             this._splitter.removeEventListener('pointerdown', this._onSplitterDown);
-        }
+
         window.onbeforeunload = null;
     }
 
@@ -184,9 +186,7 @@ export class Editor extends Component<IProps, IState>
         getTypings(version, (typings) =>
         {
             if (typings)
-            {
                 this.enableTypings(typings);
-            }
 
             this.setLoading(LoadingFlag.Typings, false);
             this.onEditorValueChange(this._editorInstance.getValue());
@@ -196,16 +196,15 @@ export class Editor extends Component<IProps, IState>
     enableTypings(typings: string)
     {
         if (activePixiTypings)
-        {
             activePixiTypings.dispose();
-        }
 
         const jsDefaults = monaco.languages.typescript.javascriptDefaults;
 
         activePixiTypings = jsDefaults.addExtraLib(typings, 'pixi.js.d.ts');
     }
 
-    loadEditorConfig() {
+    loadEditorConfig()
+    {
         const data = JSON.parse(localStorage.getItem("editorState")) as IEditorState;
 
         if (!data)
@@ -214,37 +213,35 @@ export class Editor extends Component<IProps, IState>
         this.state.editorState.splitAmount = data.splitAmount || 50;
     }
 
-    saveEditorConfig() {
+    saveEditorConfig()
+    {
         const data = this.state.editorState;
-
         localStorage.setItem("editorState" , JSON.stringify(data))
-
     }
 
     @bind
     updateDemo()
     {
         if (this._isLoadingAny() || !this._resultIFrame || !this._resultIFrame.contentWindow)
-        {
             return;
-        }
 
         this._resultIFrame.contentWindow.location.reload();
     }
 
     @bind
-    onSplitterMounded(splitter: Element) {
-        if(!this._splitter){
+    onSplitterMounded(splitter: Element)
+    {
+        if (!this._splitter)
             this._splitter = splitter;
-        }
 
         this._splitter.addEventListener("pointerdown",this._onSplitterDown);
     }
 
     @bind
-    _onSplitterDown(event: PointerEvent) {
+    _onSplitterDown(event: PointerEvent)
+    {
         this.setState({
-            splitterIsDragged : true
+            splitterIsDragged: true
         });
 
         this._splitterOverlay.addEventListener("pointermove", this._onSplitterMove);
@@ -254,9 +251,10 @@ export class Editor extends Component<IProps, IState>
     }
 
     @bind
-    _onSplitterReleased(event: PointerEvent) {
+    _onSplitterReleased(event: PointerEvent)
+    {
         this.setState({
-            splitterIsDragged : false
+            splitterIsDragged: false
         });
 
         this._splitterOverlay.removeEventListener("pointermove", this._onSplitterMove);
@@ -266,10 +264,11 @@ export class Editor extends Component<IProps, IState>
     }
 
     @bind
-    _onSplitterMove(event: PointerEvent) {
+    _onSplitterMove(event: PointerEvent)
+    {
         const width = this._splitterOverlay.clientWidth;
         const x = event.clientX;
-        this.setState({ editorState : { splitAmount: 100 * x / width} });
+        this.setState({ editorState: { splitAmount: 100 * x / width} });
     }
 
     @bind
@@ -294,9 +293,7 @@ export class Editor extends Component<IProps, IState>
     onResultIFrameMount(iframe: HTMLIFrameElement)
     {
         if (this._resultIFrame)
-        {
             this._resultIFrame.removeEventListener('load', this._onResultIFrameLoaded, false);
-        }
 
         this._resultIFrame = iframe;
 
@@ -367,7 +364,7 @@ export class Editor extends Component<IProps, IState>
                                 codeLens: !state.isMobile,
                                 readOnly: state.isMobile,
                                 minimap: {
-                                    enabled : !state.isMobile
+                                    enabled: !state.isMobile
                                 }
                             }}
                             onChange={this.onEditorValueChange}
@@ -411,11 +408,6 @@ export class Editor extends Component<IProps, IState>
         );
     }
 
-    private _renderSettingsDialog(state: IState)
-    {
-        return
-    }
-
     private _isLoadingAny()
     {
         return (this._loadingFlags & LoadingFlag.All) !== 0;
@@ -431,16 +423,17 @@ export class Editor extends Component<IProps, IState>
             const a = this.state.alert;
             this.setState({ alert: { type: a.type, msg: a.msg, timeout: a.timeout, show: false } });
         }, alertShowTime);
+
         this.setState({ alert: { type, msg, timeout, show: true } });
     }
 
     @bind
-    private _switchEditorMode(event : any)
+    private _switchEditorMode(event: any)
     {
         const checked = event.target.checked;
 
         this.setState({
-            isEditor : checked
+            isEditor: checked
         });
     }
 
