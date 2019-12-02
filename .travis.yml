@@ -1,6 +1,10 @@
+sudo: false
+
 language: node_js
+
 node_js:
-    - "8"
+  - '10'
+  - '12'
 
 env:
   - TEST_DIR=client
@@ -10,6 +14,12 @@ cache:
   directories:
     - $TEST_DIR/node_modules
 
-before_install: cd $TEST_DIR
-install: npm install
-script: npm run build && npm test
+before_install:
+  - cd $TEST_DIR
+
+install:
+  - npm install
+
+script:
+  - npm run build
+  - npm test
